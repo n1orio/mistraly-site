@@ -273,7 +273,7 @@ export default function AboutPage() {
                 <div className="bg-[#12181F] border border-white/5 rounded-[32px] p-8 shadow-2xl text-left">
                   <h3 className="text-3xl font-bold font-sf mb-3">Информация</h3>
                   <p className="text-zinc-300 text-base leading-relaxed font-medium">
-                    Breeze — это площадка для реализации ваших идей в ванильном мире.
+                    Breeze — это площадка для реализации ваших идей в ванильном мире./
                   </p>
                 </div>
               </motion.div>
