@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react"
 import Image from "next/image"
 
 export default function ProfilePage() {
+  // Правильно: извлекаем `data` и `status`
   const {   status } = useSession()
 
   if (status === "loading") {
@@ -16,6 +17,7 @@ export default function ProfilePage() {
     )
   }
 
+  // Используем `data`, а не `session`
   if (!data?.user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#080B0E] text-white">
