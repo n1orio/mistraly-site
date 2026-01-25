@@ -44,13 +44,13 @@ export default function SleekHero() {
   }
 
   return (
-    <div className="relative w-full min-h-[calc(100vh-72px)] bg-[#080B0E] text-white selection:bg-[#0099ff] selection:text-white flex flex-col font-sans overflow-hidden">
+    <div className="relative w-full min-h-[calc(100dvh-72px)] bg-[#080B0E] text-white selection:bg-[#0099ff] selection:text-white flex flex-col font-sans overflow-hidden">
       
       {/* --- ФОН --- */}
       <div className="absolute inset-0 z-0">
         <motion.div 
           style={{ x: lightX, y: lightY }}
-          className="absolute w-[1000px] h-[1000px] -translate-x-1/2 -translate-y-1/2 bg-[#0099ff]/10 rounded-full blur-[140px] pointer-events-none z-10"
+          className="absolute w-[800px] h-[800px] -translate-x-1/2 -translate-y-1/2 bg-[#0099ff]/10 rounded-full blur-[120px] pointer-events-none z-10"
         />
 
         {particles.map((p) => (
@@ -74,9 +74,9 @@ export default function SleekHero() {
         ))}
 
         <div 
-          className="absolute inset-0 opacity-[0.2]" 
+          className="absolute inset-0 opacity-[0.15]" 
           style={{
-            backgroundImage: `radial-gradient(circle at 2px 2px, rgba(0, 153, 255, 0.3) 1px, transparent 0)`,
+            backgroundImage: `radial-gradient(circle at 2px 2px, rgba(0, 153, 255, 0.25) 1px, transparent 0)`,
             backgroundSize: '40px 40px',
             maskImage: 'radial-gradient(circle at center, black 40%, transparent 90%)',
             WebkitMaskImage: 'radial-gradient(circle at center, black 40%, transparent 90%)'
@@ -86,51 +86,51 @@ export default function SleekHero() {
       </div>
 
       {/* --- КОНТЕНТ --- */}
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-start px-6 pt-32 pb-20 text-center">
-        
-        <div className="max-w-7xl"> 
-          {/* ЗАГОЛОВОК:leading исправлен на 0.9 */}
-          <h1 className="font-sf text-6xl md:text-[90px] font-bold tracking-[-0.05em] leading-[0.9] mb-4">
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-start px-4 sm:px-6 pt-24 pb-16 text-center">
+        <div className="max-w-4xl w-full"> 
+          {/* Адаптивный заголовок */}
+          <h1 className="font-sf text-4xl sm:text-5xl md:text-6xl lg:text-[90px] font-bold tracking-[-0.04em] leading-[1.05] sm:leading-[0.95] md:leading-[0.9] mb-3 sm:mb-4">
             Творим контент <br />
-            <span className="relative inline-block whitespace-nowrap px-4">
-                {/* Синий фон подстроен под стандарт 72%/12% */}
-                <span className="absolute inset-x-0 bottom-[12%] h-[72%] bg-[#0099ff] -z-10 rounded-lg shadow-[0_0_50px_rgba(0,153,255,0.35)]"></span>
-                <span className="relative z-10 text-white tracking-tighter">По настоящему</span>
+            <span className="relative inline-block whitespace-nowrap px-2 sm:px-4">
+              <span className="absolute inset-x-0 bottom-[12%] h-[72%] bg-[#0099ff] -z-10 rounded-lg shadow-[0_0_40px_rgba(0,153,255,0.3)]"></span>
+              <span className="relative z-10 text-white tracking-tighter">По настоящему</span>
             </span>
           </h1>
-          <h1 className="font-sf text-6xl md:text-[90px] font-bold tracking-[-0.05em] leading-[0.9]">
+          <h1 className="font-sf text-4xl sm:text-5xl md:text-6xl lg:text-[90px] font-bold tracking-[-0.04em] leading-[1.05] sm:leading-[0.95] md:leading-[0.9] mt-1">
             уникально
           </h1>
 
-          <p className="mt-8 text-zinc-400 text-base md:text-[18px] max-w-2xl mx-auto leading-relaxed font-medium opacity-80">
-            Выживайте, создавайте уникальное и играйте в удовольствие. <br />
+          <p className="mt-5 sm:mt-6 text-zinc-400 text-sm sm:text-base md:text-[18px] max-w-xl sm:max-w-2xl mx-auto leading-relaxed font-medium opacity-80 px-1">
+            Выживайте, создавайте уникальное и играйте в удовольствие. <br className="hidden sm:inline" />
             Без приватов, привилегий и лишних плагинов.
           </p>
         </div>
 
-        {/* КНОПКИ: приведены к стилю h-14 w-64 */}
-        <div className="mt-12 flex flex-col md:flex-row items-center gap-4 z-10">
-            <Button className="h-14 w-64 text-lg bg-[#0099ff] hover:bg-white hover:text-black font-bold rounded-xl transition-all duration-300 shadow-[0_15px_30px_rgba(0,153,255,0.2)] active:scale-95">
-                <ShoppingCart className="mr-2 h-5 w-5" />
-                Купить доступ
-            </Button>
+        {/* КНОПКИ */}
+        <div className="mt-8 sm:mt-10 flex flex-col items-center gap-3 sm:gap-4 w-full max-w-md z-10">
+          <Button 
+            className="h-12 sm:h-14 w-full max-w-xs sm:max-w-none text-base sm:text-lg bg-[#0099ff] hover:bg-white hover:text-black font-bold rounded-xl transition-all duration-300 shadow-[0_10px_25px_rgba(0,153,255,0.2)] active:scale-95"
+          >
+            <ShoppingCart className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+            Купить доступ
+          </Button>
 
-            <div 
-                onClick={handleCopy}
-                className="group flex items-center justify-between w-64 bg-white/[0.03] backdrop-blur-xl border border-white/10 p-1 pl-6 rounded-xl hover:bg-white/[0.08] hover:border-[#0099ff]/50 transition-all cursor-pointer active:scale-95 select-none h-14"
-            >
-                <div className="flex flex-col items-start leading-tight">
-                    <span className="text-[9px] text-zinc-500 uppercase tracking-[0.2em] font-black">
-                        {copied ? "Скопировано!" : "IP Адрес сервера"}
-                    </span>
-                    <span className={`font-mono font-bold text-[15px] tracking-wide transition-colors ${copied ? "text-green-500" : "text-white group-hover:text-[#0099ff]"}`}>
-                        play.breeze.monster
-                    </span>
-                </div>
-                <div className="flex items-center justify-center w-12 h-12 text-zinc-400 group-hover:text-white transition-colors">
-                    {copied ? <Check className="h-5 w-5 text-green-500" /> : <Copy className="h-5 w-5" />}
-                </div>
+          <div 
+            onClick={handleCopy}
+            className="group flex items-center justify-between w-full max-w-xs sm:max-w-none bg-white/[0.03] backdrop-blur-xl border border-white/10 p-1 pl-4 sm:pl-6 rounded-xl hover:bg-white/[0.08] hover:border-[#0099ff]/50 transition-all cursor-pointer active:scale-95 select-none h-12 sm:h-14"
+          >
+            <div className="flex flex-col items-start leading-tight">
+              <span className="text-[8px] sm:text-[9px] text-zinc-500 uppercase tracking-[0.2em] font-black">
+                {copied ? "Скопировано!" : "IP Адрес сервера"}
+              </span>
+              <span className={`font-mono font-bold text-[13px] sm:text-[15px] tracking-wide transition-colors ${copied ? "text-green-500" : "text-white group-hover:text-[#0099ff]"}`}>
+                play.breeze.monster
+              </span>
             </div>
+            <div className="flex items-center justify-center w-10 sm:w-12 h-10 sm:h-12 text-zinc-400 group-hover:text-white transition-colors">
+              {copied ? <Check className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" /> : <Copy className="h-4 w-4 sm:h-5 sm:w-5" />}
+            </div>
+          </div>
         </div>
       </main>
     </div>
