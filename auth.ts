@@ -1,27 +1,46 @@
-// auth.ts
-import NextAuth from "next-auth"
-import Discord from "next-auth/providers/discord"
+// lib/auth.ts
+import { PrismaAdapter } from "@auth/prisma-adapter"
+import { NextAuthOptions } from "next-auth"
+import DiscordProvider from "next-auth/providers/discord"
+import { PrismaClient } from "@prisma/client"
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+const prisma = new PrismaClient()
+
+export const authOptions: NextAuthOptions = {
+  adapter: PrismaAdapter(prisma),
   providers: [
-    Discord({
-      clientId: process.env.DISCORD_CLIENT_ID,
-      clientSecret: process.env.DISCORD_CLIENT_SECRET,
+    DiscordProvider({
+      clientId: process.env.DISCORD_CLIENT_ID!,
+      clientSecret: process.env.DISCORD_CLIENT_SECRET!,
     }),
   ],
   callbacks: {
-    // Эта функция вызывается при каждой проверке сессии
-    async session({ session, token }) {
-      // Имитируем получение данных из базы данных
-      // В будущем тут будет запрос к твоей БД (например через Prisma или Bun:sqlite)
-      if (session.user) {
-        // Добавляем кастомные поля в объект пользователя
-        // @ts-ignore (пока не настроены типы в d.ts)
-        session.user.hasPass = true; // Куплена ли проходка
-        // @ts-ignore
-        session.user.minecraftNick = "Evor"; // Ник игрока
-      }
+    async session({ session, user }) {
+      // Передаём ID и доп. поля в сессию
+      session.user.id = user.id
+      session.user.discordId = user.discordId
+      session.user.minecraftNick = user.minecraftNick
+      session.user.hasPass = user.hasPass
       return session
     },
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id
+        token.discordId = user.discordId
+      }
+      return token
+    },
   },
-})
+  pages: {
+    signIn: "/",
+  },
+  session: {
+    strategy: "database",
+  },
+}
+
+import NextAuth from "next-auth"
+
+const handler = NextAuth(authOptions)
+
+export { handler as GET, handler as POST }
