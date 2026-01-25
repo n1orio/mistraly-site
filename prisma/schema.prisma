@@ -1,8 +1,13 @@
 // prisma/schema.prisma
 
 datasource db {
+<<<<<<< HEAD
   provider = "sqlite"
   url      = "file:./dev.db"
+=======
+  provider = "sqlite" 
+  url      = env("DATABASE_URL")
+>>>>>>> parent of e6b5a61 (Update schema.prisma)
 }
 
 
