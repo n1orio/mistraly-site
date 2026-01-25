@@ -6,7 +6,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
 export default function ProfilePage() {
-  const {  session, status } = useSession()
+  const { data: session, status } = useSession()
 
   if (status === "loading") {
     return (
