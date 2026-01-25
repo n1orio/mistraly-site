@@ -5,7 +5,11 @@ const globalForPrisma = global as unknown as { prisma: PrismaClient }
 export const prisma =
   globalForPrisma.prisma ||
   new PrismaClient({
-    datasourceUrl: 'file:./dev.db', // Явно указываем путь к файлу БД
+    datasources: {
+      db: {
+        url: 'file:./dev.db',
+      },
+    },
   })
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma
