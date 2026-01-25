@@ -1,14 +1,21 @@
 // lib/prisma.ts
+
 import { PrismaClient } from '@prisma/client'
-// Импортируем адаптер и его клиента
 import { createClient } from '@libsql/client' 
-import { PrismaLibSql } from '@prisma/adapter-libsql'
+// Используем вашу форму импорта (PrismaLibSql)
+import { PrismaLibSql } from '@prisma/adapter-libsql' 
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient }
 
+const databaseUrl = process.env.DATABASE_URL
+if (!databaseUrl) {
+  // Добавьте это, чтобы поймать ошибку отсутствия .env
+  throw new Error("DATABASE_URL is not defined in the environment variables.")
+}
+
 // 1. Инициализируем клиент libSQL
 const libsql = createClient({
-  url: process.env.DATABASE_URL!, // Используем URL из .env
+  url: databaseUrl, 
 })
 
 // 2. Создаем адаптер
@@ -18,7 +25,7 @@ const adapter = new PrismaLibSql(libsql)
 export const prisma =
   globalForPrisma.prisma ||
   new PrismaClient({ 
-    adapter, // ЭТО ОБЯЗАТЕЛЬНО ДЛЯ ВАШЕЙ ВЕРСИИ PRISMA
+    adapter, // Обязательное поле для новой конфигурации
   })
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
