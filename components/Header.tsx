@@ -15,18 +15,17 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
 
-  // Закрывать меню при изменении маршрута
   useEffect(() => {
     setIsMobileNavOpen(false)
     setIsMenuOpen(false)
   }, [pathname])
 
-  // --- ЛОГИКА АВАТАРКИ ---
+  // --- ЛОГИКА АВАТАРКИ (исправлены пробелы!) ---
   const hasPass = session?.user?.hasPass
   const mcNick = session?.user?.minecraftNick
   const avatarUrl = (hasPass && mcNick)
-    ? `https://minotar.net/helm/${mcNick}/64`
-    : `https://minotar.net/helm/MHF_Steve/64`
+    ? `https://minotar.net/helm/${mcNick}/64`          // ← убраны пробелы
+    : `https://minotar.net/helm/MHF_Steve/64`          // ← убраны пробелы
 
   const navLinks = [
     { name: "Главная", path: "/" },
@@ -71,20 +70,21 @@ export default function Header() {
             ))}
           </div>
           
+          {/* 🔗 СОЦСЕТИ — ИСПРАВЛЕНО */}
           <div className="flex items-center gap-4 border-l border-white/10 pl-8 ml-2">
-            <a href="https://t.me/..." target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#24a1de] transition-all">
+            <a href="https://t.me/breeze_monster" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#24a1de] transition-all">
               <SiTelegram className="w-[18px] h-[18px]" />
             </a>
-            <a href="https://discord.gg/..." target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#5865f2] transition-all">
+            <a href="https://discord.gg/nPbWMhDeus" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#5865f2] transition-all">
               <SiDiscord className="w-5 h-5" />
             </a>
-            <a href="#" className="text-white hover:text-white transition-all">
+            <a href="https://t.me/NioR1o" target="_blank" rel="noopener noreferrer" className="text-white hover:text-white transition-all">
               <Headphones className="w-5 h-5 stroke-[2.5px]" />
             </a>
           </div>
         </nav>
 
-        {/* ПРАВЫЙ БЛОК — АВТОРИЗАЦИЯ / МЕНЮ */}
+        {/* ПРАВЫЙ БЛОК */}
         <div className="flex items-center gap-3 z-20">
           {status === "loading" ? (
             <div className="flex items-center justify-center w-10 h-10">
@@ -156,7 +156,7 @@ export default function Header() {
             </Button>
           )}
 
-          {/* БУРГЕР-МЕНЮ — ТОЛЬКО НА МОБИЛКАХ */}
+          {/* БУРГЕР-МЕНЮ */}
           <button
             onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
             className="lg:hidden text-white p-2 -mr-2"
@@ -191,33 +191,19 @@ export default function Header() {
                   </Link>
                 ))}
               </div>
-<div className="flex items-center gap-4 pt-3 border-t border-white/10">
-  <a 
-    href="https://t.me/breeze_monster"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="text-white hover:text-[#24a1de] transition-all block"
-  >
-    <SiTelegram className="w-6 h-6" />
-  </a>
-  <a 
-    href="https://discord.gg/nPbWMhDeus"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="text-white hover:text-[#5865f2] transition-all block"
-  >
-    <SiDiscord className="w-6 h-6" />
-  </a>
-  <a 
-    href="https://t.me/NioR1o"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="text-white hover:text-white transition-all block"
-  >
-    <Headphones className="w-6 h-6 stroke-[2px]" />
-  </a>
-</div>
 
+              {/* 🔗 МОБИЛЬНЫЕ СОЦСЕТИ — ИСПРАВЛЕНО */}
+              <div className="flex items-center gap-4 pt-3 border-t border-white/10">
+                <a href="https://t.me/breeze_monster" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#24a1de] transition-all block">
+                  <SiTelegram className="w-6 h-6" />
+                </a>
+                <a href="https://discord.gg/nPbWMhDeus" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#5865f2] transition-all block">
+                  <SiDiscord className="w-6 h-6" />
+                </a>
+                <a href="https://t.me/NioR1o" target="_blank" rel="noopener noreferrer" className="text-white hover:text-white transition-all block">
+                  <Headphones className="w-6 h-6 stroke-[2px]" />
+                </a>
+              </div>
             </div>
           </motion.div>
         )}

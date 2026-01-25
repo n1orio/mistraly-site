@@ -1,16 +1,33 @@
-// next-auth.d.ts
-import NextAuth, { DefaultSession } from "next-auth"
+// types/next-auth.d.ts
+import "next-auth"
+import "next-auth/jwt"
 
 declare module "next-auth" {
-  interface Session {
-    user: {
-      hasPass: boolean
-      minecraftNick: string
-    } & DefaultSession["user"]
+  interface User {
+    id: string
+    name: string
+    email: string
+    minecraftNick?: string
+    hasPass?: boolean
   }
 
-  interface User {
-    hasPass: boolean
-    minecraftNick: string
+  interface Session {
+    user: {
+      id: string
+      name: string
+      email: string
+      minecraftNick?: string
+      hasPass?: boolean
+    }
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id: string
+    name: string
+    email: string
+    minecraftNick?: string
+    hasPass?: boolean
   }
 }
