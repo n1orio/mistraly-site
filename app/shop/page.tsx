@@ -1,5 +1,15 @@
 // app/shop/page.tsx
+"use client"
+
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
+
 export default function ShopPage() {
+  const handlePurchase = () => {
+    // ваша логика оплаты
+    alert("Покупка запущена")
+  }
+
   return (
     <div className="min-h-screen bg-[#080B0E] text-white py-12 px-4">
       <div className="max-w-2xl mx-auto text-center">
@@ -8,15 +18,11 @@ export default function ShopPage() {
           Проходка даёт полный доступ к серверу Breeze.monster без привилегий и доната.
         </p>
         
-        {/* Здесь будет форма оплаты */}
         <div className="bg-[#12181F]/50 p-6 rounded-xl border border-white/10">
           <p className="text-lg mb-4">Стоимость: <span className="text-[#0099ff] font-bold">299 ₽</span></p>
-          <button 
-            onClick={() => alert("Интеграция с платёжной системой")}
-            className="w-full py-3 bg-[#0099ff] hover:bg-white hover:text-black text-white font-bold rounded-xl transition"
-          >
+          <Button onClick={handlePurchase} className="w-full">
             Оплатить
-          </button>
+          </Button>
         </div>
       </div>
     </div>
