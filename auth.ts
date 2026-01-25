@@ -1,10 +1,8 @@
+// auth.ts
 import NextAuth from "next-auth"
 import Discord from "next-auth/providers/discord"
-import { PrismaAdapter } from "@auth/prisma-adapter"
-import { prisma } from "@/lib/prisma" // твой файл с PrismaClient
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma), // Теперь юзеры будут в БД!
   providers: [
     Discord({
       clientId: process.env.DISCORD_CLIENT_ID,
@@ -12,14 +10,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    // В Auth.js v5 при использовании адаптера в сессию прокидывается объект user из БД
-    async session({ session, user }) {
+    // Эта функция вызывается при каждой проверке сессии
+    async session({ session, token }) {
+      // Имитируем получение данных из базы данных
+      // В будущем тут будет запрос к твоей БД (например через Prisma или Bun:sqlite)
       if (session.user) {
-        session.user.id = user.id;
+        // Добавляем кастомные поля в объект пользователя
+        // @ts-ignore (пока не настроены типы в d.ts)
+        session.user.hasPass = true; // Куплена ли проходка
         // @ts-ignore
-        session.user.minecraftNick = user.minecraftNick;
-        // @ts-ignore
-        session.user.hasPass = user.hasPass;
+        session.user.minecraftNick = "Evor"; // Ник игрока
       }
       return session
     },

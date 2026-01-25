@@ -1,5 +1,5 @@
 // next-auth.d.ts
-import { DefaultSession } from "next-auth"
+import NextAuth, { DefaultSession } from "next-auth"
 
 declare module "next-auth" {
   interface Session {
@@ -10,13 +10,6 @@ declare module "next-auth" {
   }
 
   interface User {
-    hasPass?: boolean
-    minecraftNick?: string
-  }
-}
-
-declare module "@auth/core/adapters" {
-  interface AdapterUser {
     hasPass: boolean
     minecraftNick: string
   }

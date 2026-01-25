@@ -1,11 +1,21 @@
-import './globals.css'
-import type { Metadata } from "next"
+import type { Metadata } from "next";
+import Header from "@/components/Header"
+import localFont from "next/font/local";
+import "./globals.css";
+// 1. Импортируем обертку для сессий (которую мы создали на предыдущем шаге)
+import SessionWrapper from "@/components/SessionWrapper";
 
-// ПРАВИЛЬНЫЙ СИНТАКСИС
+// Настраиваем шрифт
+const sfPro = localFont({
+  src: "./fonts/SF-Pro-Display-Bold.otf",
+  variable: "--font-sf-pro", // Эта переменная теперь будет доступна в Tailwind
+});
+
+// Можно добавить метаданные для сайта
 export const metadata: Metadata = {
-  title: "CSS Test",
-  description: "Test CSS with Webpack",
-}
+  title: "Breeze.monster — Minecraft Server",
+  description: "Уникальный ванильный сервер",
+};
 
 export default function RootLayout({
   children,
@@ -14,27 +24,19 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ru">
-      <body>
-        <div style={{ padding: '1rem', backgroundColor: '#0000ff', color: 'white', textAlign: 'center' }}>
-          🔵 Это синий блок - INLINE стили ВСЕГДА работают
-        </div>
-        <main style={{ padding: '2rem', minHeight: '100vh' }}>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>
-            🔴 Если фон КРАСНЫЙ - CSS работает!
-          </h1>
-          <button style={{ 
-            backgroundColor: '#00ff00', 
-            color: 'white', 
-            padding: '1rem 2rem', 
-            borderRadius: '0.5rem',
-            fontWeight: 'bold',
-            border: 'none',
-            cursor: 'pointer'
-          }}>
-            ✅ Если эта кнопка ЗЕЛЕНАЯ - CSS работает!
-          </button>
-          {children}
-        </main>
+      {/* 
+        2. В className body добавляем sfPro.variable. 
+        Это позволит использовать шрифт через класс font-sf (если ты настроил tailwind)
+      */}
+      <body className={`${sfPro.variable} bg-[#12181F] antialiased`}>
+        {/* 
+          3. Оборачиваем всё в SessionWrapper. 
+          Без него Header выдаст ошибку при попытке вызвать useSession()
+        */}
+        <SessionWrapper>
+          <Header />
+          {children} 
+        </SessionWrapper>
       </body>
     </html>
   )
