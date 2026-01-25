@@ -6,8 +6,8 @@ import { Loader2 } from "lucide-react"
 import Image from "next/image"
 
 export default function ProfilePage() {
-  // Правильная деструктуризация: data → session
-  const {   session, status } = useSession()
+  // Правильная деструктуризация с переименованием
+  const {  : session, status } = useSession()
 
   if (status === "loading") {
     return (
