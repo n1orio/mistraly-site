@@ -9,14 +9,22 @@ export default function ProfilePage() {
   const {   session, status } = useSession()
 
   if (status === "loading") {
-    return <div className="min-h-screen flex items-center justify-center">Загрузка...</div>
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#080B0E] text-white">
+        <Loader2 className="w-8 h-8 animate-spin text-[#0099ff]" />
+      </div>
+    )
   }
 
-  if (!session?.user) {
-    return <div className="min-h-screen flex items-center justify-center">Не авторизован</div>
+  if (!data?.user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#080B0E] text-white">
+        Не авторизован
+      </div>
+    )
   }
 
-  const { user } = session
+  const { user } = data
 
   return (
     <div className="min-h-screen bg-[#080B0E] text-white py-12 px-4">
