@@ -1,7 +1,6 @@
 // lib/prisma.ts
 
 import { PrismaClient } from '@prisma/client'
-// Оставляем импорт createClient, но используем его по-другому
 import { createClient } from '@libsql/client' 
 import { PrismaLibSql } from '@prisma/adapter-libsql' 
 
@@ -12,17 +11,23 @@ if (!databaseUrl) {
   throw new Error("DATABASE_URL is not defined in the environment variables.")
 }
 
-// 1. Создаем адаптер, передавая ему функцию инициализации и URL-адрес
-const adapter = new PrismaLibSql(createClient, {
+// 1. Создаем объект конфигурации для адаптера
+const adapterConfig = {
+  createClient: createClient, // Явно передаем функцию создания клиента
   url: databaseUrl,
-  // Если у вас есть другие параметры, такие как authToken, добавьте их сюда
-})
+  // Если вы используете облачный сервис (например, Turso), 
+  // может потребоваться authToken
+  // authToken: process.env.LIBSQL_AUTH_TOKEN, 
+}
 
-// 2. Передаем адаптер в конструктор PrismaClient
+// 2. Создаем адаптер, передавая только ОДИН объект конфигурации
+const adapter = new PrismaLibSql(adapterConfig)
+
+// 3. Передаем адаптер в конструктор PrismaClient
 export const prisma =
   globalForPrisma.prisma ||
   new PrismaClient({ 
-    adapter,
+    adapter, 
   })
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
