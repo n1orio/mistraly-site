@@ -6,7 +6,7 @@ import { Loader2 } from "lucide-react"
 import Image from "next/image"
 
 export default function ProfilePage() {
-  const {  session, status } = useSession()
+  const {   session, status } = useSession()
 
   if (status === "loading") {
     return <div className="min-h-screen flex items-center justify-center">Загрузка...</div>
