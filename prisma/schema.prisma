@@ -39,11 +39,8 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
-  
-  // НАШИ КАСТОМНЫЕ ПОЛЯ
-  minecraftNick String?   // Ник в майнкрафте
-  hasPass       Boolean   @default(false) // Статус проходки
-  
+  minecraftNick String?   
+  hasPass       Boolean   @default(false)
   accounts      Account[]
   sessions      Session[]
 }
