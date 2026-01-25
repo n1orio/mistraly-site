@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react"
 import Image from "next/image"
 
 export default function ProfilePage() {
+  // Правильная деструктуризация: data → session
   const {   session, status } = useSession()
 
   if (status === "loading") {
@@ -16,7 +17,7 @@ export default function ProfilePage() {
     )
   }
 
-  if (!data?.user) {
+  if (!session?.user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#080B0E] text-white">
         Не авторизован
@@ -24,7 +25,7 @@ export default function ProfilePage() {
     )
   }
 
-  const { user } = data
+  const { user } = session
 
   return (
     <div className="min-h-screen bg-[#080B0E] text-white py-12 px-4">
