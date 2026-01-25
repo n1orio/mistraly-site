@@ -21,7 +21,7 @@ export default async function ProfilePage() {
       data: { minecraftNick: nick },
     })
 
-    // Обновляем страницу, чтобы данные подтянулись
+
     revalidatePath("/profile")
   }
 
