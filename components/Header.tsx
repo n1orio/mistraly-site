@@ -3,29 +3,41 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Headphones, User, LogOut, Settings, Loader2, ChevronDown, Menu, X } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
+import { Loader2, ChevronDown, User, Settings, LogOut, X, Menu } from "lucide-react"
 import { SiTelegram, SiDiscord } from "react-icons/si"
-import { signIn, signOut, useSession } from "next-auth/react"
+import { useSession, signIn, signOut } from "next-auth/react"
 import { useState, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { RiHeadphoneLine } from "react-icons/ri"
 
 export default function Header() {
   const pathname = usePathname()
-  const { data: session, status } = useSession()
+  const { data, status } = useSession()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+
+  // Отслеживаем скролл
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10)
+    }
+    
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   useEffect(() => {
     setIsMobileNavOpen(false)
     setIsMenuOpen(false)
   }, [pathname])
 
-  // --- ЛОГИКА АВАТАРКИ (исправлены пробелы!) ---
-  const hasPass = session?.user?.hasPass
-  const mcNick = session?.user?.minecraftNick
+  // --- ЛОГИКА АВАТАРКИ ---
+  const hasPass = data?.user?.hasPass
+  const mcNick = data?.user?.minecraftNick
   const avatarUrl = (hasPass && mcNick)
-    ? `https://minotar.net/helm/${mcNick}/64`          // ← убраны пробелы
-    : `https://minotar.net/helm/MHF_Steve/64`          // ← убраны пробелы
+    ? `https://minotar.net/helm/${mcNick}/64`
+    : `https://minotar.net/helm/MHF_Steve/64`
 
   const navLinks = [
     { name: "Главная", path: "/" },
@@ -35,7 +47,14 @@ export default function Header() {
   ]
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/5 bg-[#12181F]/50 backdrop-blur-md px-4 sm:px-6 h-[72px] flex items-center">
+    <header className={`sticky top-0 z-50 w-full px-4 sm:px-6 h-[72px] flex items-center transition-all duration-300 ${
+      scrolled 
+        ? 'border-b border-white/10 bg-[#080B0E]/80 backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.4)]' 
+        : 'bg-[#080B0E] border-b border-white/5 shadow-none'
+    }`}>
+      {/* Полоска сверху для темы в Firefox */}
+      <div className="absolute top-0 left-0 w-full h-[2px] bg-[#080B0E]" />
+      
       <div className="max-w-7xl mx-auto w-full flex items-center justify-between">
 
         {/* ЛОГОТИП */}
@@ -70,7 +89,7 @@ export default function Header() {
             ))}
           </div>
           
-          {/* 🔗 СОЦСЕТИ — ИСПРАВЛЕНО */}
+          {/* 🔗 СОЦСЕТИ */}
           <div className="flex items-center gap-4 border-l border-white/10 pl-8 ml-2">
             <a href="https://t.me/breeze_monster" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#24a1de] transition-all">
               <SiTelegram className="w-[18px] h-[18px]" />
@@ -79,7 +98,7 @@ export default function Header() {
               <SiDiscord className="w-5 h-5" />
             </a>
             <a href="https://t.me/NioR1o" target="_blank" rel="noopener noreferrer" className="text-white hover:text-white transition-all">
-              <Headphones className="w-5 h-5 stroke-[2.5px]" />
+              <RiHeadphoneLine className="w-5 h-5 stroke-[2.5px]" />
             </a>
           </div>
         </nav>
@@ -90,7 +109,7 @@ export default function Header() {
             <div className="flex items-center justify-center w-10 h-10">
               <Loader2 className="w-5 h-5 text-zinc-500 animate-spin" />
             </div>
-          ) : session ? (
+          ) : data ? (
             <div className="relative">
               <button 
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -106,7 +125,7 @@ export default function Header() {
                 </div>
                 <div className="text-left hidden md:block">
                   <p className="text-[13px] font-bold text-white leading-none">
-                    {mcNick || session.user?.name}
+                    {mcNick || data.user?.name}
                   </p>
                   <p className="text-[10px] font-bold uppercase tracking-wider text-[#0099ff] mt-1">
                     {hasPass ? "Игрок" : "Гость"}
@@ -174,7 +193,7 @@ export default function Header() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden bg-[#12181F]/95 backdrop-blur-md border-t border-white/5 overflow-hidden"
+            className="lg:hidden bg-[#080B0E]/95 backdrop-blur-md border-t border-white/5 overflow-hidden"
           >
             <div className="max-w-7xl mx-auto px-4 py-6 flex flex-col gap-5">
               <div className="flex flex-col gap-3">
@@ -192,7 +211,7 @@ export default function Header() {
                 ))}
               </div>
 
-              {/* 🔗 МОБИЛЬНЫЕ СОЦСЕТИ — ИСПРАВЛЕНО */}
+              {/* 🔗 МОБИЛЬНЫЕ СОЦСЕТИ */}
               <div className="flex items-center gap-4 pt-3 border-t border-white/10">
                 <a href="https://t.me/breeze_monster" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#24a1de] transition-all block">
                   <SiTelegram className="w-6 h-6" />
@@ -201,7 +220,7 @@ export default function Header() {
                   <SiDiscord className="w-6 h-6" />
                 </a>
                 <a href="https://t.me/NioR1o" target="_blank" rel="noopener noreferrer" className="text-white hover:text-white transition-all block">
-                  <Headphones className="w-6 h-6 stroke-[2px]" />
+                  <RiHeadphoneLine className="w-6 h-6 stroke-[2px]" />
                 </a>
               </div>
             </div>
