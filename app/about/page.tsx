@@ -8,6 +8,7 @@ import {
 } from "lucide-react"
 import { CheckCircle, Loader2, Clock } from "lucide-react"
 
+// ✅ ДАННЫЕ РАЗРАБОТЧИКОВ
 const developersData = [
   {
     id: 1,
@@ -34,18 +35,20 @@ const developersData = [
     description: "заглушка",
     specialization: "заглушка",
     experience: "заглушка",
-    avatar: null
+    avatar: "https://cdn.discordapp.com/attachments/1205083728997515340/1285696051994431488/Screenshot_20240917-231647.png"
   },
   {
+    id: 4, // ✅ Исправлено: добавлено отсутствующее свойство id
     name: "-",
     role: "заглушка",
     description: "заглушка",
     specialization: "заглушка",
     experience: "заглушка",
-    avatar: null
+    avatar: "https://cdn.discordapp.com/attachments/1205083728997515340/1285696051994431488/Screenshot_20240917-231647.png"
   }
 ]
 
+// ✅ ДАННЫЕ СЕЗОНОВ
 const seasonsData = [
   {
     id: 9,
@@ -88,13 +91,15 @@ const seasonsData = [
   }
 ]
 
+// ✅ ВКЛАДКИ НАВИГАЦИИ
 const tabs = [
   { id: "about", label: "О Breeze", icon: <Info className="w-4 h-4" /> },
   { id: "seasons", label: "Сезоны", icon: <Sparkles className="w-4 h-4" /> },
   { id: "developers", label: "Разработчики", icon: <FlaskConical className="w-4 h-4" /> },
-  { id: "plans", label: "Планы", icon: <Lightbulb className="w-4 h-4" /> }, // ✅ Lightbulb (без Icon)
+  { id: "plans", label: "Планы", icon: <Lightbulb className="w-4 h-4" /> },
 ]
 
+// ✅ ВАРИАНТЫ АНИМАЦИИ СЛАЙДЕРОВ
 const slideVariants = {
   enter: (direction: number) => ({ 
     x: direction > 0 ? 100 : -100,
@@ -107,7 +112,7 @@ const slideVariants = {
     opacity: 1,
     scale: 1,
     transition: {
-      x: { type: "spring", stiffness: 300, damping: 30 },
+      x: { type: "spring" as const, stiffness: 300, damping: 30 },
       opacity: { duration: 0.2 },
       scale: { duration: 0.3 }
     }
@@ -118,20 +123,35 @@ const slideVariants = {
     opacity: 0,
     scale: 0.95,
     transition: {
-      x: { type: "spring", stiffness: 300, damping: 30 },
+      x: { type: "spring" as const, stiffness: 300, damping: 30 },
       opacity: { duration: 0.2 }
     }
   })
 }
 
 export default function AboutPage() {
+  // ✅ ХУКИ СОСТОЯНИЯ
   const [activeTab, setActiveTab] = useState("about")
   const [selectedSeason, setSelectedSeason] = useState<typeof seasonsData[0] | null>(null)
   const [page, setPage] = useState(0)
   const [direction, setDirection] = useState(0)
-  const [activeDeveloper, setActiveDeveloper] = useState(1) // ✅ ВНУТРИ КОМПОНЕНТА
+  const [activeDeveloper, setActiveDeveloper] = useState(1)
 
-  // ✅ useEffect для сброса разработчика при входе в раздел
+  // ✅ ФУНКЦИЯ ПАГИНАЦИИ СЛАЙДЕРОВ (объявлена ПОСЛЕ хуков!)
+  const paginate = (newDirection: number) => {
+    if (!selectedSeason) return;
+    setDirection(newDirection);
+    setPage(prev => {
+      const next = prev + newDirection;
+      return next >= selectedSeason.images.length 
+        ? 0 
+        : next < 0 
+          ? selectedSeason.images.length - 1 
+          : next;
+    });
+  }
+
+  // ✅ ЭФФЕКТЫ
   useEffect(() => {
     if (activeTab === "developers") {
       setActiveDeveloper(1);
@@ -146,6 +166,7 @@ export default function AboutPage() {
     }
   }, [selectedSeason])
 
+  // ✅ ФУНКЦИЯ СМЕНЫ ВКЛАДКИ
   const changeTab = (tabId: string) => {
     setActiveTab(tabId)
     setSelectedSeason(null)
