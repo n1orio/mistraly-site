@@ -45,7 +45,7 @@ export default function Header() {
     return () => document.removeEventListener('click', handleClickOutside)
   }, [])
 
-  // --- ЛОГИКА АВАТАРКИ (ИСПРАВЛЕНО: убраны пробелы в URL) ---
+  // ✅ ИСПРАВЛЕНО: убраны пробелы в URL аватарки
   const hasPass = data?.user?.hasPass
   const mcNick = data?.user?.minecraftNick || 'MHF_Steve'
   const avatarUrl = hasPass && mcNick
@@ -223,7 +223,7 @@ export default function Header() {
         </div>
       </div>
 
-      {/* МОБИЛЬНОЕ МЕНЮ (ПОЛНОСТЬЮ ПЕРЕПИСАНО ДЛЯ СООТВЕТСТВИЯ СКРИНШОТУ) */}
+      {/* МОБИЛЬНОЕ МЕНЮ */}
       <AnimatePresence>
         {isMobileNavOpen && (
           <>
@@ -245,7 +245,7 @@ export default function Header() {
               className="fixed top-0 left-0 h-full w-[85%] max-w-xs bg-[#090D10]/80 backdrop-blur-xl shadow-xl rounded-r-2xl z-50 overflow-y-auto"
             >
               {/* Логотип в меню */}
-              <div className="p-4 border-b border-gray-100">
+              <div className="p-4 border-b border-white/10">
                 <Link 
                   href="/" 
                   className="flex items-center font-sf font-bold text-xl tracking-wide text-white"
@@ -269,7 +269,7 @@ export default function Header() {
                       className={`flex items-center gap-3 p-3 rounded-lg transition-all ${
                         pathname === link.path 
                           ? "bg-[#0099ff]/10 text-[#0099ff] font-bold" 
-                          : "text-white hover:bg-[#0099ff]"
+                          : "text-white hover:bg-[#0099ff]/20"
                       }`}
                       onClick={() => setIsMobileNavOpen(false)}
                     >
@@ -286,13 +286,13 @@ export default function Header() {
               </div>
               
               {/* Социальные сети */}
-              <div className="p-4 border-t border-white">
+              <div className="p-4 border-t border-white/10">
                 <div className="space-y-3">
                   <a 
                     href="https://t.me/breeze_monster" 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="flex items-center justify-between p-3 rounded-lg text-white hover:bg-[#0099ff]"
+                    className="flex items-center justify-between p-3 rounded-lg text-white hover:bg-[#0099ff]/20"
                     onClick={() => setIsMobileNavOpen(false)}
                   >
                     <div className="flex items-center gap-3">
@@ -306,21 +306,21 @@ export default function Header() {
                     href="https://discord.gg/nPbWMhDeus" 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="flex items-center justify-between p-3 rounded-lg text-white hover:bg-[#0099ff]"
+                    className="flex items-center justify-between p-3 rounded-lg text-white hover:bg-[#0099ff]/20"
                     onClick={() => setIsMobileNavOpen(false)}
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-lg">👾</span>
                       <span>Discord сервер</span>
                     </div>
-                    <span className="text-text-white">→</span>
+                    <span className="text-white">→</span>
                   </a>
                   
                   <a 
                     href="https://t.me/NioR1o" 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="flex items-center justify-between p-3 rounded-lg text-white hover:bg-[#0099ff]"
+                    className="flex items-center justify-between p-3 rounded-lg text-white hover:bg-[#0099ff]/20"
                     onClick={() => setIsMobileNavOpen(false)}
                   >
                     <div className="flex items-center gap-3">
@@ -333,19 +333,22 @@ export default function Header() {
               </div>
               
               {/* Статус пользователя */}
-              <div className="p-4 border-t border-gray-100">
+              <div className="p-4 border-t border-white/10">
                 {status === "loading" ? (
                   <div className="flex items-center justify-center py-4">
                     <Loader2 className="w-5 h-5 text-zinc-500 animate-spin" />
                   </div>
                 ) : data ? (
-                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center gap-3 p-3 bg-[#12181F] border border-white/10 rounded-lg">
                     <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-[#090D10] ring-2 ring-[#0099ff]/30">
                       <img 
                         src={avatarUrl} 
                         alt="Skin Head" 
                         className="w-full h-full object-cover"
                         style={{ imageRendering: 'pixelated' }}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://minotar.net/helm/MHF_Steve/64.png'
+                        }}
                       />
                     </div>
                     <div className="flex-1">
