@@ -344,7 +344,7 @@ export default function AboutPage() {
                         <div className="relative w-full h-full">
                           <img 
                             src={src} 
-                            alt={`Скриншот сезона Breeze ${selectedSeason.num}, изображение ${idx + 1}`}
+                            alt={`Сезон ${selectedSeason.num}, номер ${idx + 1}`}
                             className="w-full h-full object-cover"
                             loading="lazy"
                           />
