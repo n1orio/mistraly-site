@@ -223,124 +223,157 @@ export default function Header() {
         </div>
       </div>
 
-      {/* МОБИЛЬНОЕ МЕНЮ (полностью переписано для лучшей адаптации) */}
+      {/* МОБИЛЬНОЕ МЕНЮ (ПОЛНОСТЬЮ ПЕРЕПИСАНО ДЛЯ СООТВЕТСТВИЯ СКРИНШОТУ) */}
       <AnimatePresence>
         {isMobileNavOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ type: "spring", damping: 20, stiffness: 300 }}
-            className="lg:hidden bg-[#080B0E]/95 backdrop-blur-md border-t border-white/5 overflow-hidden"
-          >
-            <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6 flex flex-col gap-4 sm:gap-5">
-              {/* Основные ссылки навигации */}
-              <div className="flex flex-col gap-2 sm:gap-3">
-                {navLinks.map((link) => (
-                  <motion.div
-                    key={link.path}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: navLinks.indexOf(link) * 0.05 }}
-                  >
+          <>
+            {/* Фон-затемнение */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 z-40"
+              onClick={() => setIsMobileNavOpen(false)}
+            />
+            
+            {/* Меню (выезжающее слева) */}
+            <motion.div
+              initial={{ x: -100% }}
+              animate={{ x: 0 }}
+              exit={{ x: -100% }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="fixed top-0 left-0 h-full w-[85%] max-w-xs bg-white shadow-xl rounded-r-2xl z-50 overflow-y-auto"
+            >
+              {/* Логотип в меню */}
+              <div className="p-4 border-b border-gray-100">
+                <Link 
+                  href="/" 
+                  className="flex items-center font-sf font-bold text-xl tracking-wide text-[#080B0E]"
+                  onClick={() => setIsMobileNavOpen(false)}
+                >
+                  <span>Breeze</span>
+                  <span className="relative inline-block ml-1">
+                    <span className="absolute inset-x-0 bottom-[12%] h-[82%] bg-[#0099ff] -z-10 rounded-sm"></span>
+                    <span className="relative z-10 px-1 text-[#0099ff] font-bold">.monster</span>
+                  </span>
+                </Link>
+              </div>
+              
+              {/* Основные ссылки */}
+              <div className="p-4">
+                <div className="space-y-3">
+                  {navLinks.map((link) => (
                     <Link
+                      key={link.path}
                       href={link.path}
-                      className={`block py-3 sm:py-4 px-4 rounded-xl transition-all ${
+                      className={`flex items-center gap-3 p-3 rounded-lg transition-all ${
                         pathname === link.path 
                           ? "bg-[#0099ff]/10 text-[#0099ff] font-bold" 
-                          : "text-white hover:bg-white/5 hover:text-[#0099ff]"
+                          : "text-gray-800 hover:bg-gray-50"
                       }`}
                       onClick={() => setIsMobileNavOpen(false)}
                     >
-                      <span className="text-base sm:text-[15px] font-medium">
-                        {link.name}
+                      <span className="text-lg">
+                        {link.name === "Главная" && "🏠"}
+                        {link.name === "О сервере" && "🪨"}
+                        {link.name === "Правила" && "🏛️"}
+                        {link.name === "Вики" && "📖"}
                       </span>
+                      <span className="text-base flex-1">{link.name}</span>
                     </Link>
-                  </motion.div>
-                ))}
-              </div>
-
-              {/* Разделитель */}
-              <div className="h-[1px] bg-white/5 my-2 sm:my-3" />
-
-              {/* Социальные сети */}
-              <div className="flex items-center justify-center gap-6 py-3 sm:py-4">
-                <a 
-                  href="https://t.me/breeze_monster" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="text-white hover:text-[#24a1de] transition-all p-3 hover:bg-white/10 rounded-xl"
-                  onClick={() => setIsMobileNavOpen(false)}
-                  aria-label="Telegram"
-                >
-                  <SiTelegram className="w-6 h-6" />
-                </a>
-                <a 
-                  href="https://discord.gg/nPbWMhDeus" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="text-white hover:text-[#5865f2] transition-all p-3 hover:bg-white/10 rounded-xl"
-                  onClick={() => setIsMobileNavOpen(false)}
-                  aria-label="Discord"
-                >
-                  <SiDiscord className="w-6 h-6" />
-                </a>
-                <a 
-                  href="https://t.me/NioR1o" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="text-white hover:text-white transition-all p-3 hover:bg-white/10 rounded-xl"
-                  onClick={() => setIsMobileNavOpen(false)}
-                  aria-label="Поддержка"
-                >
-                  <RiHeadphoneLine className="w-6 h-6 stroke-[2px]" />
-                </a>
-              </div>
-
-              {/* Кнопка входа/профиля на мобильных */}
-              {status !== "loading" && (
-                <div className="pt-2 sm:pt-3 border-t border-white/5">
-                  {data ? (
-                    <Link
-                      href="/profile"
-                      className="flex items-center gap-3 p-4 bg-white/5 hover:bg-white/10 rounded-xl transition-all"
-                      onClick={() => setIsMobileNavOpen(false)}
-                    >
-                      <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-[#090D10] ring-2 ring-[#0099ff]/30">
-                        <img 
-                          src={avatarUrl} 
-                          alt="Skin Head" 
-                          className="w-full h-full object-cover"
-                          style={{ imageRendering: 'pixelated' }}
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-white font-bold text-sm truncate">
-                          {mcNick}
-                        </p>
-                        <p className={`text-[10px] font-bold uppercase tracking-wider ${
-                          hasPass ? 'text-[#0099ff]' : 'text-yellow-400'
-                        }`}>
-                          {hasPass ? "Игрок" : "Гость"}
-                        </p>
-                      </div>
-                    </Link>
-                  ) : (
-                    <Button 
-                      onClick={() => {
-                        signIn('discord')
-                        setIsMobileNavOpen(false)
-                      }}
-                      className="w-full bg-[#5865f2] hover:bg-[#4752c4] text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2"
-                    >
-                      <SiDiscord className="w-5 h-5" />
-                      Войти через Discord
-                    </Button>
-                  )}
+                  ))}
                 </div>
-              )}
-            </div>
-          </motion.div>
+              </div>
+              
+              {/* Социальные сети */}
+              <div className="p-4 border-t border-gray-100">
+                <div className="space-y-3">
+                  <a 
+                    href="https://t.me/breeze_monster" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="flex items-center justify-between p-3 rounded-lg text-gray-800 hover:bg-gray-50"
+                    onClick={() => setIsMobileNavOpen(false)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-lg">✉️</span>
+                      <span>Telegram канал</span>
+                    </div>
+                    <span className="text-gray-400">→</span>
+                  </a>
+                  
+                  <a 
+                    href="https://discord.gg/nPbWMhDeus" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="flex items-center justify-between p-3 rounded-lg text-gray-800 hover:bg-gray-50"
+                    onClick={() => setIsMobileNavOpen(false)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-lg">👾</span>
+                      <span>Discord сервер</span>
+                    </div>
+                    <span className="text-gray-400">→</span>
+                  </a>
+                  
+                  <a 
+                    href="https://t.me/NioR1o" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="flex items-center justify-between p-3 rounded-lg text-gray-800 hover:bg-gray-50"
+                    onClick={() => setIsMobileNavOpen(false)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-lg">🎧</span>
+                      <span>Поддержка</span>
+                    </div>
+                    <span className="text-gray-400">→</span>
+                  </a>
+                </div>
+              </div>
+              
+              {/* Статус пользователя */}
+              <div className="p-4 border-t border-gray-100">
+                {status === "loading" ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="w-5 h-5 text-zinc-500 animate-spin" />
+                  </div>
+                ) : data ? (
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                    <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-[#090D10] ring-2 ring-[#0099ff]/30">
+                      <img 
+                        src={avatarUrl} 
+                        alt="Skin Head" 
+                        className="w-full h-full object-cover"
+                        style={{ imageRendering: 'pixelated' }}
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-gray-800 font-bold text-sm truncate">
+                        {mcNick}
+                      </p>
+                      <p className={`text-xs font-bold uppercase tracking-wider ${
+                        hasPass ? 'text-[#0099ff]' : 'text-yellow-500'
+                      }`}>
+                        {hasPass ? "Игрок" : "Гость"}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <Button 
+                    onClick={() => {
+                      signIn('discord')
+                      setIsMobileNavOpen(false)
+                    }}
+                    className="w-full bg-[#5865f2] hover:bg-[#4752c4] text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2"
+                  >
+                    <SiDiscord className="w-5 h-5" />
+                    Войти через Discord
+                  </Button>
+                )}
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </header>
