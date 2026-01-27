@@ -84,7 +84,7 @@ export default function AboutPage() {
       <main className="max-w-6xl mx-auto pt-6 pb-10 px-6 flex flex-col items-center relative">
 
         {/* ТАБЛЕТКА (Sticky) */}
-        <div className="sticky top-24 z-50 mb-10 border border-white/5 bg-[#12181F]/50 backdrop-blur-md p-1.5 rounded-[22px] inline-flex items-center shadow-2xl transition-all duration-300">
+        <div className="sticky top-24 z-50 mb-10 border border-white/5 bg-[#12181F]/50 backdrop-blur-md p-1.5 rounded-xl inline-flex items-center shadow-2xl transition-all duration-300">
           {tabs.map((tab) => (
             <button
               key={tab.id}
@@ -93,12 +93,12 @@ export default function AboutPage() {
                  setSelectedSeason(null)
                  window.scrollTo({ top: 0, behavior: 'smooth' })
               }}
-              className={`relative flex items-center gap-2.5 px-6 py-3 rounded-[16px] text-[14px] font-bold tracking-wide transition-all duration-300 z-10 ${activeTab === tab.id ? "text-[#0099ff]" : "text-white hover:text-[#0099ff]"}`}
+              className={`relative flex items-center gap-2.5 px-6 py-3 rounded-xl text-[14px] font-bold tracking-wide transition-all duration-300 z-10 ${activeTab === tab.id ? "text-[#0099ff]" : "text-white hover:text-[#0099ff]"}`}
             >
               <span className={`${activeTab === tab.id ? "text-[#0099ff]" : ""}`}>{tab.icon}</span>
               {tab.label}
               {activeTab === tab.id && (
-                <motion.div layoutId="active-tab-bg" className="absolute inset-0 bg-[#0099ff]/10 border-b-2 border-[#0099ff] rounded-[16px] z-[-1]" />
+                <motion.div layoutId="active-tab-bg" className="absolute inset-0 bg-[#0099ff]/10 border-b-2 border-[#0099ff] rounded-xl z-[-1]" />
               )}
             </button>
           ))}
@@ -207,7 +207,7 @@ export default function AboutPage() {
                 <div className="flex gap-6 mb-8 text-sm font-bold tracking-wide border-b border-white/10 pb-0">
                 </div>
 
-                <div className="relative w-full aspect-video bg-[#12181F] rounded-3xl overflow-hidden shadow-2xl border border-white/5 mb-8 group/slider">
+                <div className="relative w-full aspect-video bg-[#12181F] rounded-xl overflow-hidden shadow-2xl border border-white/5 mb-8 group/slider">
                      <AnimatePresence initial={false} custom={direction} mode="popLayout">
                         <motion.img 
                             key={page} 
@@ -270,7 +270,7 @@ export default function AboutPage() {
                 </div>
 
                 {/* КАРТОЧКА */}
-                <div className="bg-[#12181F] border border-white/5 rounded-[32px] p-8 shadow-2xl text-left">
+                <div className="bg-[#12181F] border border-white/5 rounded-xl p-8 shadow-2xl text-left">
                   <h3 className="text-3xl font-bold font-sf mb-3">Информация</h3>
                   <p className="text-zinc-300 text-base leading-relaxed font-medium">
                     Breeze — это площадка для реализации ваших идей в ванильном мире./
@@ -300,7 +300,7 @@ export default function AboutPage() {
                 </div>
 
                 {/* КАРТОЧКА */}
-                <div className="bg-[#12181F] border border-white/5 rounded-[32px] p-8 shadow-2xl text-left">
+                <div className="bg-[#12181F] border border-white/5 rounded-xl p-8 shadow-2xl text-left">
                   <h3 className="text-3xl font-bold font-sf">Разработчики</h3>
                   <p className="text-zinc-300 mt-2 text-base">Команда энтузиастов Breeze.</p>
                 </div>

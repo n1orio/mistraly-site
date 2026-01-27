@@ -18,7 +18,6 @@ export default function SleekHero() {
   const lightY = useSpring(mouseY, springConfig)
 
   useEffect(() => {
-    // Определяем мобильное устройство (опционально, можно через CSS media)
     const checkMobile = () => setIsMobile(window.innerWidth < 768)
     checkMobile()
     window.addEventListener("resize", checkMobile)
@@ -28,12 +27,10 @@ export default function SleekHero() {
       mouseY.set(e.clientY)
     }
 
-    // На мобилках отключаем анимацию мыши (нет курсора)
     if (!isMobile) {
       window.addEventListener("mousemove", handleMouseMove)
     }
 
-    // Генерируем частицы только на десктопе или уменьшаем их количество на мобилках
     const particleCount = isMobile ? 2 : 6
     const generatedParticles = [...Array(particleCount)].map((_, i) => ({
       id: i,
@@ -103,51 +100,56 @@ export default function SleekHero() {
       </div>
 
       {/* --- КОНТЕНТ --- */}
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-start px-4 sm:px-6 pt-24 pb-16 text-center">
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-start px-4 sm:px-6 pt-20 sm:pt-28 md:pt-32 lg:pt-40 text-center">
         <div className="max-w-4xl w-full"> 
-          <h1 className="font-sf text-4xl sm:text-5xl md:text-6xl lg:text-[90px] font-bold tracking-[-0.04em] leading-[1.05] sm:leading-[0.95] mb-3 sm:mb-4">
-            Творим контент <br />
+          {/* ЗАГОЛОВОК с исправленными отступами */}
+          <h1 className="font-sf text-4xl sm:text-5xl md:text-6xl lg:text-[90px] font-bold tracking-[-0.03em] leading-[1.1] sm:leading-[1.0] md:leading-[0.95] mb-2 sm:mb-3">
+            Творим контент
+          </h1>
+          
+          <h1 className="font-sf text-4xl sm:text-5xl md:text-6xl lg:text-[90px] font-black tracking-[-0.03em] leading-[1.1] sm:leading-[1.0] md:leading-[0.95] mb-2 sm:mb-3">
             <span className="relative inline-block whitespace-nowrap px-2 sm:px-4">
               <span className="absolute inset-x-0 bottom-[12%] h-[72%] bg-[#0099ff] -z-10 rounded-lg shadow-[0_0_40px_rgba(0,153,255,0.3)]"></span>
               <span className="relative z-10 text-white tracking-tighter">По настоящему</span>
             </span>
           </h1>
-          <h1 className="font-sf text-4xl sm:text-5xl md:text-6xl lg:text-[90px] font-bold tracking-[-0.04em] leading-[1.05] sm:leading-[0.95]">
+          
+          <h1 className="font-sf text-4xl sm:text-5xl md:text-6xl lg:text-[90px] font-bold tracking-[-0.03em] leading-[1.1] sm:leading-[1.0] md:leading-[0.95]">
             уникально
           </h1>
 
-          <p className="mt-5 sm:mt-6 text-zinc-400 text-sm sm:text-base md:text-[18px] max-w-2xl mx-auto leading-relaxed font-medium opacity-80 px-1">
+          <p className="mt-6 sm:mt-8 md:mt-10 text-zinc-400 text-sm sm:text-base md:text-[18px] max-w-2xl mx-auto leading-relaxed font-medium opacity-80 px-1">
             Выживайте, создавайте уникальное и играйте в удовольствие. <br className="hidden sm:inline" />
             Без приватов, привилегий и лишних плагинов.
           </p>
         </div>
 
-{/* КНОПКИ: адаптивное расположение */}
-<div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full">
-  <Button 
-    className="h-12 sm:h-14 w-full sm:w-64 text-base sm:text-lg bg-[#0099ff] hover:bg-white hover:text-black font-bold rounded-xl transition-all duration-300 shadow-[0_10px_25px_rgba(0,153,255,0.2)] active:scale-95"
-  >
-    <ShoppingCart className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-    Купить доступ
-  </Button>
+        {/* КНОПКИ: адаптивное расположение */}
+        <div className="mt-8 sm:mt-10 md:mt-12 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full max-w-3xl mx-auto">
+          <Button 
+            className="h-12 sm:h-14 w-full sm:w-64 text-base sm:text-lg bg-[#0099ff] hover:bg-white hover:text-black font-bold rounded-xl transition-all duration-300 shadow-[0_10px_25px_rgba(0,153,255,0.2)] active:scale-95"
+          >
+            <ShoppingCart className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+            Купить доступ
+          </Button>
 
-  <div 
-    onClick={handleCopy}
-    className="group flex items-center justify-between w-full sm:w-64 bg-white/[0.03] backdrop-blur-xl border border-white/10 p-1 pl-4 sm:pl-6 rounded-xl hover:bg-white/[0.08] hover:border-[#0099ff]/50 transition-all cursor-pointer active:scale-95 select-none h-12 sm:h-14"
-  >
-    <div className="flex flex-col items-start leading-tight">
-      <span className="text-[8px] sm:text-[9px] text-zinc-500 uppercase tracking-[0.2em] font-black">
-        {copied ? "Скопировано!" : "IP Адрес сервера"}
-      </span>
-      <span className={`font-mono font-bold text-[13px] sm:text-[15px] tracking-wide transition-colors ${copied ? "text-green-500" : "text-white group-hover:text-[#0099ff]"}`}>
-        play.breeze.monster
-      </span>
-    </div>
-    <div className="flex items-center justify-center w-10 sm:w-12 h-10 sm:h-12 text-zinc-400 group-hover:text-white transition-colors">
-      {copied ? <Check className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" /> : <Copy className="h-4 w-4 sm:h-5 sm:w-5" />}
-    </div>
-  </div>
-</div>
+          <div 
+            onClick={handleCopy}
+            className="group flex items-center justify-between w-full sm:w-64 bg-white/[0.03] backdrop-blur-xl border border-white/10 p-1 pl-4 sm:pl-6 rounded-xl hover:bg-white/[0.08] hover:border-[#0099ff]/50 transition-all cursor-pointer active:scale-95 select-none h-12 sm:h-14"
+          >
+            <div className="flex flex-col items-start leading-tight">
+              <span className="text-[8px] sm:text-[9px] text-zinc-500 uppercase tracking-[0.2em] font-black">
+                {copied ? "Скопировано!" : "IP Адрес сервера"}
+              </span>
+              <span className={`font-mono font-bold text-[13px] sm:text-[15px] tracking-wide transition-colors ${copied ? "text-green-500" : "text-white group-hover:text-[#0099ff]"}`}>
+                play.breeze.monster
+              </span>
+            </div>
+            <div className="flex items-center justify-center w-10 sm:w-12 h-10 sm:h-12 text-zinc-400 group-hover:text-white transition-colors">
+              {copied ? <Check className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" /> : <Copy className="h-4 w-4 sm:h-5 sm:w-5" />}
+            </div>
+          </div>
+        </div>
       </main>
     </div>
   )
