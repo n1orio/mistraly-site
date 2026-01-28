@@ -23,7 +23,7 @@ export default async function ProfilePage() {
   
   const userData = session.user as ExtendedUser
   
-  // ДОБАВЛЯЕМ ЛОГИРОВАНИЕ
+  // ЛОГИРОВАНИЕ
   console.log('Profile Data:', {
     id: userData.id,
     name: userData.name,
@@ -34,50 +34,40 @@ export default async function ProfilePage() {
     minecraftNick: userData.minecraftNick
   })
 
-  // Проверяем, есть ли баннер
-  const hasBanner = userData.banner && !userData.banner.includes('undefined')
-  const hasImage = userData.image && !userData.image.includes('undefined')
+  // Очищаем URL от лишних пробелов
+  const cleanImage = userData.image?.trim()
+  const hasImage = cleanImage && !cleanImage.includes('undefined')
   
   return (
     <div className="min-h-screen bg-[#0D1117] text-white p-8">
       <div className="max-w-4xl mx-auto">
         {/* Баннер */}
-        {hasBanner ? (
+        {userData.banner ? (
           <div className="w-full h-64 rounded-xl overflow-hidden mb-8">
-              <img 
-              src={userData.banner!} 
+            <img 
+              src={userData.banner} 
               alt="Discord Banner" 
               className="w-full h-full object-cover"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement
-                target.style.display = 'none'
-                console.error('Error loading banner:', userData.banner)
-              }}
             />
           </div>
         ) : (
           <div className="w-full h-64 rounded-xl bg-[#21262D] flex items-center justify-center mb-8">
-            <span className="text-xl">Баннер не найден</span>
+            <span className="text-xl">Баннер не найден (требуется Discord Nitro)</span>
           </div>
         )}
         
         <div className="bg-[#161B22] rounded-xl p-8 shadow-lg">
           <div className="flex items-center gap-6 mb-6">
-            {/* Аватарка */}
+            {/* Аватарка - УБРАЛ onError */}
             <div className="relative">
               <div className="w-32 h-32 rounded-2xl overflow-hidden border-4 border-[#080B0E] shadow-2xl">
                 {hasImage ? (
                   <Image
-                    src={userData.image!}
+                    src={cleanImage!}
                     alt={userData.name || "User Avatar"}
                     width={128}
                     height={128}
                     className="object-cover"
-                    onError={(e) => {
-                        const target = e.target as HTMLImageElement
-                        target.style.display = 'none'
-                        console.error('Error loading avatar:', userData.image)
-                      }}
                   />
                 ) : (
                   <div className="w-32 h-32 bg-[#21262D] flex items-center justify-center">
