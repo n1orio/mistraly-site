@@ -34,7 +34,8 @@ export const {
   ],
   callbacks: {
     async session({ session, token }) {
-      if (session.user) {
+      // Добавил проверку на token !== undefined
+      if (session.user && token) {
         ;(session.user as any).banner = token.banner ?? null
         ;(session.user as any).roles = token.roles ?? []
         ;(session.user as any).discordId = token.discordId ?? null
@@ -43,7 +44,6 @@ export const {
     },
     async jwt({ token, account, profile }) {
       if (account?.provider === "discord" && profile) {
-        // Исправление: преобразуем null в undefined
         token.discordId = profile.id ?? undefined
         
         if (profile.banner) {
