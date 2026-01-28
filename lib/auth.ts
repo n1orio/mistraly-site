@@ -43,11 +43,12 @@ export const {
   ],
   callbacks: {
     async signIn({ user, account, profile }) {
-      // Сохраняем данные в базу при первом входе
+      console.log('signIn profile:', profile)  // ← ЛОГИРОВАНИЕ
+      
       if (profile?.id && user.id) {
         await prisma.user.update({
           where: { id: user.id },
-          data: {  // ← ИСПРАВЛЕНО: добавил 'data:'
+          data: {
             discordId: (profile as any).id,
             name: (profile as any).username,
             image: (profile as any).image 
@@ -60,6 +61,8 @@ export const {
     },
     async session({ session, token }) {
       if (session.user && token) {
+        console.log('session token:', token)  // ← ЛОГИРОВАНИЕ
+        
         // Проверяем на некорректный баннер
         if (token.banner && !token.banner.includes('undefined')) {
           ;(session.user as any).banner = token.banner
@@ -73,6 +76,9 @@ export const {
     },
     async jwt({ token, account, profile, user }) {
       if (account?.provider === "discord" && profile) {
+        console.log('jwt profile:', profile)  // ← ЛОГИРОВАНИЕ
+        console.log('profile banner:', (profile as any).banner)  // ← ЛОГИРОВАНИЕ
+        
         token.discordId = (profile as any).id ?? undefined
         token.name = (profile as any).username
         
