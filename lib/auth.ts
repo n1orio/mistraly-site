@@ -43,12 +43,10 @@ export const {
   ],
   callbacks: {
     async signIn({ user, account, profile }) {
-      console.log('signIn profile:', profile)  // ← ЛОГИРОВАНИЕ
-      
       if (profile?.id && user.id) {
         await prisma.user.update({
           where: { id: user.id },
-          data: {
+          data: {  // ← ВОТ СЮДА НУЖНО НАПИСАТЬ 'data:'
             discordId: (profile as any).id,
             name: (profile as any).username,
             image: (profile as any).image 
@@ -61,9 +59,6 @@ export const {
     },
     async session({ session, token }) {
       if (session.user && token) {
-        console.log('session token:', token)  // ← ЛОГИРОВАНИЕ
-        
-        // Проверяем на некорректный баннер
         if (token.banner && !token.banner.includes('undefined')) {
           ;(session.user as any).banner = token.banner
         }
@@ -76,9 +71,6 @@ export const {
     },
     async jwt({ token, account, profile, user }) {
       if (account?.provider === "discord" && profile) {
-        console.log('jwt profile:', profile)  // ← ЛОГИРОВАНИЕ
-        console.log('profile banner:', (profile as any).banner)  // ← ЛОГИРОВАНИЕ
-        
         token.discordId = (profile as any).id ?? undefined
         token.name = (profile as any).username
         
@@ -87,13 +79,29 @@ export const {
           token.picture = `https://cdn.discordapp.com/avatars/${(profile as any).id}/${(profile as any).image}.png`
         }
         
-        // Баннер
+        // Баннер - делаем запрос к Discord API если нет в профиле
         if ((profile as any).banner) {
           token.banner = `https://cdn.discordapp.com/banners/${(profile as any).id}/${(profile as any).banner}?size=1024`
+        } else if (account.access_token) {
+          try {
+            const response = await fetch('https://discord.com/api/users/@me', {
+              headers: {
+                Authorization: `Bearer ${account.access_token}`,
+              },
+            })
+            
+            if (response.ok) {
+              const userData = await response.json()
+              if (userData.banner) {
+                token.banner = `https://cdn.discordapp.com/banners/${userData.id}/${userData.banner}?size=1024`
+              }
+            }
+          } catch (error) {
+            console.error('Error fetching banner from Discord API:', error)
+          }
         }
       }
       
-      // Если пользователь уже в базе, берём данные оттуда
       if (user && !(token as any).discordId) {
         ;(token as any).discordId = (user as any).discordId
       }

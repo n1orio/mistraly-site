@@ -22,19 +22,6 @@ export default async function ProfilePage() {
   }
   
   const userData = session.user as ExtendedUser
-  
-  // ЛОГИРОВАНИЕ
-  console.log('Profile Data:', {
-    id: userData.id,
-    name: userData.name,
-    discordId: userData.discordId,
-    banner: userData.banner,
-    image: userData.image,
-    hasPass: userData.hasPass,
-    minecraftNick: userData.minecraftNick
-  })
-
-  // Очищаем URL от лишних пробелов
   const cleanImage = userData.image?.trim()
   const hasImage = cleanImage && !cleanImage.includes('undefined')
   
@@ -52,13 +39,13 @@ export default async function ProfilePage() {
           </div>
         ) : (
           <div className="w-full h-64 rounded-xl bg-[#21262D] flex items-center justify-center mb-8">
-            <span className="text-xl">Баннер не найден (требуется Discord Nitro)</span>
+            <span className="text-xl">Баннер не загружен</span>
           </div>
         )}
         
         <div className="bg-[#161B22] rounded-xl p-8 shadow-lg">
           <div className="flex items-center gap-6 mb-6">
-            {/* Аватарка - УБРАЛ onError */}
+            {/* Аватарка */}
             <div className="relative">
               <div className="w-32 h-32 rounded-2xl overflow-hidden border-4 border-[#080B0E] shadow-2xl">
                 {hasImage ? (
@@ -78,7 +65,6 @@ export default async function ProfilePage() {
             </div>
             
             <div>
-              {/* Имя пользователя */}
               <h1 className="text-3xl font-bold">
                 {userData.name || 'Не указано имя'}
               </h1>
