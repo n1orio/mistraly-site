@@ -42,9 +42,23 @@ export const {
     }),
   ],
   callbacks: {
+    async signIn({ user, account, profile }) {
+      // Сохраняем discordId в базу при первом входе
+      if (profile?.id && user.id) {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: {  // ← ДОБАВИЛ 'data:'
+            discordId: profile.id,
+            image: profile.image 
+              ? `https://cdn.discordapp.com/avatars/${profile.id}/${profile.image}.png`
+              : undefined
+          },
+        })
+      }
+      return true
+    },
     async session({ session, token }) {
       if (session.user && token) {
-        // Используем (as any) для присвоения
         ;(session.user as any).banner = token.banner ?? null
         ;(session.user as any).roles = token.roles ?? []
         ;(session.user as any).discordId = token.discordId ?? null
@@ -52,7 +66,7 @@ export const {
       }
       return session
     },
-    async jwt({ token, account, profile }) {
+    async jwt({ token, account, profile, user }) {
       if (account?.provider === "discord" && profile) {
         token.discordId = profile.id ?? undefined
         
@@ -66,6 +80,12 @@ export const {
           token.banner = `https://cdn.discordapp.com/banners/${profile.id}/${profile.banner}?size=1024`
         }
       }
+      
+      // Если пользователь уже в базе, берём данные оттуда
+      if (user && !(token as any).discordId) {
+        ;(token as any).discordId = (user as any).discordId
+      }
+      
       return token
     },
   },

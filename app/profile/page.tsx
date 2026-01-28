@@ -2,7 +2,6 @@
 import { auth } from '@/lib/auth'
 import Image from 'next/image'
 
-// Явно определяем тип сессии
 interface ExtendedUser {
   id: string
   name?: string | null
@@ -22,10 +21,18 @@ export default async function ProfilePage() {
     return <div>Не авторизован</div>
   }
   
-  // Явное приведение типов
   const userData = session.user as ExtendedUser
-  const discordId = userData.discordId || userData.id
+  
+  // Используем ТОЛЬКО настоящий Discord ID из токена
+  const discordId = userData.discordId
   const banner = userData.banner
+  
+  console.log('User data:', {
+    id: userData.id,
+    discordId: userData.discordId,
+    banner: userData.banner,
+    image: userData.image
+  })
   
   return (
     <div className="min-h-screen bg-[#0D1117] text-white p-8">
@@ -69,7 +76,7 @@ export default async function ProfilePage() {
               {/* Discord ID */}
               <div className="mt-4">
                 <p className="text-sm text-gray-500">Discord ID:</p>
-                <p className="font-mono text-lg">{discordId}</p>
+                <p className="font-mono text-lg break-all">{discordId || 'Не загружен'}</p>
               </div>
             </div>
           </div>
