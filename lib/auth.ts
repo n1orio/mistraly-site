@@ -1,8 +1,11 @@
 // lib/auth.ts
-import NextAuth from "next-auth"
-import DiscordProvider from "next-auth/providers/discord"
-import { PrismaAdapter } from "@auth/prisma-adapter"
-import { prisma } from "./prisma"
+declare module "next-auth" {
+  interface User {
+    image?: string
+    banner?: string
+    roles?: string[]
+  }
+}
 
 declare module "next-auth/jwt" {
   interface JWT {
@@ -11,8 +14,14 @@ declare module "next-auth/jwt" {
     roles?: string[]
     minecraftNick?: string
     hasPass?: boolean
+    picture?: string
   }
 }
+
+import NextAuth from "next-auth"
+import DiscordProvider from "next-auth/providers/discord"
+import { PrismaAdapter } from "@auth/prisma-adapter"
+import { prisma } from "./prisma"
 
 export const { 
   handlers: { GET, POST }, 
@@ -34,11 +43,12 @@ export const {
   ],
   callbacks: {
     async session({ session, token }) {
-      // Добавил проверку на token !== undefined
       if (session.user && token) {
+        // Используем (as any) для присвоения
         ;(session.user as any).banner = token.banner ?? null
         ;(session.user as any).roles = token.roles ?? []
         ;(session.user as any).discordId = token.discordId ?? null
+        ;(session.user as any).image = token.picture ?? null
       }
       return session
     },
@@ -46,6 +56,12 @@ export const {
       if (account?.provider === "discord" && profile) {
         token.discordId = profile.id ?? undefined
         
+        // Аватарка
+        if (profile.image) {
+          token.picture = `https://cdn.discordapp.com/avatars/${profile.id}/${profile.image}.png`
+        }
+        
+        // Баннер
         if (profile.banner) {
           token.banner = `https://cdn.discordapp.com/banners/${profile.id}/${profile.banner}?size=1024`
         }
