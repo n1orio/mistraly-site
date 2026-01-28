@@ -43,14 +43,15 @@ export const {
   ],
   callbacks: {
     async signIn({ user, account, profile }) {
-      // Сохраняем discordId в базу при первом входе
+      // Сохраняем данные в базу при первом входе
       if (profile?.id && user.id) {
         await prisma.user.update({
           where: { id: user.id },
           data: {  // ← ДОБАВИЛ 'data:'
-            discordId: profile.id,
-            image: profile.image 
-              ? `https://cdn.discordapp.com/avatars/${profile.id}/${profile.image}.png`
+            discordId: (profile as any).id,
+            name: (profile as any).username,
+            image: (profile as any).image 
+              ? `https://cdn.discordapp.com/avatars/${(profile as any).id}/${(profile as any).image}.png`
               : undefined
           },
         })
@@ -59,7 +60,11 @@ export const {
     },
     async session({ session, token }) {
       if (session.user && token) {
-        ;(session.user as any).banner = token.banner ?? null
+        // Проверяем на некорректный баннер
+        if (token.banner && !token.banner.includes('undefined')) {
+          ;(session.user as any).banner = token.banner
+        }
+        
         ;(session.user as any).roles = token.roles ?? []
         ;(session.user as any).discordId = token.discordId ?? null
         ;(session.user as any).image = token.picture ?? null
@@ -69,6 +74,7 @@ export const {
     async jwt({ token, account, profile, user }) {
       if (account?.provider === "discord" && profile) {
         token.discordId = profile.id ?? undefined
+        token.name = (profile as any).username
         
         // Аватарка
         if (profile.image) {

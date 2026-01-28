@@ -23,28 +23,41 @@ export default async function ProfilePage() {
   
   const userData = session.user as ExtendedUser
   
-  // Используем ТОЛЬКО настоящий Discord ID из токена
-  const discordId = userData.discordId
-  const banner = userData.banner
-  
-  console.log('User data:', {
+  // ДОБАВЛЯЕМ ЛОГИРОВАНИЕ
+  console.log('Profile Data:', {
     id: userData.id,
+    name: userData.name,
     discordId: userData.discordId,
     banner: userData.banner,
-    image: userData.image
+    image: userData.image,
+    hasPass: userData.hasPass,
+    minecraftNick: userData.minecraftNick
   })
+
+  // Проверяем, есть ли баннер
+  const hasBanner = userData.banner && !userData.banner.includes('undefined')
+  const hasImage = userData.image && !userData.image.includes('undefined')
   
   return (
     <div className="min-h-screen bg-[#0D1117] text-white p-8">
       <div className="max-w-4xl mx-auto">
         {/* Баннер */}
-        {banner && (
+        {hasBanner ? (
           <div className="w-full h-64 rounded-xl overflow-hidden mb-8">
-            <img 
-              src={banner} 
+              <img 
+              src={userData.banner!} 
               alt="Discord Banner" 
               className="w-full h-full object-cover"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement
+                target.style.display = 'none'
+                console.error('Error loading banner:', userData.banner)
+              }}
             />
+          </div>
+        ) : (
+          <div className="w-full h-64 rounded-xl bg-[#21262D] flex items-center justify-center mb-8">
+            <span className="text-xl">Баннер не найден</span>
           </div>
         )}
         
@@ -53,13 +66,18 @@ export default async function ProfilePage() {
             {/* Аватарка */}
             <div className="relative">
               <div className="w-32 h-32 rounded-2xl overflow-hidden border-4 border-[#080B0E] shadow-2xl">
-                {userData.image ? (
+                {hasImage ? (
                   <Image
-                    src={userData.image}
+                    src={userData.image!}
                     alt={userData.name || "User Avatar"}
                     width={128}
                     height={128}
                     className="object-cover"
+                    onError={(e) => {
+                        const target = e.target as HTMLImageElement
+                        target.style.display = 'none'
+                        console.error('Error loading avatar:', userData.image)
+                      }}
                   />
                 ) : (
                   <div className="w-32 h-32 bg-[#21262D] flex items-center justify-center">
@@ -70,13 +88,19 @@ export default async function ProfilePage() {
             </div>
             
             <div>
-              <h1 className="text-3xl font-bold">{userData.name}</h1>
+              {/* Имя пользователя */}
+              <h1 className="text-3xl font-bold">
+                {userData.name || 'Не указано имя'}
+              </h1>
+              
               <p className="text-gray-400">{userData.email}</p>
               
               {/* Discord ID */}
               <div className="mt-4">
                 <p className="text-sm text-gray-500">Discord ID:</p>
-                <p className="font-mono text-lg break-all">{discordId || 'Не загружен'}</p>
+                <p className="font-mono text-lg break-all">
+                  {userData.discordId || 'Не загружен'}
+                </p>
               </div>
             </div>
           </div>
