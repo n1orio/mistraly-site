@@ -28,7 +28,7 @@
         "./*"
       ],
       "@/types/*": [
-        "./types/*"
+        "./node_modules/@types", "./types"
       ]
     }
   },
@@ -39,7 +39,7 @@
     ".next/types/**/*.d.ts",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
-  ],
+, "prisma.config.ts1"  ],
   "exclude": [
     "node_modules"
   ]

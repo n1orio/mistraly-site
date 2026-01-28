@@ -1,7 +1,7 @@
 "use client"
 
 import { useSession } from "next-auth/react"
-import { Loader2, Shield, Crown, BadgeCheck, Ban, Bot, Users, ShieldCheck, PoliceBadge } from "lucide-react"
+import { Loader2, Shield, Crown, BadgeCheck, Ban, Bot, Users, ShieldCheck, FileBadge } from "lucide-react" // ✅ PoliceBadge заменен на FileBadge
 import Image from "next/image"
 
 // Маппинг ролей для отображения
@@ -19,7 +19,7 @@ const roleConfig = {
   police: { 
     label: "Интерпол", 
     color: "bg-indigo-500/20 text-indigo-400 border-indigo-500/30",
-    icon: <PoliceBadge className="w-4 h-4" />
+    icon: <FileBadge className="w-4 h-4" /> // ✅ Исправлено
   },
   builder: { 
     label: "Строитель", 
@@ -43,7 +43,6 @@ const roleConfig = {
   }
 } as const
 
-// Типы для ролей
 type RoleType = keyof typeof roleConfig
 
 export default function Profile() {
@@ -81,15 +80,17 @@ export default function Profile() {
   }
 
   // Получаем данные пользователя из сессии
-  const user = data.user
-  const discordId = (user as any).discordId || 'Не указан'
-  const bannerUrl = (user as any).banner || 'https://cdn.discordapp.com/banners/0/0.png?size=1024'
-  const roles = ((user as any).roles as RoleType[]) || []
-  const minecraftNick = (user as any).minecraftNick || 'Не указан'
-  const hasPass = (user as any).hasPass || false
+  const user = data.user as any
+  const discordId = user.discordId || '0'
+  const bannerUrl = user.banner || 'https://cdn.discordapp.com/banners/0/0.png?size=1024'
+  const roles = (user.roles as RoleType[]) || []
+  const minecraftNick = user.minecraftNick || 'Не указан'
+  const hasPass = user.hasPass || false
 
   // Форматируем Discord ID для отображения
-  const formattedDiscordId = `${discordId.slice(0, 5)}...${discordId.slice(-5)}`
+  const formattedDiscordId = discordId.length > 10 
+    ? `${discordId.slice(0, 5)}...${discordId.slice(-5)}`
+    : discordId
 
   return (
     <div className="min-h-screen bg-[#080B0E] text-white py-8 px-4 sm:px-6">
@@ -107,7 +108,7 @@ export default function Profile() {
         {/* Карточка профиля */}
         <div className="bg-[#12181F]/50 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
           {/* Баннер профиля */}
-          <div className="relative h-48 bg-gradient-to-r from-[#0099ff] to-[#39FF14]">
+          <div className="relative h-48">
             {bannerUrl && bannerUrl !== 'https://cdn.discordapp.com/banners/0/0.png?size=1024' ? (
               <Image
                 src={bannerUrl}
@@ -128,7 +129,7 @@ export default function Profile() {
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6 mb-8">
               {/* Аватар */}
               <div className="relative">
-                <div className="absolute -inset-1 bg-gradient-to-r from-[#0099ff] to-[#39FF14] rounded-full blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt" />
+                <div className="absolute -inset-1 bg-gradient-to-r from-[#0099ff] to-[#39FF14] rounded-full blur opacity-30 animate-pulse" />
                 <div className="relative">
                   <div className="w-32 h-32 rounded-2xl overflow-hidden border-4 border-[#080B0E] shadow-2xl">
                     <Image
@@ -229,8 +230,8 @@ export default function Profile() {
                     <p className="font-medium break-all">{user.email || 'Не указан'}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-zinc-400 mb-1">Дата регистрации</p>
-                    <p className="font-medium">Скоро будет доступно</p>
+                    <p className="text-xs text-zinc-400 mb-1">Discord ID</p>
+                    <p className="font-mono font-medium text-sm">{discordId}</p>
                   </div>
                 </div>
               </div>
@@ -238,54 +239,27 @@ export default function Profile() {
               <div className="bg-[#12181F] border border-white/10 rounded-2xl p-6">
                 <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                   <Bot className="w-5 h-5 text-[#0099ff]" />
-                  Статистика
+                  Статус доступа
                 </h3>
                 <div className="space-y-3">
                   <div>
-                    <p className="text-xs text-zinc-400 mb-1">Последний вход</p>
-                    <p className="font-medium">Скоро будет доступно</p>
+                    <p className="text-xs text-zinc-400 mb-1">Тип аккаунта</p>
+                    <p className={`font-bold ${hasPass ? 'text-[#39FF14]' : 'text-yellow-400'}`}>
+                      {hasPass ? 'Полный доступ' : 'Гостевой доступ'}
+                    </p>
                   </div>
                   <div>
-                    <p className="text-xs text-zinc-400 mb-1">Часов на сервере</p>
-                    <p className="font-medium">Скоро будет доступно</p>
+                    <p className="text-xs text-zinc-400 mb-1">Ник в игре</p>
+                    <p className="font-medium">{minecraftNick}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-zinc-400 mb-1">Нарушений</p>
-                    <p className="font-medium">Скоро будет доступно</p>
+                    <p className="text-xs text-zinc-400 mb-1">Ролей назначено</p>
+                    <p className="font-bold">{roles.length || 'Нет'}</p>
                   </div>
                 </div>
               </div>
             </div>
-
-            {/* Действия */}
-            <div className="mt-8 pt-6 border-t border-white/10">
-              <h3 className="text-lg font-bold mb-4">Действия</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <button className="bg-[#12181F] hover:bg-[#1a222a] border border-white/10 rounded-xl p-4 text-left transition-all">
-                  <div className="flex items-center gap-3 mb-2">
-                    <Shield className="w-5 h-5 text-[#0099ff]" />
-                    <span className="font-bold">Настройки безопасности</span>
-                  </div>
-                  <p className="text-zinc-400 text-sm">Управление двухфакторной аутентификацией</p>
-                </button>
-                
-                <button className="bg-[#12181F] hover:bg-[#1a222a] border border-white/10 rounded-xl p-4 text-left transition-all">
-                  <div className="flex items-center gap-3 mb-2">
-                    <BadgeCheck className="w-5 h-5 text-[#0099ff]" />
-                    <span className="font-bold">Редактировать профиль</span>
-                  </div>
-                  <p className="text-zinc-400 text-sm">Изменить информацию о себе</p>
-                </button>
-              </div>
-            </div>
           </div>
-        </div>
-
-        {/* Подсказка */}
-        <div className="mt-8 text-center text-zinc-500 text-sm">
-          <p>
-            Если информация отображается некорректно, попробуйте обновить страницу или обратитесь в поддержку
-          </p>
         </div>
       </div>
     </div>
