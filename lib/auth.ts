@@ -47,7 +47,7 @@ export const {
       if (profile?.id && user.id) {
         await prisma.user.update({
           where: { id: user.id },
-          data: {  // ← ДОБАВИЛ 'data:'
+          data: {  // ← ИСПРАВЛЕНО: добавил 'data:'
             discordId: (profile as any).id,
             name: (profile as any).username,
             image: (profile as any).image 
@@ -73,17 +73,17 @@ export const {
     },
     async jwt({ token, account, profile, user }) {
       if (account?.provider === "discord" && profile) {
-        token.discordId = profile.id ?? undefined
+        token.discordId = (profile as any).id ?? undefined
         token.name = (profile as any).username
         
         // Аватарка
-        if (profile.image) {
-          token.picture = `https://cdn.discordapp.com/avatars/${profile.id}/${profile.image}.png`
+        if ((profile as any).image) {
+          token.picture = `https://cdn.discordapp.com/avatars/${(profile as any).id}/${(profile as any).image}.png`
         }
         
         // Баннер
-        if (profile.banner) {
-          token.banner = `https://cdn.discordapp.com/banners/${profile.id}/${profile.banner}?size=1024`
+        if ((profile as any).banner) {
+          token.banner = `https://cdn.discordapp.com/banners/${(profile as any).id}/${(profile as any).banner}?size=1024`
         }
       }
       
