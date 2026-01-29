@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Copy, ShoppingCart, Check } from "lucide-react"
 import { motion, useMotionValue, useSpring } from "framer-motion"
+import { useRouter } from 'next/navigation'
 
 export default function SleekHero() {
   const [copied, setCopied] = useState(false)
@@ -127,6 +128,7 @@ export default function SleekHero() {
         {/* КНОПКИ: адаптивное расположение */}
         <div className="mt-8 sm:mt-10 md:mt-12 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full max-w-3xl mx-auto">
           <Button 
+            onClick={() => router.push('/buy-pass')}
             className="h-12 sm:h-14 w-full sm:w-64 text-base sm:text-lg bg-[#0099ff] hover:bg-white hover:text-black font-bold rounded-xl transition-all duration-300 shadow-[0_10px_25px_rgba(0,153,255,0.2)] active:scale-95"
           >
             <ShoppingCart className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
