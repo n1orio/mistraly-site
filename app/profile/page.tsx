@@ -1,6 +1,7 @@
 // app/profile/page.tsx
 import { auth } from '@/lib/auth'
 import Image from 'next/image'
+import { getDiscordBanner } from '@/lib/discord'
 
 interface ExtendedUser {
   id: string
@@ -15,24 +16,6 @@ interface ExtendedUser {
   hasPass?: boolean
 }
 
-// Функция для получения правильного формата баннера
-function getBannerUrl(bannerHash: string | null, userId: string | null): string | null {
-  if (!bannerHash || !userId) return null
-  
-  // Если хеш начинается с "https://", значит это уже полный URL
-  if (bannerHash.startsWith('https://')) {
-    return bannerHash;
-  }
-  
-  // Если хеш начинается с "a_", это анимированный баннер
-  const isAnimated = bannerHash.startsWith('a_');
-  const format = isAnimated ? 'gif' : 'png';
-  const size = 1024;
-  
-  // Формируем правильный URL
-  return `https://cdn.discordapp.com/banners/${userId}/${bannerHash}.${format}?size=${size}`;
-}
-
 export default async function ProfilePage() {
   const session = await auth()
   
@@ -44,11 +27,9 @@ export default async function ProfilePage() {
   const cleanImage = userData.image?.trim()
   const hasImage = cleanImage && !cleanImage.includes('undefined')
   
-  // Получаем правильный URL баннера
-  const bannerUrl = userData.banner && userData.discordId 
-    ? getBannerUrl(userData.banner, userData.discordId) 
-    : null
-  
+  // Получаем баннер через Discord Bot API
+  const bannerUrl = userData.discordId ? await getDiscordBanner(userData.discordId) : null
+
   return (
     <div className="min-h-screen bg-[#0D1117] text-white p-8">
       <div className="max-w-4xl mx-auto">
@@ -68,9 +49,11 @@ export default async function ProfilePage() {
           <div className="w-full h-64 rounded-xl bg-[#21262D] flex items-center justify-center mb-8">
             <div className="text-center">
               <span className="text-xl block mb-2">Баннер не загружен</span>
-              <p className="text-sm text-gray-500 mt-2">
-                Banner field: {userData.banner === null ? 'null' : userData.banner || 'empty'}
-              </p>
+              {userData.discordId && (
+                <p className="text-sm text-gray-500 mt-2">
+                  Discord ID: {userData.discordId}
+                </p>
+              )}
             </div>
           </div>
         )}
@@ -119,23 +102,6 @@ export default async function ProfilePage() {
               </div>
             </div>
           </div>
-          
-          {/* Кнопка обновления профиля */}
-          {!userData.banner && userData.discordId && (
-            <div className="mt-6 p-4 bg-blue-900/30 border border-blue-500/50 rounded-lg">
-              <p className="text-sm text-gray-300 mb-3">
-                Баннер не найден в вашем профиле. Обновите информацию для загрузки баннера из Discord.
-              </p>
-              <form action="/api/update-profile" method="POST">
-                <button
-                  type="submit"
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-colors"
-                >
-                  Обновить профиль
-                </button>
-              </form>
-            </div>
-          )}
           
           {/* Дополнительная информация */}
           <div className="grid grid-cols-2 gap-4 mt-6">

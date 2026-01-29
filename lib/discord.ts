@@ -1,17 +1,30 @@
 // lib/discord.ts
-export async function getDiscordBanner(userId: string) {
+export async function getDiscordBanner(userId: string): Promise<string | null> {
   try {
     const response = await fetch(`https://discord.com/api/v10/users/${userId}`, {
       headers: {
         Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`
       }
     })
-    const data = await response.json()
-    if (data.banner) {
-      return `https://cdn.discordapp.com/banners/${userId}/${data.banner}?size=1024`
+
+    if (!response.ok) {
+      console.error('Failed to fetch Discord user:', response.status, response.statusText)
+      return null
     }
+
+    const data = await response.json()
+    
+    if (data.banner) {
+      // Определяем формат баннера (анимированный или статичный)
+      const isAnimated = data.banner.startsWith('a_')
+      const format = isAnimated ? 'gif' : 'png'
+      
+      return `https://cdn.discordapp.com/banners/${userId}/${data.banner}.${format}?size=1024`
+    }
+    
+    return null
   } catch (error) {
     console.error('Error fetching Discord banner:', error)
+    return null
   }
-  return null
 }
