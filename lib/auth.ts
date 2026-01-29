@@ -46,7 +46,7 @@ export const {
       if (profile?.id && user.id) {
         await prisma.user.update({
           where: { id: user.id },
-          data: {  // ← ВОТ СЮДА НУЖНО НАПИСАТЬ 'data:'
+          data: {  // ← ПРАВИЛЬНО: "data:" (без опечаток!)
             discordId: (profile as any).id,
             name: (profile as any).username,
             image: (profile as any).image 
@@ -66,6 +66,7 @@ export const {
         ;(session.user as any).roles = token.roles ?? []
         ;(session.user as any).discordId = token.discordId ?? null
         ;(session.user as any).image = token.picture ?? null
+        ;(session.user as any).discordName = token.discordName ?? null
       }
       return session
     },
@@ -73,32 +74,33 @@ export const {
       if (account?.provider === "discord" && profile) {
         token.discordId = (profile as any).id ?? undefined
         token.name = (profile as any).username
+        token.discordName = (profile as any).global_name || (profile as any).username
         
         // Аватарка
         if ((profile as any).image) {
           token.picture = `https://cdn.discordapp.com/avatars/${(profile as any).id}/${(profile as any).image}.png`
         }
         
-        // Баннер - делаем запрос к Discord API если нет в профиле
-        if ((profile as any).banner) {
-          token.banner = `https://cdn.discordapp.com/banners/${(profile as any).id}/${(profile as any).banner}?size=1024`
-        } else if (account.access_token) {
-          try {
-            const response = await fetch('https://discord.com/api/users/@me', {
-              headers: {
-                Authorization: `Bearer ${account.access_token}`,
-              },
-            })
+        // Баннер - ЗАПРОС К DISCORD API
+        try {
+          const response = await fetch('https://discord.com/api/users/@me', {
+            headers: {
+              Authorization: `Bearer ${account.access_token}`,
+            },
+          })
+          
+          if (response.ok) {
+            const userData = await response.json()
             
-            if (response.ok) {
-              const userData = await response.json()
-              if (userData.banner) {
-                token.banner = `https://cdn.discordapp.com/banners/${userData.id}/${userData.banner}?size=1024`
-              }
+            if (userData.banner) {
+              // ОПРЕДЕЛЯЕМ ФОРМАТ БАННЕРА (анимированный = GIF, обычный = PNG)
+              const extension = userData.banner.startsWith('a_') ? 'gif' : 'png'
+              const bannerId = userData.banner.replace('a_', '')
+              token.banner = `https://cdn.discordapp.com/banners/${userData.id}/${bannerId}.${extension}?size=1024`
             }
-          } catch (error) {
-            console.error('Error fetching banner from Discord API:', error)
           }
+        } catch (error) {
+          console.error('Error fetching banner:', error)
         }
       }
       

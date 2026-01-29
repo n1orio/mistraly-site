@@ -8,6 +8,7 @@ interface ExtendedUser {
   email?: string | null
   image?: string | null
   discordId?: string | null
+  discordName?: string | null
   banner?: string | null
   roles?: string[]
   minecraftNick?: string | null
@@ -64,10 +65,17 @@ export default async function ProfilePage() {
               </div>
             </div>
             
-            <div>
+            <div className="flex-1">
               <h1 className="text-3xl font-bold">
                 {userData.name || 'Не указано имя'}
               </h1>
+              
+              {/* Discord Nick */}
+              {userData.discordName && (
+                <p className="text-blue-400 font-semibold">
+                  Discord: {userData.discordName}
+                </p>
+              )}
               
               <p className="text-gray-400">{userData.email}</p>
               
@@ -90,9 +98,25 @@ export default async function ProfilePage() {
             
             <div className="bg-[#21262D] p-4 rounded-lg">
               <p className="text-sm text-gray-500">Has Pass:</p>
-              <p className="font-semibold">{userData.hasPass ? 'Да' : 'Нет'}</p>
+              <p className="font-semibold">{userData.hasPass ? 'Да ✅' : 'Нет ❌'}</p>
             </div>
           </div>
+          
+          {/* Кнопка покупки пропуска */}
+          {!userData.hasPass && (
+            <div className="mt-8 p-6 bg-[#21262D] rounded-lg">
+              <h2 className="text-2xl font-bold mb-4">Купить пропуск</h2>
+              <p className="text-gray-400 mb-4">
+                Получите доступ к эксклюзивным возможностям сервера
+              </p>
+              <a 
+                href="/buy-pass" 
+                className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+              >
+                Приобрести пропуск
+              </a>
+            </div>
+          )}
         </div>
       </div>
     </div>
