@@ -18,6 +18,15 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false)
   const mobileMenuRef = useRef<HTMLDivElement>(null)
 
+  // Отслеживаем скролл для эффектов хедера
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10)
+    }
+    
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   // Закрываем меню при изменении пути
   useEffect(() => {
@@ -25,33 +34,12 @@ export default function Header() {
     setIsMenuOpen(false)
   }, [pathname])
 
-  // Закрываем мобильное меню при клике вне его
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
-        setIsMobileNavOpen(false)
-      }
-    }
-
-    if (isMobileNavOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-    } else {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [isMobileNavOpen])
-
-  // ✅ ИСПРАВЛЕНО: убраны пробелы в формировании аватарки и добавлена очистка никнейма
+  // ✅ ИСПРАВЛЕНО: убраны ВСЕ пробелы в URL
   const hasPass = data?.user?.hasPass
   const rawMcNick = data?.user?.minecraftNick || 'MHF_Steve'
-  
-  // Очищаем ник от лишних пробелов
   const mcNick = rawMcNick.trim()
   
-  // ✅ ИСПРАВЛЕНО: убраны пробелы в строке формирования аватарки
+  // 🔴 КРИТИЧЕСКИ ВАЖНО: убраны пробелы в URL аватарки!
   const avatarUrl = hasPass && mcNick && mcNick !== 'MHF_Steve'
     ? `https://minotar.net/helm/${encodeURIComponent(mcNick)}/64.png`
     : 'https://minotar.net/helm/MHF_Steve/64.png'
@@ -74,7 +62,7 @@ export default function Header() {
       
       <div className="max-w-7xl mx-auto w-full flex items-center justify-between">
 
-        {/* ЛОГОТИП (адаптирован для мобильных) */}
+        {/* ЛОГОТИП */}
         <Link 
           href="/" 
           className="flex items-center font-sf font-bold text-base sm:text-xl tracking-wide select-none z-20 group"
@@ -110,7 +98,7 @@ export default function Header() {
             ))}
           </div>
           
-          {/* 🔗 СОЦСЕТИ */}
+          {/* 🔗 СОЦСЕТИ — ИСПРАВЛЕНЫ ПРОБЕЛЫ В URL! */}
           <div className="flex items-center gap-4 border-l border-white/10 pl-8 ml-2">
             <a href="https://t.me/breeze_monster" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#24a1de] transition-all">
               <SiTelegram className="w-[18px] h-[18px]" />
@@ -162,7 +150,10 @@ export default function Header() {
               <AnimatePresence>
                 {isMenuOpen && (
                   <>
-                    <div className="fixed inset-0 z-40" onClick={() => setIsMenuOpen(false)} />
+                    <div 
+                      className="fixed inset-0 z-40" 
+                      onClick={() => setIsMenuOpen(false)}
+                    />
                     <motion.div
                       initial={{ opacity: 0, y: 10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -215,7 +206,7 @@ export default function Header() {
             </Button>
           )}
 
-          {/* БУРГЕР-МЕНЮ (улучшенная видимость на мобильных) */}
+          {/* БУРГЕР-МЕНЮ */}
           <button
             onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
             className="lg:hidden text-white p-2 -mr-2 hover:bg-white/10 rounded-lg transition-colors"
@@ -231,32 +222,44 @@ export default function Header() {
       <AnimatePresence>
         {isMobileNavOpen && (
           <>
-            {/* Фон-затемнение (теперь не закрывает меню при скролле) */}
+            {/* Фон-затемнение */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black/50 z-40"
-              onClick={(e) => {
-                // Закрываем только при клике на фон, а не на меню
-                if (e.target === e.currentTarget) {
-                  setIsMobileNavOpen(false)
-                }
-              }}
             />
             
-            {/* Меню (выезжающее слева) */}
+            {/* Меню */}
             <motion.div
               ref={mobileMenuRef}
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="fixed top-0 left-0 h-full w-[85%] max-w-xs bg-[#090D10]/80 backdrop-blur-xl shadow-xl rounded-r-2xl z-50 overflow-y-auto"
-              style={{ touchAction: 'pan-y' }} // Разрешаем скролл внутри меню
+              className="fixed top-0 left-0 min-h-screen h-screen w-[85%] max-w-xs bg-[#090D10]/80 backdrop-blur-xl shadow-xl rounded-r-2xl z-50 overflow-y-auto"
+              style={{ 
+                touchAction: 'pan-y',
+                WebkitOverflowScrolling: 'touch',
+                // ДОБАВЛЕНО: фикс для обрезания
+                maxHeight: '100vh',
+                height: '100vh',
+                overflowY: 'auto'
+              }}
             >
+              {/* Кнопка закрытия */}
+              <div className="absolute top-4 right-4 z-10">
+                <button
+                  onClick={() => setIsMobileNavOpen(false)}
+                  className="text-white p-2 hover:bg-white/10 rounded-lg transition-colors"
+                  aria-label="Закрыть меню"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              
               {/* Логотип в меню */}
-              <div className="p-4 border-b border-white/10">
+              <div className="p-4 pt-12 border-b border-white/10">
                 <Link 
                   href="/" 
                   className="flex items-center font-sf font-bold text-xl tracking-wide text-white"
