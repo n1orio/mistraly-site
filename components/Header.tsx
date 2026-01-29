@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Loader2, ChevronDown, User, Settings, LogOut, X, Menu } from "lucide-react"
 import { SiTelegram, SiDiscord } from "react-icons/si"
 import { useSession, signIn, signOut } from "next-auth/react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { RiHeadphoneLine } from "react-icons/ri"
 
@@ -16,6 +16,7 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const mobileMenuRef = useRef<HTMLDivElement>(null)
 
   // Отслеживаем скролл
   useEffect(() => {
@@ -27,10 +28,30 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  // Закрываем меню при изменении пути
   useEffect(() => {
     setIsMobileNavOpen(false)
     setIsMenuOpen(false)
   }, [pathname])
+
+  // Закрываем мобильное меню при клике вне его
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
+        setIsMobileNavOpen(false)
+      }
+    }
+
+    if (isMobileNavOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isMobileNavOpen])
 
   // ✅ ИСПРАВЛЕНО: убраны пробелы в формировании аватарки и добавлена очистка никнейма
   const hasPass = data?.user?.hasPass
@@ -219,22 +240,29 @@ export default function Header() {
       <AnimatePresence>
         {isMobileNavOpen && (
           <>
-            {/* Фон-затемнение */}
+            {/* Фон-затемнение (теперь не закрывает меню при скролле) */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black/50 z-40"
-              onClick={() => setIsMobileNavOpen(false)}
+              onClick={(e) => {
+                // Закрываем только при клике на фон, а не на меню
+                if (e.target === e.currentTarget) {
+                  setIsMobileNavOpen(false)
+                }
+              }}
             />
             
             {/* Меню (выезжающее слева) */}
             <motion.div
+              ref={mobileMenuRef}
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               className="fixed top-0 left-0 h-full w-[85%] max-w-xs bg-[#090D10]/80 backdrop-blur-xl shadow-xl rounded-r-2xl z-50 overflow-y-auto"
+              style={{ touchAction: 'pan-y' }} // Разрешаем скролл внутри меню
             >
               {/* Логотип в меню */}
               <div className="p-4 border-b border-white/10">
