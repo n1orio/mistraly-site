@@ -14,6 +14,7 @@ model User {
   emailVerified DateTime?
   image         String?
   discordId     String?   @unique
+  banner        String?
   minecraftNick String?
   hasPass       Boolean   @default(false)
   accounts      Account[]
