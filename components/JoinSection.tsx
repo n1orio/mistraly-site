@@ -40,37 +40,8 @@ export default function JoinSection() {
       className="join-section w-full bg-[#090D10] py-20 px-6 font-sans border-t border-white/5 relative overflow-hidden"
     >
       {/* Градиентный фон */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#090D10] via-[#0a0e11] to-[#090D10] pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-br bg-[#090D10] pointer-events-none" />
       
-      {/* Декоративные градиентные круги */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {/* Верхний левый градиент */}
-        <div className="absolute top-0 left-0 w-full h-full">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-br from-[#99c03e]/10 to-transparent rounded-full blur-3xl animate-pulse opacity-30" />
-          <div className="absolute top-1/3 left-1/3 w-64 h-64 bg-gradient-to-br from-[#99c03e]/5 to-transparent rounded-full blur-2xl animate-pulse opacity-20" />
-        </div>
-        
-        {/* Центральный градиент */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full">
-          <div className="absolute top-0 left-0 w-128 h-128 bg-gradient-to-br from-[#0099ff]/10 to-transparent rounded-full blur-3xl animate-pulse opacity-30" />
-          <div className="absolute top-1/4 left-1/4 w-80 h-80 bg-gradient-to-br from-[#0099ff]/5 to-transparent rounded-full blur-2xl animate-pulse opacity-20" />
-        </div>
-        
-        {/* Нижний правый градиент */}
-        <div className="absolute bottom-0 right-0 w-full h-full">
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-to-tl from-[#5865f2]/10 to-transparent rounded-full blur-3xl animate-pulse opacity-30" />
-          <div className="absolute bottom-1/3 right-1/3 w-64 h-64 bg-gradient-to-tl from-[#5865f2]/5 to-transparent rounded-full blur-2xl animate-pulse opacity-20" />
-        </div>
-        
-        {/* Дополнительные пульсирующие элементы */}
-        <div className="absolute top-1/2 right-1/4 w-48 h-48 bg-gradient-to-br from-[#0099ff]/5 to-transparent rounded-full blur-3xl animate-pulse opacity-20" />
-        <div className="absolute bottom-1/3 left-1/4 w-40 h-40 bg-gradient-to-tl from-[#99c03e]/5 to-transparent rounded-full blur-3xl animate-pulse opacity-20" />
-      </div>
-
-      {/* Сетка градиентных точек */}
-      <div className="absolute inset-0 pointer-events-none opacity-5">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_0%,#090D10_100%)]" />
-      </div>
 
       <div className="max-w-5xl mx-auto relative z-10">
         
