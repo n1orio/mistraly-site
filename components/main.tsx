@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Copy, ShoppingCart, Check } from "lucide-react"
 import { motion, useMotionValue, useSpring } from "framer-motion"
-import { useRouter } from 'next/navigation'
+import router from "next/router"
 
 export default function SleekHero() {
   const [copied, setCopied] = useState(false)
