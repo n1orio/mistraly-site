@@ -17,14 +17,33 @@ interface ExtendedUser {
 
 // Функция для получения правильного формата баннера
 function getBannerUrl(bannerHash: string | null, userId: string | null): string | null {
-  if (!bannerHash || !userId) return null
+  if (!bannerHash || !userId) {
+    console.log('No banner hash or userId');
+    return null;
+  }
   
-  // Определяем формат изображения
-  const format = bannerHash.startsWith('a_') ? 'gif' : 'png'
-  const size = 1024 // Размер баннера
+  console.log('Banner hash:', bannerHash);
+  console.log('User ID:', userId);
   
-  // Формируем правильный URL для баннера
-  return `https://cdn.discordapp.com/banners/${userId}/${bannerHash}.${format}?size=${size}`
+  // Убираем лишние префиксы, если они есть
+  let cleanHash = bannerHash;
+  
+  // Если хеш начинается с "https://", значит это уже полный URL
+  if (bannerHash.startsWith('https://')) {
+    return bannerHash;
+  }
+  
+  // Если хеш начинается с "a_", это анимированный баннер
+  const isAnimated = bannerHash.startsWith('a_');
+  const format = isAnimated ? 'gif' : 'png';
+  const size = 1024;
+  
+  // Формируем правильный URL
+  const url = `https://cdn.discordapp.com/banners/${userId}/${bannerHash}.${format}?size=${size}`;
+  
+  console.log('Generated banner URL:', url);
+  
+  return url;
 }
 
 export default async function ProfilePage() {
@@ -46,23 +65,40 @@ export default async function ProfilePage() {
   return (
     <div className="min-h-screen bg-[#0D1117] text-white p-8">
       <div className="max-w-4xl mx-auto">
-        {/* Баннер */}
-        {bannerUrl ? (
-          <div className="w-full h-64 rounded-xl overflow-hidden mb-8">
-            <Image
-              src={bannerUrl}
-              alt="Discord Banner"
-              width={1200}
-              height={320}
-              className="w-full h-full object-cover"
-              unoptimized // Discord CDN уже оптимизирован
-            />
-          </div>
-        ) : (
-          <div className="w-full h-64 rounded-xl bg-[#21262D] flex items-center justify-center mb-8">
-            <span className="text-xl">Баннер не загружен</span>
-          </div>
-        )}
+        {/* Баннер - добавлена отладочная информация */}
+        <div>
+          {bannerUrl ? (
+            <div className="w-full h-64 rounded-xl overflow-hidden mb-8 relative">
+              <Image
+                src={bannerUrl}
+                alt="Discord Banner"
+                width={1200}
+                height={320}
+                className="w-full h-full object-cover"
+                unoptimized
+                onError={(e) => {
+                  console.error('Banner failed to load:', bannerUrl);
+                  console.error('Error:', e);
+                }}
+              />
+              {/* Отладочная информация (можно удалить после тестирования) */}
+              <div className="absolute top-2 right-2 bg-black/50 text-xs px-2 py-1 rounded">
+                URL: {bannerUrl.length > 50 ? bannerUrl.substring(0, 50) + '...' : bannerUrl}
+              </div>
+            </div>
+          ) : (
+            <div className="w-full h-64 rounded-xl bg-[#21262D] flex items-center justify-center mb-8">
+              <div className="text-center">
+                <span className="text-xl block mb-2">Баннер не загружен</span>
+                {/* Отладочная информация */}
+                <div className="text-sm text-gray-500 mt-4">
+                  <p>Banner field: {userData.banner || 'null'}</p>
+                  <p>Discord ID: {userData.discordId || 'null'}</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
         
         <div className="bg-[#161B22] rounded-xl p-8 shadow-lg">
           <div className="flex items-center gap-6 mb-6">
