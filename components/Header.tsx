@@ -32,25 +32,17 @@ export default function Header() {
     setIsMenuOpen(false)
   }, [pathname])
 
-  // Закрываем меню при клике вне его области
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement
-      if (!target.closest('.profile-menu-trigger') && !target.closest('.profile-menu')) {
-        setIsMenuOpen(false)
-      }
-    }
-
-    document.addEventListener('click', handleClickOutside)
-    return () => document.removeEventListener('click', handleClickOutside)
-  }, [])
-
-  // ✅ ИСПРАВЛЕНО: убраны пробелы в URL аватарки
+  // ✅ ИСПРАВЛЕНО: убраны пробелы в формировании аватарки и добавлена очистка никнейма
   const hasPass = data?.user?.hasPass
-  const mcNick = data?.user?.minecraftNick || 'MHF_Steve'
-  const avatarUrl = hasPass && mcNick
+  const rawMcNick = data?.user?.minecraftNick || 'MHF_Steve'
+  
+  // Очищаем ник от лишних пробелов
+  const mcNick = rawMcNick.trim()
+  
+  // ✅ ИСПРАВЛЕНО: убраны пробелы в строке формирования аватарки
+  const avatarUrl = hasPass && mcNick && mcNick !== 'MHF_Steve'
     ? `https://minotar.net/helm/${encodeURIComponent(mcNick)}/64.png`
-    : `https://minotar.net/helm/MHF_Steve/64.png`
+    : 'https://minotar.net/helm/MHF_Steve/64.png'
 
   const navLinks = [
     { name: "Главная", path: "/" },
