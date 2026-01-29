@@ -15,6 +15,18 @@ interface ExtendedUser {
   hasPass?: boolean
 }
 
+// Функция для получения правильного формата баннера
+function getBannerUrl(bannerHash: string | null, userId: string | null): string | null {
+  if (!bannerHash || !userId) return null
+  
+  // Определяем формат изображения
+  const format = bannerHash.startsWith('a_') ? 'gif' : 'png'
+  const size = 1024 // Размер баннера
+  
+  // Формируем правильный URL для баннера
+  return `https://cdn.discordapp.com/banners/${userId}/${bannerHash}.${format}?size=${size}`
+}
+
 export default async function ProfilePage() {
   const session = await auth()
   
@@ -26,16 +38,24 @@ export default async function ProfilePage() {
   const cleanImage = userData.image?.trim()
   const hasImage = cleanImage && !cleanImage.includes('undefined')
   
+  // Получаем правильный URL баннера
+  const bannerUrl = userData.banner && userData.discordId 
+    ? getBannerUrl(userData.banner, userData.discordId) 
+    : null
+  
   return (
     <div className="min-h-screen bg-[#0D1117] text-white p-8">
       <div className="max-w-4xl mx-auto">
         {/* Баннер */}
-        {userData.banner ? (
+        {bannerUrl ? (
           <div className="w-full h-64 rounded-xl overflow-hidden mb-8">
-            <img 
-              src={userData.banner} 
-              alt="Discord Banner" 
+            <Image
+              src={bannerUrl}
+              alt="Discord Banner"
+              width={1200}
+              height={320}
               className="w-full h-full object-cover"
+              unoptimized // Discord CDN уже оптимизирован
             />
           </div>
         ) : (
