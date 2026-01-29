@@ -14,7 +14,17 @@ declare module "next-auth" {
       roles?: string[]
       minecraftNick?: string | null
       hasPass?: boolean
+      discordName?: string | null
     }
+  }
+
+  interface User {
+    image?: string
+    banner?: string
+    roles?: string[]
+    discordId?: string
+    minecraftNick?: string
+    hasPass?: boolean
   }
 }
 
@@ -25,5 +35,7 @@ declare module "next-auth/jwt" {
     roles?: string[]
     minecraftNick?: string
     hasPass?: boolean
+    picture?: string
+    discordName?: string
   }
 }

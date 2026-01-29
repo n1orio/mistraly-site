@@ -1,27 +1,20 @@
 // lib/auth.ts
-declare module "next-auth" {
-  interface User {
-    image?: string
-    banner?: string
-    roles?: string[]
-  }
-}
-
-declare module "next-auth/jwt" {
-  interface JWT {
-    discordId?: string
-    banner?: string
-    roles?: string[]
-    minecraftNick?: string
-    hasPass?: boolean
-    picture?: string
-  }
-}
-
 import NextAuth from "next-auth"
 import DiscordProvider from "next-auth/providers/discord"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "./prisma"
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    banner?: string | null
+    discordId?: string | null
+    discordName?: string | null
+    minecraftNick?: string | undefined
+    hasPass?: boolean
+    roles?: string[]
+    picture?: string | null
+  }
+}
 
 export const { 
   handlers: { GET, POST }, 
@@ -44,14 +37,16 @@ export const {
   callbacks: {
     async signIn({ user, account, profile }) {
       if (profile?.id && user.id) {
+        const avatarUrl = (profile as any).image
+          ? `https://cdn.discordapp.com/avatars/${(profile as any).id}/${(profile as any).image}.${(profile as any).image.startsWith('a_') ? 'gif' : 'png'}?size=256`
+          : null
+        
         await prisma.user.update({
           where: { id: user.id },
-          data: {  // ← ПРАВИЛЬНО: "data:" (без опечаток!)
+          data: {  // ← ИСПРАВЛЕНО: добавлено 'data:'
             discordId: (profile as any).id,
             name: (profile as any).username,
-            image: (profile as any).image 
-              ? `https://cdn.discordapp.com/avatars/${(profile as any).id}/${(profile as any).image}.png`
-              : undefined
+            image: avatarUrl
           },
         })
       }
@@ -59,44 +54,38 @@ export const {
     },
     async session({ session, token }) {
       if (session.user && token) {
-        if (token.banner && !token.banner.includes('undefined')) {
-          ;(session.user as any).banner = token.banner
-        }
-        
-        ;(session.user as any).roles = token.roles ?? []
-        ;(session.user as any).discordId = token.discordId ?? null
-        ;(session.user as any).image = token.picture ?? null
-        ;(session.user as any).discordName = token.discordName ?? null
+        ;(session.user as any).discordId = token.discordId
+        ;(session.user as any).banner = token.banner
+        ;(session.user as any).roles = token.roles || []
+        ;(session.user as any).image = token.picture || token.image
+        ;(session.user as any).discordName = token.discordName
+        ;(session.user as any).minecraftNick = token.minecraftNick
+        ;(session.user as any).hasPass = token.hasPass
       }
       return session
     },
     async jwt({ token, account, profile, user }) {
       if (account?.provider === "discord" && profile) {
-        token.discordId = (profile as any).id ?? undefined
+        token.discordId = (profile as any).id
         token.name = (profile as any).username
         token.discordName = (profile as any).global_name || (profile as any).username
         
-        // Аватарка
         if ((profile as any).image) {
-          token.picture = `https://cdn.discordapp.com/avatars/${(profile as any).id}/${(profile as any).image}.png`
+          const avatarFormat = (profile as any).image.startsWith('a_') ? 'gif' : 'png'
+          token.picture = `https://cdn.discordapp.com/avatars/${(profile as any).id}/${(profile as any).image}.${avatarFormat}?size=256`
         }
         
-        // Баннер - ЗАПРОС К DISCORD API
         try {
           const response = await fetch('https://discord.com/api/users/@me', {
-            headers: {
-              Authorization: `Bearer ${account.access_token}`,
-            },
+            headers: { Authorization: `Bearer ${account.access_token}` },
           })
           
           if (response.ok) {
             const userData = await response.json()
-            
             if (userData.banner) {
-              // ОПРЕДЕЛЯЕМ ФОРМАТ БАННЕРА (анимированный = GIF, обычный = PNG)
-              const extension = userData.banner.startsWith('a_') ? 'gif' : 'png'
-              const bannerId = userData.banner.replace('a_', '')
-              token.banner = `https://cdn.discordapp.com/banners/${userData.id}/${bannerId}.${extension}?size=1024`
+              const isAnimated = userData.banner.startsWith('a_')
+              const extension = isAnimated ? 'gif' : 'png'
+              token.banner = `https://cdn.discordapp.com/banners/${userData.id}/${userData.banner}.${extension}?size=1024`
             }
           }
         } catch (error) {
@@ -104,8 +93,13 @@ export const {
         }
       }
       
-      if (user && !(token as any).discordId) {
-        ;(token as any).discordId = (user as any).discordId
+      if (user && !token.discordId) {
+        token.discordId = (user as any).discordId
+        token.banner = (user as any).banner
+        token.discordName = (user as any).discordName
+        token.minecraftNick = (user as any).minecraftNick
+        token.hasPass = (user as any).hasPass
+        token.roles = (user as any).roles
       }
       
       return token

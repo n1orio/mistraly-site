@@ -9,11 +9,11 @@ interface ExtendedUser {
   email?: string | null
   image?: string | null
   discordId?: string | null
-  discordName?: string | null
   banner?: string | null
-  roles?: string[]
+  roles?: string[] | null
   minecraftNick?: string | null
-  hasPass?: boolean
+  hasPass?: boolean | null
+  discordName?: string | null
 }
 
 export default async function ProfilePage() {
