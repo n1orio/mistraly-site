@@ -17,16 +17,7 @@ interface ExtendedUser {
 
 // Функция для получения правильного формата баннера
 function getBannerUrl(bannerHash: string | null, userId: string | null): string | null {
-  if (!bannerHash || !userId) {
-    console.log('No banner hash or userId');
-    return null;
-  }
-  
-  console.log('Banner hash:', bannerHash);
-  console.log('User ID:', userId);
-  
-  // Убираем лишние префиксы, если они есть
-  let cleanHash = bannerHash;
+  if (!bannerHash || !userId) return null
   
   // Если хеш начинается с "https://", значит это уже полный URL
   if (bannerHash.startsWith('https://')) {
@@ -39,11 +30,7 @@ function getBannerUrl(bannerHash: string | null, userId: string | null): string 
   const size = 1024;
   
   // Формируем правильный URL
-  const url = `https://cdn.discordapp.com/banners/${userId}/${bannerHash}.${format}?size=${size}`;
-  
-  console.log('Generated banner URL:', url);
-  
-  return url;
+  return `https://cdn.discordapp.com/banners/${userId}/${bannerHash}.${format}?size=${size}`;
 }
 
 export default async function ProfilePage() {
@@ -65,40 +52,28 @@ export default async function ProfilePage() {
   return (
     <div className="min-h-screen bg-[#0D1117] text-white p-8">
       <div className="max-w-4xl mx-auto">
-        {/* Баннер - добавлена отладочная информация */}
-        <div>
-          {bannerUrl ? (
-            <div className="w-full h-64 rounded-xl overflow-hidden mb-8 relative">
-              <Image
-                src={bannerUrl}
-                alt="Discord Banner"
-                width={1200}
-                height={320}
-                className="w-full h-full object-cover"
-                unoptimized
-                onError={(e) => {
-                  console.error('Banner failed to load:', bannerUrl);
-                  console.error('Error:', e);
-                }}
-              />
-              {/* Отладочная информация (можно удалить после тестирования) */}
-              <div className="absolute top-2 right-2 bg-black/50 text-xs px-2 py-1 rounded">
-                URL: {bannerUrl.length > 50 ? bannerUrl.substring(0, 50) + '...' : bannerUrl}
-              </div>
+        {/* Баннер */}
+        {bannerUrl ? (
+          <div className="w-full h-64 rounded-xl overflow-hidden mb-8">
+            <Image
+              src={bannerUrl}
+              alt="Discord Banner"
+              width={1200}
+              height={320}
+              className="w-full h-full object-cover"
+              unoptimized
+            />
+          </div>
+        ) : (
+          <div className="w-full h-64 rounded-xl bg-[#21262D] flex items-center justify-center mb-8">
+            <div className="text-center">
+              <span className="text-xl block mb-2">Баннер не загружен</span>
+              <p className="text-sm text-gray-500 mt-2">
+                Banner field: {userData.banner === null ? 'null' : userData.banner || 'empty'}
+              </p>
             </div>
-          ) : (
-            <div className="w-full h-64 rounded-xl bg-[#21262D] flex items-center justify-center mb-8">
-              <div className="text-center">
-                <span className="text-xl block mb-2">Баннер не загружен</span>
-                {/* Отладочная информация */}
-                <div className="text-sm text-gray-500 mt-4">
-                  <p>Banner field: {userData.banner || 'null'}</p>
-                  <p>Discord ID: {userData.discordId || 'null'}</p>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
         
         <div className="bg-[#161B22] rounded-xl p-8 shadow-lg">
           <div className="flex items-center gap-6 mb-6">
@@ -144,6 +119,23 @@ export default async function ProfilePage() {
               </div>
             </div>
           </div>
+          
+          {/* Кнопка обновления профиля */}
+          {!userData.banner && userData.discordId && (
+            <div className="mt-6 p-4 bg-blue-900/30 border border-blue-500/50 rounded-lg">
+              <p className="text-sm text-gray-300 mb-3">
+                Баннер не найден в вашем профиле. Обновите информацию для загрузки баннера из Discord.
+              </p>
+              <form action="/api/update-profile" method="POST">
+                <button
+                  type="submit"
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-colors"
+                >
+                  Обновить профиль
+                </button>
+              </form>
+            </div>
+          )}
           
           {/* Дополнительная информация */}
           <div className="grid grid-cols-2 gap-4 mt-6">
