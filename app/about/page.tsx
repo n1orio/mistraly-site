@@ -8,6 +8,98 @@ import {
 } from "lucide-react"
 import { CheckCircle, Loader2, Clock } from "lucide-react"
 
+const roadmapData = [
+  {
+    id: 1,
+    title: "Этап 1",
+    status: "completed" as const,
+    date: "Январь 2025",
+    tasks: [
+      {
+        id: 1,
+        title: "Создание инфроструктуры",
+        description: "Гитхаб репозитории, сервера и тд",
+        progress: 100,
+        completed: true
+      }
+    ]
+  },
+  {
+    id: 2,
+    title: "Этап 2",
+    status: "in-progress" as const,
+    date: "Январь-Март 2025",
+    tasks: [
+      {
+        id: 1,
+        title: "Личный кабинет",
+        description: "Создание личного кабинета и профиля на сайте",
+        progress: 35,
+        completed: false
+      },
+      {
+        id: 2,
+        title: "Возможность покупки проходки",
+        description: "Создание страницы покупки доступа к серверу и настройка кассы",
+        progress: 50,
+        completed: false
+      },
+      {
+        id: 3,
+        title: "Оптимизация сервера",
+        description: "А также другие важные механики",
+        progress: 15,
+        completed: false
+      },
+      {
+        id: 4,
+        title: "Оформить дискорд сервер",
+        description: "Каналы, посты, роли и боты",
+        progress: 45,
+        completed: false
+      }
+    ]
+  },
+  {
+    id: 3,
+    title: "Этап 3: Будущее",
+    status: "planned" as const,
+    date: "Февраль-Апрель 2025",
+    tasks: [
+      {
+        id: 1,
+        title: "Банковская система",
+        description: "Банк на сайте, переводы игрокам, банкоматы",
+        progress: 0,
+        completed: false
+      },
+      {
+        id: 2,
+        title: "Банжи система, меню ролей на сайте",
+        description: "Возможность управления своими правами через меню сайта",
+        progress: 0,
+        completed: false
+      },
+      {
+        id: 3,
+        title: "Система ресутации",
+        description: "Возможность добавлять или убавлять репутацию игрокам в профиле или в игре",
+        progress: 0,
+        completed: false
+      },
+      {
+        id: 4,
+        title: "Уведомления о личных сообщениях",
+        description: "Уведомления о разных событиях в дискорде",
+        progress: 0,
+        completed: false
+      }
+    ]
+  }
+]
+
+
+
 // ✅ ДАННЫЕ РАЗРАБОТЧИКОВ
 const developersData = [
   {
@@ -90,6 +182,27 @@ const seasonsData = [
     ]
   }
 ]
+
+const calculateOverallProgress = (roadmap: typeof roadmapData) => {
+  const totalTasks = roadmap.flatMap(stage => stage.tasks).length
+  const completedTasks = roadmap.flatMap(stage => 
+    stage.tasks.filter(task => task.completed)
+  ).length
+  
+  return totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
+}
+
+const getActiveTasksCount = (roadmap: typeof roadmapData) => {
+  return roadmap.flatMap(stage => 
+    stage.tasks.filter(task => task.progress > 0 && task.progress < 100)
+  ).length
+}
+
+const getCompletedStagesCount = (roadmap: typeof roadmapData) => {
+  return roadmap.filter(stage => 
+    stage.tasks.every(task => task.completed)
+  ).length
+}
 
 // ✅ ВКЛАДКИ НАВИГАЦИИ
 const tabs = [
@@ -179,7 +292,7 @@ export default function AboutPage() {
       <main className="max-w-6xl mx-auto pt-6 pb-16 px-4 sm:px-6 flex flex-col items-center relative">
 
 {/* ТАБЛЕТКА - ЦЕНТРИРОВАННАЯ С АДАПТИВНОЙ ШИРИНОЙ */}
-<div className="sticky top-24 z-50 mb-10 w-full max-w-[600px] mx-auto">
+<div className="sticky top-24 z-30 mb-10 w-full max-w-[600px] mx-auto">
   <div className="relative">
     {/* Градиентная подсветка сверху */}
     <div className="absolute -top-px left-0 w-full h-px bg-gradient-to-r from-transparent via-[#0099ff] to-transparent opacity-50" />
@@ -629,7 +742,6 @@ export default function AboutPage() {
   </motion.div>
 )}
 
-{/* --- ВКЛАДКА ПЛАНЫ ПРОЕКТА (ROADMAP) --- */}
 {activeTab === "plans" && (
   <motion.div 
     key="plans"
@@ -648,153 +760,159 @@ export default function AboutPage() {
       </p>
     </div>
 
-    {/* ЭТАП 1: ЗАВЕРШЕНО */}
-    <div className="bg-[#12181F] border border-[#39FF14]/20 rounded-xl p-6 sm:p-8 shadow-xl mb-6 relative overflow-hidden">
-      <div className="absolute top-0 left-0 w-1 h-full bg-[#39FF14]" />
-      <div className="relative z-10">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-full bg-[#39FF14]/20 flex items-center justify-center">
-            <CheckCircle className="w-5 h-5 text-[#39FF14]" />
-          </div>
-          <div>
-            <h3 className="text-xl font-bold text-white">Этап 1</h3>
-            <p className="text-[#39FF14] text-sm font-medium">Завершено • Январь 2025</p>
-          </div>
-        </div>
-        
-        <div className="space-y-3">
-          <div className="flex items-start gap-3">
-            <CheckCircle className="w-5 h-5 text-[#39FF14] mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="text-white font-medium">Создание инфроструктуры</p>
-              <p className="text-zinc-400 text-sm">Гитхаб репозитории, сервера и тд</p>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
-
-    {/* ЭТАП 2: В ПРОЦЕССЕ */}
-    <div className="bg-[#12181F] border border-[#0099ff]/20 rounded-xl p-6 sm:p-8 shadow-xl mb-6 relative overflow-hidden">
-      <div className="absolute top-0 left-0 w-1 h-full bg-[#0099ff]" />
-      <div className="relative z-10">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-full bg-[#0099ff]/20 flex items-center justify-center">
-            <Loader2 className="w-5 h-5 text-[#0099ff] animate-spin" />
-          </div>
-          <div>
-            <h3 className="text-xl font-bold text-white">Этап 2</h3>
-            <p className="text-[#0099ff] text-sm font-medium">В процессе • Январь-Март 2025</p>
-          </div>
-        </div>
-        
-        <div className="space-y-3">
-          <div className="flex items-start gap-3">
-            <div className="w-5 h-5 rounded-full bg-[#0099ff]/30 flex items-center justify-center mt-0.5 flex-shrink-0">
-              <span className="text-[#0099ff] text-xs font-bold">25%</span>
-            </div>
-            <div>
-              <p className="text-white font-medium">Личный кабинет</p>
-              <p className="text-zinc-400 text-sm">Создание личного кабинета и профиля на сайте</p>
-              <div className="mt-2 h-1.5 bg-[#0099ff]/10 rounded-full overflow-hidden">
-                <div className="h-full bg-[#0099ff] w-1/4 rounded-full" />
-              </div>
-            </div>
-          </div>
-          
-          <div className="flex items-start gap-3">
-            <div className="w-5 h-5 rounded-full bg-[#0099ff]/30 flex items-center justify-center mt-0.5 flex-shrink-0">
-              <span className="text-[#0099ff] text-xs font-bold">40%</span>
-            </div>
-            <div>
-              <p className="text-white font-medium">Возможность покупки проходки</p>
-              <p className="text-zinc-400 text-sm">Создание страницы покупки доступа к серверу и настройка кассы</p>
-              <div className="mt-2 h-1.5 bg-[#0099ff]/10 rounded-full overflow-hidden">
-                <div className="h-full bg-[#0099ff] w-2/5 rounded-full" />
-              </div>
-            </div>
-          </div>
-          
-          <div className="flex items-start gap-3">
-            <div className="w-5 h-5 rounded-full bg-[#0099ff]/30 flex items-center justify-center mt-0.5 flex-shrink-0">
-              <span className="text-[#0099ff] text-xs font-bold">15%</span>
-            </div>
-            <div>
-              <p className="text-white font-medium">Оптимизация сервера</p>
-              <p className="text-zinc-400 text-sm">А также другие важные механики</p>
-              <div className="mt-2 h-1.5 bg-[#0099ff]/10 rounded-full overflow-hidden">
-                <div className="h-full bg-[#0099ff] w-15/100 rounded-full" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {/* ЭТАП 3: ПЛАНИРУЕТСЯ */}
-    <div className="bg-[#12181F] border border-white/10 rounded-xl p-6 sm:p-8 shadow-xl mb-6 relative overflow-hidden">
-      <div className="absolute top-0 left-0 w-1 h-full bg-zinc-500" />
-      <div className="relative z-10">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-full bg-zinc-500/20 flex items-center justify-center">
-            <Clock className="w-5 h-5 text-zinc-400" />
-          </div>
-          <div>
-            <h3 className="text-xl font-bold text-white">Этап 3: Будущее</h3>
-            <p className="text-zinc-400 text-sm font-medium">Планируется • Февраль-Апрель 2025</p>
-          </div>
-        </div>
-        
-        <div className="space-y-3">
-          <div className="flex items-start gap-3">
-            <div className="w-5 h-5 rounded-full bg-zinc-500/30 flex items-center justify-center mt-0.5 flex-shrink-0">
-              <span className="text-zinc-400 text-xs font-bold">Q1</span>
-            </div>
-            <div>
-              <p className="text-white font-medium">Банковская система</p>
-              <p className="text-zinc-400 text-sm">Банк на сайте, переводы игрокам, банкоматы</p>
-            </div>
-          </div>
-          
-          <div className="flex items-start gap-3">
-            <div className="w-5 h-5 rounded-full bg-zinc-500/30 flex items-center justify-center mt-0.5 flex-shrink-0">
-              <span className="text-zinc-400 text-xs font-bold">Q2</span>
-            </div>
-            <div>
-              <p className="text-white font-medium">Банжи система, меню ролей на сайте</p>
-              <p className="text-zinc-400 text-sm">Возможность управления своими правами через меню сайта</p>
-            </div>
-          </div>
-          
-          <div className="flex items-start gap-3">
-            <div className="w-5 h-5 rounded-full bg-zinc-500/30 flex items-center justify-center mt-0.5 flex-shrink-0">
-              <span className="text-zinc-400 text-xs font-bold">Q3</span>
-            </div>
-            <div>
-              <p className="text-white font-medium">Уведомленияо личных сообщениях</p>
-              <p className="text-zinc-400 text-sm">Уведомления о разных событиях в дискорде</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {/* СТАТИСТИКА */}
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+    {/* СТАТИСТИКА В ВЕРХНЕЙ ЧАСТИ */}
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
       <div className="bg-[#12181F] border border-white/5 rounded-xl p-4 text-center">
-        <div className="text-3xl font-bold text-[#39FF14] mb-1">26%</div>
-        <div className="text-zinc-400 text-sm">Выполнено</div>
+        <div className="text-3xl font-bold text-[#39FF14] mb-1">
+          {calculateOverallProgress(roadmapData)}%
+        </div>
+        <div className="text-zinc-400 text-sm">Общий прогресс</div>
       </div>
+      
       <div className="bg-[#12181F] border border-white/5 rounded-xl p-4 text-center">
-        <div className="text-3xl font-bold text-[#0099ff] mb-1">3</div>
+        <div className="text-3xl font-bold text-[#0099ff] mb-1">
+          {getActiveTasksCount(roadmapData)}
+        </div>
         <div className="text-zinc-400 text-sm">Активных задач</div>
       </div>
+      
       <div className="bg-[#12181F] border border-white/5 rounded-xl p-4 text-center">
-        <div className="text-3xl font-bold text-white mb-1">0</div>
-        <div className="text-zinc-400 text-sm">Крупных обновлений</div>
+        <div className="text-3xl font-bold text-white mb-1">
+          {getCompletedStagesCount(roadmapData)}
+        </div>
+        <div className="text-zinc-400 text-sm">Завершенных этапов</div>
+      </div>
+      
+      <div className="bg-[#12181F] border border-white/5 rounded-xl p-4 text-center">
+        <div className="text-3xl font-bold text-white mb-1">
+          {roadmapData.length}
+        </div>
+        <div className="text-zinc-400 text-sm">Всего этапов</div>
       </div>
     </div>
+
+    {/* ДИНАМИЧЕСКИЕ ЭТАПЫ */}
+    {roadmapData.map((stage) => {
+      // Определяем цвета и иконки на основе статуса
+      const getStatusConfig = (status: typeof stage.status) => {
+        switch(status) {
+          case 'completed':
+            return {
+              borderColor: 'border-[#39FF14]/20',
+              bgColor: 'bg-[#39FF14]/5',
+              textColor: 'text-[#39FF14]',
+              icon: <CheckCircle className="w-5 h-5 text-[#39FF14]" />,
+              progressColor: '#39FF14'
+            }
+          case 'in-progress':
+            return {
+              borderColor: 'border-[#0099ff]/20',
+              bgColor: 'bg-[#0099ff]/5',
+              textColor: 'text-[#0099ff]',
+              icon: <Loader2 className="w-5 h-5 text-[#0099ff] animate-spin" />,
+              progressColor: '#0099ff'
+            }
+          case 'planned':
+            return {
+              borderColor: 'border-white/10',
+              bgColor: 'bg-zinc-500/5',
+              textColor: 'text-zinc-400',
+              icon: <Clock className="w-5 h-5 text-zinc-400" />,
+              progressColor: '#666'
+            }
+          default:
+            return {
+              borderColor: 'border-white/10',
+              bgColor: 'bg-white/5',
+              textColor: 'text-white',
+              icon: null,
+              progressColor: '#666'
+            }
+        }
+      }
+
+      const config = getStatusConfig(stage.status)
+      
+      // Рассчитываем прогресс этапа
+      const stageProgress = stage.tasks.length > 0 
+        ? Math.round(stage.tasks.reduce((sum, task) => sum + task.progress, 0) / stage.tasks.length)
+        : 0
+      
+      // Проверяем, завершен ли этап
+      const isStageCompleted = stage.tasks.every(task => task.completed)
+
+      return (
+        <div 
+          key={stage.id} 
+          className={`bg-[#12181F] ${config.borderColor} rounded-xl p-6 sm:p-8 shadow-xl mb-6 relative overflow-hidden`}
+        >
+          <div className={`absolute top-0 left-0 w-1 h-full ${stage.status === 'completed' ? 'bg-[#39FF14]' : stage.status === 'in-progress' ? 'bg-[#0099ff]' : 'bg-zinc-500'}`} />
+          
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-4">
+              <div className={`w-10 h-10 rounded-full ${config.bgColor} flex items-center justify-center`}>
+                {config.icon}
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-white">{stage.title}</h3>
+                <p className={`text-sm font-medium ${config.textColor}`}>
+                  {stage.status === 'completed' && 'Завершено • '}
+                  {stage.status === 'in-progress' && 'В процессе • '}
+                  {stage.status === 'planned' && 'Планируется • '}
+                  {stage.date}
+                </p>
+              </div>
+              
+              {/* Прогресс этапа */}
+              {stage.status !== 'completed' && (
+                <div className="ml-auto">
+                  <div className="text-right">
+                    <div className={`text-sm font-bold ${config.textColor}`}>
+                      {stageProgress}%
+                    </div>
+                    <div className="text-xs text-zinc-500">этапа</div>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <div className="space-y-4">
+              {stage.tasks.map((task) => (
+                <div key={task.id} className="flex items-start gap-3">
+                  {stage.status === 'completed' ? (
+                    <CheckCircle className="w-5 h-5 text-[#39FF14] mt-0.5 flex-shrink-0" />
+                  ) : stage.status === 'in-progress' ? (
+                    <div className={`w-5 h-5 rounded-full bg-[#0099ff]/30 flex items-center justify-center mt-0.5 flex-shrink-0`}>
+                      <span className="text-[#0099ff] text-xs font-bold">{task.progress}%</span>
+                    </div>
+                  ) : (
+                    <div className={`w-5 h-5 rounded-full bg-zinc-500/30 flex items-center justify-center mt-0.5 flex-shrink-0`}>
+                      <span className="text-zinc-400 text-xs font-bold">Q{task.id}</span>
+                    </div>
+                  )}
+                  
+                  <div className="flex-1">
+                    <p className="text-white font-medium">{task.title}</p>
+                    <p className="text-zinc-400 text-sm">{task.description}</p>
+                    
+                    {/* Прогресс бар для активных задач */}
+                    {stage.status === 'in-progress' && task.progress > 0 && task.progress < 100 && (
+                      <div className="mt-2 h-1.5 bg-[#0099ff]/10 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-[#0099ff] rounded-full transition-all duration-500"
+                          style={{ width: `${task.progress}%` }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )
+    })}
+
   </motion.div>
 )}
 
