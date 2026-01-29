@@ -110,5 +110,4 @@ export const {
     signOut: '/auth/signout',
     error: '/auth/error',
   },
-  trustHost: true,
 })
