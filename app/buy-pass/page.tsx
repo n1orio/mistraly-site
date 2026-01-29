@@ -124,15 +124,6 @@ export default function BuyPassPage() {
               )}
             </div>
             
-            <div className="bg-[#21262D] p-6 rounded-lg">
-              <h2 className="text-xl font-bold mb-3">Что входит в пропуск:</h2>
-              <ul className="space-y-2 text-gray-400">
-                <li>✅ Доступ к VIP-зонам сервера</li>
-                <li>✅ Эксклюзивные предметы</li>
-                <li>✅ Приоритет в очереди</li>
-                <li>✅ Специальные ивенты</li>
-              </ul>
-            </div>
             
             <button
               type="submit"
@@ -145,7 +136,7 @@ export default function BuyPassPage() {
           
           <div className="mt-6 pt-6 border-t border-[#30363D]">
             <p className="text-sm text-gray-500">
-              После покупки ваш ник будет привязан к аккаунту и вы получите доступ ко всем привилегиям
+              После покупки ваш ник будет привязан к аккаунту и вы получите доступ ко серверу и роли в дискорд сервере.
             </p>
           </div>
         </div>

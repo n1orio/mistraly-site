@@ -14,6 +14,7 @@ export async function GET(request: Request) {
       )
     }
     
+    // Проверяем, занят ли ник
     const existingUser = await prisma.user.findFirst({
       where: { minecraftNick: nick }
     })

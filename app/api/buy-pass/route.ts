@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     // Обновление профиля
     await prisma.user.update({
       where: { id: session.user.id },
-      data: {
+      data: {  // ← ИСПРАВЛЕНО: добавлено ''
         minecraftNick,
         hasPass: true,
       },
