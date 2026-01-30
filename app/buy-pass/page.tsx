@@ -1,15 +1,48 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 
 export default function BuyPassPage() {
   const router = useRouter()
+  const { data: session, status } = useSession()
   const [minecraftNick, setMinecraftNick] = useState('')
   const [checking, setChecking] = useState(false)
   const [available, setAvailable] = useState<boolean | null>(null)
   const [validationError, setValidationError] = useState<string>('')
   const [submitting, setSubmitting] = useState(false)
+
+  // Проверка доступа к странице
+  useEffect(() => {
+    if (status === "loading") return
+
+    // Если не залогинен - перенаправляем на вход
+    if (!session) {
+      router.push('/auth/signin')
+      return
+    }
+
+    // Если уже есть проходка - перенаправляем в профиль
+    if (session.user?.hasPass) {
+      router.push('/profile')
+      return
+    }
+  }, [session, status, router])
+
+  // Показываем лоадер пока проверяем сессию
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen bg-[#0D1117] flex items-center justify-center">
+        <div className="text-white">Загрузка...</div>
+      </div>
+    )
+  }
+
+  // Если нет сессии или есть проходка - ничего не рендерим (уже перенаправлено)
+  if (!session || session.user?.hasPass) {
+    return null
+  }
 
   const checkNickAvailability = async () => {
     setChecking(true)
@@ -21,7 +54,6 @@ export default function BuyPassPage() {
       const data = await response.json()
       
       if (data.validation?.valid) {
-        // Ник прошёл валидацию
         if (data.available) {
           setAvailable(true)
           setValidationError('')
@@ -30,10 +62,7 @@ export default function BuyPassPage() {
           setValidationError('Этот ник уже занят другим игроком')
         }
       } else {
-        // Ошибки валидации формата - берём первую ошибку или объединяем
         const errors = data.validation?.errors || ['Неверный формат ника']
-        
-        // Объединяем ошибки в одну строку (как на скриншоте)
         const combinedError = errors.join('; ')
         setAvailable(false)
         setValidationError(combinedError)
@@ -54,7 +83,7 @@ export default function BuyPassPage() {
     }
     
     if (!available) {
-      return // Ошибка уже установлена
+      return
     }
     
     setSubmitting(true)
@@ -115,7 +144,6 @@ export default function BuyPassPage() {
                 </button>
               </div>
               
-              {/* Показываем одну ошибку */}
               {validationError && (
                 <div className="mt-2">
                   <p className="text-red-500 text-sm flex items-start">
@@ -125,7 +153,6 @@ export default function BuyPassPage() {
                 </div>
               )}
               
-              {/* Успешное сообщение */}
               {available === true && !validationError && (
                 <p className="mt-2 text-green-500 text-sm flex items-center">
                   <span className="mr-2">✅</span>
@@ -139,7 +166,7 @@ export default function BuyPassPage() {
               disabled={submitting || available !== true || validationError !== ''}
               className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white font-bold py-4 px-6 rounded-lg transition-colors text-lg"
             >
-              {submitting ? 'Обработка...' : 'Купить пропуск за 500₽'}
+              {submitting ? 'Обработка...' : 'Купить пропуск за 350₽'}
             </button>
           </form>
           
