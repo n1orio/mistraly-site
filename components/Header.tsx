@@ -49,6 +49,7 @@ export default function Header() {
     { name: "О сервере", path: "/about" },
     { name: "Правила", path: "/rules" },
     { name: "Вики", path: "/wiki" },
+    { name: "Список игроков", path: "/players" },
   ]
 
   return (
