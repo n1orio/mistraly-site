@@ -1,66 +1,113 @@
 // lib/auth.ts
 import NextAuth from "next-auth"
 import DiscordProvider from "next-auth/providers/discord"
-import { PrismaAdapter } from "@next-auth/prisma-adapter"
+import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "./prisma"
 
-export const { auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma),
+declare module "next-auth/jwt" {
+  interface JWT {
+    banner?: string | null
+    discordId?: string | null
+    discordName?: string | null
+    minecraftNick?: string | undefined
+    hasPass?: boolean
+    roles?: string[]
+    picture?: string | null
+  }
+}
+
+export const { 
+  handlers: { GET, POST }, 
+  auth,
+  signIn, 
+  signOut 
+} = NextAuth({
+  adapter: PrismaAdapter(prisma) as any,
   providers: [
     DiscordProvider({
       clientId: process.env.DISCORD_CLIENT_ID!,
       clientSecret: process.env.DISCORD_CLIENT_SECRET!,
-      authorization: { params: { scope: "identify email guilds" } },
+      authorization: {
+        params: {
+          scope: "identify email guilds",
+        },
+      },
     }),
   ],
   callbacks: {
+    async signIn({ user, account, profile }) {
+      if (profile?.id && user.id) {
+        const avatarUrl = (profile as any).image
+          ? `https://cdn.discordapp.com/avatars/${(profile as any).id}/${(profile as any).image}.${(profile as any).image.startsWith('a_') ? 'gif' : 'png'}?size=256`
+          : null
+        
+        await prisma.user.update({
+          where: { id: user.id },
+          data: {  // ← ИСПРАВЛЕНО: добавлено 'data:'
+            discordId: (profile as any).id,
+            name: (profile as any).username,
+            image: avatarUrl
+          },
+        })
+      }
+      return true
+    },
     async session({ session, token }) {
-      if (session.user) {
-        // ✅ Используем type assertions для обхода TypeScript ошибок
-        (session.user as any).discordId = token.discordId
-        (session.user as any).banner = token.banner
-        (session.user as any).roles = token.roles || []
-        (session.user as any).image = token.picture
-        (session.user as any).discordName = token.discordName
-        (session.user as any).minecraftNick = token.minecraftNick
-        (session.user as any).hasPass = token.hasPass
+      if (session.user && token) {
+        ;(session.user as any).discordId = token.discordId
+        ;(session.user as any).banner = token.banner
+        ;(session.user as any).roles = token.roles || []
+        ;(session.user as any).image = token.picture || token.image
+        ;(session.user as any).discordName = token.discordName
+        ;(session.user as any).minecraftNick = token.minecraftNick
+        ;(session.user as any).hasPass = token.hasPass
       }
       return session
     },
-    async jwt({ token, account, profile }) {
+    async jwt({ token, account, profile, user }) {
       if (account?.provider === "discord" && profile) {
-        token.discordId = profile.id
-        token.discordName = profile.global_name || profile.username
+        token.discordId = (profile as any).id
+        token.name = (profile as any).username
+        token.discordName = (profile as any).global_name || (profile as any).username
         
-        if (profile.image) {
-          const fmt = profile.image.startsWith("a_") ? "gif" : "png"
-          // ✅ Убрал лишние пробелы
-          token.picture = `https://cdn.discordapp.com/avatars/${profile.id}/${profile.image}.${fmt}?size=256`
+        if ((profile as any).image) {
+          const avatarFormat = (profile as any).image.startsWith('a_') ? 'gif' : 'png'
+          token.picture = `https://cdn.discordapp.com/avatars/${(profile as any).id}/${(profile as any).image}.${avatarFormat}?size=256`
         }
         
         try {
-          // ✅ Убрал лишние пробелы
-          const res = await fetch("https://discord.com/api/users/@me", {
+          const response = await fetch('https://discord.com/api/users/@me', {
             headers: { Authorization: `Bearer ${account.access_token}` },
           })
-          if (res.ok) {
-            const data = await res.json()
-            if (data.banner) {
-              const ext = data.banner.startsWith("a_") ? "gif" : "png"
-              // ✅ Убрал лишние пробелы
-              token.banner = `https://cdn.discordapp.com/banners/${data.id}/${data.banner}.${ext}?size=1024`
+          
+          if (response.ok) {
+            const userData = await response.json()
+            if (userData.banner) {
+              const isAnimated = userData.banner.startsWith('a_')
+              const extension = isAnimated ? 'gif' : 'png'
+              token.banner = `https://cdn.discordapp.com/banners/${userData.id}/${userData.banner}.${extension}?size=1024`
             }
           }
-        } catch (e) {
-          console.error("Banner error:", e)
+        } catch (error) {
+          console.error('Error fetching banner:', error)
         }
       }
+      
+      if (user && !token.discordId) {
+        token.discordId = (user as any).discordId
+        token.banner = (user as any).banner
+        token.discordName = (user as any).discordName
+        token.minecraftNick = (user as any).minecraftNick
+        token.hasPass = (user as any).hasPass
+        token.roles = (user as any).roles
+      }
+      
       return token
     },
   },
   pages: {
-    signIn: "/auth/signin",
-    signOut: "/auth/signout",
-    error: "/auth/error",
+    signIn: '/auth/signin',
+    signOut: '/auth/signout',
+    error: '/auth/error',
   },
 })
