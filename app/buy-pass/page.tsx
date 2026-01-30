@@ -8,13 +8,13 @@ export default function BuyPassPage() {
   const [minecraftNick, setMinecraftNick] = useState('')
   const [checking, setChecking] = useState(false)
   const [available, setAvailable] = useState<boolean | null>(null)
-  const [validationErrors, setValidationErrors] = useState<string[]>([])
+  const [validationError, setValidationError] = useState<string>('')
   const [submitting, setSubmitting] = useState(false)
 
   const checkNickAvailability = async () => {
     setChecking(true)
     setAvailable(null)
-    setValidationErrors([])
+    setValidationError('')
     
     try {
       const response = await fetch(`/api/check-nick?nick=${encodeURIComponent(minecraftNick)}`)
@@ -24,17 +24,22 @@ export default function BuyPassPage() {
         // Ник прошёл валидацию
         if (data.available) {
           setAvailable(true)
+          setValidationError('')
         } else {
           setAvailable(false)
-          setValidationErrors(['Этот ник уже занят другим игроком'])
+          setValidationError('Этот ник уже занят другим игроком')
         }
       } else {
-        // Ошибки валидации формата
+        // Ошибки валидации формата - берём первую ошибку или объединяем
+        const errors = data.validation?.errors || ['Неверный формат ника']
+        
+        // Объединяем ошибки в одну строку (как на скриншоте)
+        const combinedError = errors.join('; ')
         setAvailable(false)
-        setValidationErrors(data.validation?.errors || ['Неверный формат ника'])
+        setValidationError(combinedError)
       }
     } catch (err) {
-      setValidationErrors(['Ошибка при проверке ника'])
+      setValidationError('Ошибка при проверке ника')
     } finally {
       setChecking(false)
     }
@@ -44,13 +49,12 @@ export default function BuyPassPage() {
     e.preventDefault()
     
     if (available === null) {
-      setValidationErrors(['Сначала проверьте доступность ника'])
+      setValidationError('Сначала проверьте доступность ника')
       return
     }
     
     if (!available) {
-      // Уже есть ошибки валидации или ник занят
-      return
+      return // Ошибка уже установлена
     }
     
     setSubmitting(true)
@@ -68,10 +72,10 @@ export default function BuyPassPage() {
         alert('Пропуск успешно приобретён!')
         router.push('/profile')
       } else {
-        setValidationErrors([data.error || 'Ошибка при покупке пропуска'])
+        setValidationError(data.error || 'Ошибка при покупке пропуска')
       }
     } catch (err) {
-      setValidationErrors(['Ошибка при покупке пропуска'])
+      setValidationError('Ошибка при покупке пропуска')
     } finally {
       setSubmitting(false)
     }
@@ -95,7 +99,7 @@ export default function BuyPassPage() {
                   onChange={(e) => {
                     setMinecraftNick(e.target.value)
                     setAvailable(null)
-                    setValidationErrors([])
+                    setValidationError('')
                   }}
                   placeholder="Введите ваш ник"
                   className="flex-1 px-4 py-3 bg-[#0D1117] border border-[#30363D] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -111,28 +115,28 @@ export default function BuyPassPage() {
                 </button>
               </div>
               
-              {/* Показываем все ошибки валидации */}
-              {validationErrors.length > 0 && (
-                <div className="mt-2 space-y-1">
-                  {validationErrors.map((error, index) => (
-                    <p key={index} className="text-red-500 text-sm">
-                      ❌ {error}
-                    </p>
-                  ))}
+              {/* Показываем одну ошибку */}
+              {validationError && (
+                <div className="mt-2">
+                  <p className="text-red-500 text-sm flex items-start">
+                    <span className="mr-2">❌</span>
+                    {validationError}
+                  </p>
                 </div>
               )}
               
               {/* Успешное сообщение */}
-              {available === true && validationErrors.length === 0 && (
-                <p className="mt-2 text-green-500 text-sm">
-                  ✅ Ник доступен для использования
+              {available === true && !validationError && (
+                <p className="mt-2 text-green-500 text-sm flex items-center">
+                  <span className="mr-2">✅</span>
+                  Ник доступен для использования
                 </p>
               )}
             </div>
             
             <button
               type="submit"
-              disabled={submitting || available !== true || validationErrors.length > 0}
+              disabled={submitting || available !== true || validationError !== ''}
               className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white font-bold py-4 px-6 rounded-lg transition-colors text-lg"
             >
               {submitting ? 'Обработка...' : 'Купить пропуск за 500₽'}
