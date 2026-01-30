@@ -4,6 +4,7 @@ import DiscordProvider from "next-auth/providers/discord"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "./prisma"
 
+// Расширяем типы сессии и JWT
 declare module "next-auth" {
   interface Session {
     user: {
@@ -38,8 +39,8 @@ export const {
   adapter: PrismaAdapter(prisma) as any,
   providers: [
     DiscordProvider({
-      clientId: process.env.DISCORD_CLIENT_ID!,
-      clientSecret: process.env.DISCORD_CLIENT_SECRET!,
+      clientId: process.env.DISCORD_CLIENT_ID as string,
+      clientSecret: process.env.DISCORD_CLIENT_SECRET as string,
       authorization: {
         params: {
           scope: "identify email guilds",
@@ -68,7 +69,7 @@ export const {
         
         if ((profile as any).image) {
           const avatarFormat = (profile as any).image.startsWith('a_') ? 'gif' : 'png'
-          // 🔴 УБРАЛИ ПРОБЕЛЫ!
+          // 🔴 УБРАНЫ ПРОБЕЛЫ В URL!
           token.picture = `https://cdn.discordapp.com/avatars/${(profile as any).id}/${(profile as any).image}.${avatarFormat}?size=256`
         }
         
@@ -95,8 +96,30 @@ export const {
           console.error('Error updating user:', error)
         }
         
-        // 🔴 УДАЛИЛИ ЗАПРОС БАННЕРА ЧЕРЕЗ /users/@me — он не работает с access_token
-        // Баннер будем получать через Bot API в profile page
+        // Загружаем баннер из Discord API
+        try {
+          const response = await fetch('https://discord.com/api/users/@me', {
+            headers: { Authorization: `Bearer ${account.access_token}` },
+          })
+          
+          if (response.ok) {
+            const userData = await response.json()
+            if (userData.banner) {
+              const isAnimated = userData.banner.startsWith('a_')
+              const extension = isAnimated ? 'gif' : 'png'
+              // 🔴 УБРАНЫ ПРОБЕЛЫ В URL!
+              token.banner = `https://cdn.discordapp.com/banners/${userData.id}/${userData.banner}.${extension}?size=1024`
+              
+              // Обновляем баннер в БД
+              await prisma.user.update({
+                where: { discordId: (profile as any).id },
+                data: { banner: token.banner },  // ✅ ИСПРАВЛЕНО: добавлено "data:"
+              })
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching banner:', error)
+        }
       }
       
       // Загружаем данные из БД
