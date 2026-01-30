@@ -41,14 +41,21 @@ export const {
           ? `https://cdn.discordapp.com/avatars/${(profile as any).id}/${(profile as any).image}.${(profile as any).image.startsWith('a_') ? 'gif' : 'png'}?size=256`
           : null
         
-        await prisma.user.update({
-          where: { id: user.id },
-          data: {  // ← ИСПРАВЛЕНО: добавлено 'data:'
-            discordId: (profile as any).id,
-            name: (profile as any).username,
-            image: avatarUrl
-          },
-        })
+await prisma.user.upsert({
+  where: { id: user.id },
+  update: {
+    discordId: (profile as any).id,
+    name: (profile as any).username,
+    image: avatarUrl
+  },
+  create: {
+    id: user.id,
+    discordId: (profile as any).id,
+    name: (profile as any).username,
+    email: user.email || null,
+    image: avatarUrl
+  },
+})
       }
       return true
     },
