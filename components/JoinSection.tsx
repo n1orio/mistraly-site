@@ -162,7 +162,7 @@ export default function JoinSection() {
               </p>
 
               <div className="mt-auto w-full relative z-10">
-                <Link href="/buy" passHref>
+                <Link href="/buy-pass" passHref>
                   <Button 
                     className="w-full bg-[#0099ff] hover:bg-white duration-500 text-white hover:text-black border-none h-12 rounded-lg flex items-center justify-center gap-2 text-sm font-bold transition-all shadow-[0_0_20px_rgba(0,153,255,0.15)] hover:shadow-[0_0_30px_rgba(0,153,255,0.3)]"
                   >

@@ -99,8 +99,6 @@ const roadmapData = [
 ]
 
 
-
-// ✅ ДАННЫЕ РАЗРАБОТЧИКОВ
 const developersData = [
   {
     id: 1,
@@ -130,7 +128,7 @@ const developersData = [
     avatar: "https://cdn.discordapp.com/attachments/1205083728997515340/1285696051994431488/Screenshot_20240917-231647.png"
   },
   {
-    id: 4, // ✅ Исправлено: добавлено отсутствующее свойство id
+    id: 4,
     name: "-",
     role: "заглушка",
     description: "заглушка",
@@ -140,14 +138,13 @@ const developersData = [
   }
 ]
 
-// ✅ ДАННЫЕ СЕЗОНОВ
 const seasonsData = [
   {
     id: 9,
     num: "3",
     date: "22 февраля 2025 г. — 25 марта 2025 г.",
-    shortDesc: "Сезон под названием «Кошаник». Полный отказ от старого кастомного контента и глобальная переработка систем с нуля.",
-    fullDesc: "Этот сезон получил кодовое имя «Кошаник». Администрация приняла радикальное решение отказаться от всего старого кастомного контента. Все игровые механики и плагины были переписаны с чистого листа для улучшения качества игры. После сезона планировалось множество нового контента, но четвертый сезон так и не был запущен...",
+    shortDesc: "Сезон под названием «Кошатник». Полный отказ от старого кастомного контента и глобальная переработка систем с нуля.",
+    fullDesc: "Этот сезон получил кодовое имя «Кошатник». Администрация приняла радикальное решение отказаться от всего старого кастомного контента. Все игровые механики и плагины были переписаны с чистого листа для улучшения качества игры. После сезона планировалось множество нового контента, но четвертый сезон так и не был запущен...",
     images: [
       "https://cdn.discordapp.com/attachments/1286793275763589233/1290012709257220116/image.png?ex=69770535&is=6975b3b5&hm=e6435b468cda9ac53377f7c13cde703ecaf9354c858894c045c778d2a4b992c1&",
       "https://cdn.discordapp.com/attachments/1412469417215791231/1464600280736993321/image.png?ex=69760ecd&is=6974bd4d&hm=3442825d04af574d86730f8d7d56f675774b7b79d731878bef77af94d1edfbdf&0",
@@ -204,7 +201,6 @@ const getCompletedStagesCount = (roadmap: typeof roadmapData) => {
   ).length
 }
 
-// ✅ ВКЛАДКИ НАВИГАЦИИ
 const tabs = [
   { id: "about", label: "О Breeze", icon: <Info className="w-4 h-4" /> },
   { id: "seasons", label: "Сезоны", icon: <Sparkles className="w-4 h-4" /> },
@@ -212,7 +208,6 @@ const tabs = [
   { id: "plans", label: "Планы", icon: <Lightbulb className="w-4 h-4" /> },
 ]
 
-// ✅ ВАРИАНТЫ АНИМАЦИИ СЛАЙДЕРОВ
 const slideVariants = {
   enter: (direction: number) => ({ 
     x: direction > 0 ? 100 : -100,
@@ -243,14 +238,14 @@ const slideVariants = {
 }
 
 export default function AboutPage() {
-  // ✅ ХУКИ СОСТОЯНИЯ
+
   const [activeTab, setActiveTab] = useState("about")
   const [selectedSeason, setSelectedSeason] = useState<typeof seasonsData[0] | null>(null)
   const [page, setPage] = useState(0)
   const [direction, setDirection] = useState(0)
   const [activeDeveloper, setActiveDeveloper] = useState(1)
 
-  // ✅ ФУНКЦИЯ ПАГИНАЦИИ СЛАЙДЕРОВ (объявлена ПОСЛЕ хуков!)
+
   const paginate = (newDirection: number) => {
     if (!selectedSeason) return;
     setDirection(newDirection);
@@ -264,7 +259,7 @@ export default function AboutPage() {
     });
   }
 
-  // ✅ ЭФФЕКТЫ
+
   useEffect(() => {
     if (activeTab === "developers") {
       setActiveDeveloper(1);
@@ -279,7 +274,7 @@ export default function AboutPage() {
     }
   }, [selectedSeason])
 
-  // ✅ ФУНКЦИЯ СМЕНЫ ВКЛАДКИ
+
   const changeTab = (tabId: string) => {
     setActiveTab(tabId)
     setSelectedSeason(null)
@@ -291,13 +286,12 @@ export default function AboutPage() {
       
       <main className="max-w-6xl mx-auto pt-6 pb-16 px-4 sm:px-6 flex flex-col items-center relative">
 
-{/* ТАБЛЕТКА - ЦЕНТРИРОВАННАЯ С АДАПТИВНОЙ ШИРИНОЙ */}
 <div className="sticky top-24 z-30 mb-10 w-full max-w-[600px] mx-auto">
   <div className="relative">
-    {/* Градиентная подсветка сверху */}
+
     <div className="absolute -top-px left-0 w-full h-px bg-gradient-to-r from-transparent via-[#0099ff] to-transparent opacity-50" />
     
-    {/* Основной контейнер таблетки */}
+
     <div className="relative bg-[#080B0E] backdrop-blur-xl rounded-xl overflow-hidden border border-white/10">
       <div className="flex w-full">
         {tabs.map((tab) => (
@@ -329,7 +323,7 @@ export default function AboutPage() {
       </div>
     </div>
     
-    {/* Градиентная подсветка снизу */}
+
     <div className="absolute -bottom-px left-0 w-full h-px bg-gradient-to-r from-transparent via-[#0099ff] to-transparent opacity-50" />
   </div>
 </div>
@@ -337,7 +331,7 @@ export default function AboutPage() {
         <div className="w-full">
           <AnimatePresence mode="wait">
             
-            {/* 1. СПИСОК СЕЗОНОВ */}
+
             {activeTab === "seasons" && !selectedSeason && (
               <motion.div 
                 key="seasons-grid"
@@ -407,7 +401,6 @@ export default function AboutPage() {
               </motion.div>
             )}
 
-            {/* 2. ПОДРОБНАЯ СТРАНИЦА СЕЗОНА */}
             {activeTab === "seasons" && selectedSeason && (
               <motion.div 
                 key="season-details"
@@ -512,7 +505,6 @@ export default function AboutPage() {
               </motion.div>
             )}
 
-            {/* --- ВКЛАДКА ABOUT --- */}
             {activeTab === "about" && (
               <motion.div 
                 key="about"
@@ -636,10 +628,9 @@ export default function AboutPage() {
 
     <div className="sticky top-32 z-40 mb-10 w-full max-w-[400px] mx-auto">
       <div className="relative">
-        {/* Градиентная подсветка сверху */}
+
         <div className="absolute -top-px left-0 w-full h-px bg-gradient-to-r from-transparent via-[#0099ff] to-transparent opacity-50" />
         
-        {/* Контейнер таблетки */}
         <div className="relative bg-[#080B0E]/85 backdrop-blur-xl rounded-xl overflow-hidden border border-white/10">
           <div className="flex w-full">
             {developersData.map((dev) => (
@@ -669,15 +660,12 @@ export default function AboutPage() {
           </div>
         </div>
         
-        {/* Градиентная подсветка снизу */}
         <div className="absolute -bottom-px left-0 w-full h-px bg-gradient-to-r from-transparent via-[#0099ff] to-transparent opacity-50" />
         
-        {/* Свечение */}
         <div className="absolute inset-0 rounded-xl blur-[60px] opacity-20 bg-gradient-to-r from-[#0099ff]/20 to-[#39FF14]/10 pointer-events-none" />
       </div>
     </div>
 
-    {/* КОНТЕНТ АКТИВНОГО РАЗРАБОТЧИКА */}
     <AnimatePresence mode="wait">
       {developersData.map((dev) => (
         activeDeveloper === dev.id && (
@@ -691,7 +679,7 @@ export default function AboutPage() {
           >
             <div className="bg-[#12181F] border border-white/5 rounded-2xl p-6 sm:p-8 shadow-xl">
               <div className="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8">
-                {/* Аватар */}
+
                 <div className="relative w-28 h-28 md:w-32 md:h-32 rounded-2xl overflow-hidden bg-[#090D10] border-2 border-[#0099ff]/30 flex-shrink-0">
                   {dev.avatar ? (
                     <img 
@@ -709,7 +697,6 @@ export default function AboutPage() {
                   )}
                 </div>
                 
-                {/* Информация */}
                 <div className="flex-1 text-center md:text-left">
                   <div className="flex items-center justify-center md:justify-start gap-3 mb-3">
                     <h3 className="text-2xl md:text-3xl font-bold text-white">{dev.name}</h3>
@@ -760,7 +747,6 @@ export default function AboutPage() {
       </p>
     </div>
 
-    {/* СТАТИСТИКА В ВЕРХНЕЙ ЧАСТИ */}
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
       <div className="bg-[#12181F] border border-white/5 rounded-xl p-4 text-center">
         <div className="text-3xl font-bold text-[#39FF14] mb-1">
@@ -791,9 +777,9 @@ export default function AboutPage() {
       </div>
     </div>
 
-    {/* ДИНАМИЧЕСКИЕ ЭТАПЫ */}
+
     {roadmapData.map((stage) => {
-      // Определяем цвета и иконки на основе статуса
+
       const getStatusConfig = (status: typeof stage.status) => {
         switch(status) {
           case 'completed':
@@ -833,12 +819,11 @@ export default function AboutPage() {
 
       const config = getStatusConfig(stage.status)
       
-      // Рассчитываем прогресс этапа
+
       const stageProgress = stage.tasks.length > 0 
         ? Math.round(stage.tasks.reduce((sum, task) => sum + task.progress, 0) / stage.tasks.length)
         : 0
       
-      // Проверяем, завершен ли этап
       const isStageCompleted = stage.tasks.every(task => task.completed)
 
       return (
@@ -863,7 +848,6 @@ export default function AboutPage() {
                 </p>
               </div>
               
-              {/* Прогресс этапа */}
               {stage.status !== 'completed' && (
                 <div className="ml-auto">
                   <div className="text-right">
@@ -895,7 +879,6 @@ export default function AboutPage() {
                     <p className="text-white font-medium">{task.title}</p>
                     <p className="text-zinc-400 text-sm">{task.description}</p>
                     
-                    {/* Прогресс бар для активных задач */}
                     {stage.status === 'in-progress' && task.progress > 0 && task.progress < 100 && (
                       <div className="mt-2 h-1.5 bg-[#0099ff]/10 rounded-full overflow-hidden">
                         <div 
