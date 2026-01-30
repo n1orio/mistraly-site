@@ -1,3 +1,4 @@
+// components/Header.tsx
 "use client"
 
 import Link from "next/link"
@@ -12,13 +13,13 @@ import { RiHeadphoneLine } from "react-icons/ri"
 
 export default function Header() {
   const pathname = usePathname()
-  const { data, status } = useSession()
+  const session = useSession() // ✅ Не деструктурируем, а получаем весь объект
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const mobileMenuRef = useRef<HTMLDivElement>(null)
 
-  // Отслеживаем скролл для эффектов хедера
+  // Отслеживаем скролл
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 10)
@@ -34,12 +35,17 @@ export default function Header() {
     setIsMenuOpen(false)
   }, [pathname])
 
-  // ✅ ИСПРАВЛЕНО: убраны ВСЕ пробелы в URL
+  // ✅ ИСПРАВЛЕНО: безопасное получение данных из сессии
+  const data = session.data
+  const status = session.status
+  
   const hasPass = data?.user?.hasPass
   const rawMcNick = data?.user?.minecraftNick || 'MHF_Steve'
+  
+  // Очищаем ник от лишних пробелов
   const mcNick = rawMcNick.trim()
   
-  // 🔴 КРИТИЧЕСКИ ВАЖНО: убраны пробелы в URL аватарки!
+  // ✅ ИСПРАВЛЕНО: убраны пробелы в строке формирования аватарки
   const avatarUrl = hasPass && mcNick && mcNick !== 'MHF_Steve'
     ? `https://minotar.net/helm/${encodeURIComponent(mcNick)}/64.png`
     : 'https://minotar.net/helm/MHF_Steve/64.png'
@@ -49,7 +55,6 @@ export default function Header() {
     { name: "О сервере", path: "/about" },
     { name: "Правила", path: "/rules" },
     { name: "Вики", path: "/wiki" },
-    { name: "Список игроков", path: "/players" },
   ]
 
   return (
@@ -99,7 +104,7 @@ export default function Header() {
             ))}
           </div>
           
-          {/* 🔗 СОЦСЕТИ — ИСПРАВЛЕНЫ ПРОБЕЛЫ В URL! */}
+          {/* 🔗 СОЦСЕТИ */}
           <div className="flex items-center gap-4 border-l border-white/10 pl-8 ml-2">
             <a href="https://t.me/breeze_monster" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#24a1de] transition-all">
               <SiTelegram className="w-[18px] h-[18px]" />
@@ -151,10 +156,7 @@ export default function Header() {
               <AnimatePresence>
                 {isMenuOpen && (
                   <>
-                    <div 
-                      className="fixed inset-0 z-40" 
-                      onClick={() => setIsMenuOpen(false)}
-                    />
+                    <div className="fixed inset-0 z-40" onClick={() => setIsMenuOpen(false)} />
                     <motion.div
                       initial={{ opacity: 0, y: 10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -242,7 +244,6 @@ export default function Header() {
               style={{ 
                 touchAction: 'pan-y',
                 WebkitOverflowScrolling: 'touch',
-                // ДОБАВЛЕНО: фикс для обрезания
                 maxHeight: '100vh',
                 height: '100vh',
                 overflowY: 'auto'
