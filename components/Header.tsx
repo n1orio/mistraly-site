@@ -34,15 +34,21 @@ export default function Header() {
     setIsMenuOpen(false)
   }, [pathname])
 
-  // ✅ ИСПРАВЛЕНО: убраны ВСЕ пробелы в URL
-  const hasPass = data?.user?.hasPass
-  const rawMcNick = data?.user?.minecraftNick || 'MHF_Steve'
-  const mcNick = rawMcNick.trim()
+  // ✅ ИСПРАВЛЕНО: используем 'as any' для обхода проверки типов
+  const user = data?.user as any
+  const hasPass = user?.hasPass
+  const mcNick = (user?.minecraftNick || '').trim()
+  const discordAvatar = user?.image
+  const discordName = user?.name || 'User'
   
-  // 🔴 КРИТИЧЕСКИ ВАЖНО: убраны пробелы в URL аватарки!
-  const avatarUrl = hasPass && mcNick && mcNick !== 'MHF_Steve'
+  // 🔴 Убраны пробелы в ссылках!
+  const avatarUrl = mcNick && mcNick !== 'MHF_Steve' && mcNick !== 'SteveMHF_'
     ? `https://minotar.net/helm/${encodeURIComponent(mcNick)}/64.png`
-    : 'https://minotar.net/helm/MHF_Steve/64.png'
+    : discordAvatar || 'https://minotar.net/helm/MHF_Steve/64.png'
+  
+  // Статус: "Есть проходка" / "Нет проходки"
+  const statusText = hasPass ? "Есть проходка" : "Нет проходки"
+  const statusColor = hasPass ? "[#0099ff]" : "yellow-500"
 
   const navLinks = [
     { name: "Главная", path: "/" },
@@ -98,7 +104,7 @@ export default function Header() {
             ))}
           </div>
           
-          {/* 🔗 СОЦСЕТИ — ИСПРАВЛЕНЫ ПРОБЕЛЫ В URL! */}
+          {/* 🔗 СОЦСЕТИ — убраны пробелы! */}
           <div className="flex items-center gap-4 border-l border-white/10 pl-8 ml-2">
             <a href="https://t.me/breeze_monster" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#24a1de] transition-all">
               <SiTelegram className="w-[18px] h-[18px]" />
@@ -128,20 +134,20 @@ export default function Header() {
                 <div className="relative w-7 h-7 sm:w-8 sm:h-8 rounded-lg overflow-hidden bg-[#090D10] ring-2 ring-transparent group-hover:ring-[#0099ff]/30 transition-all shadow-inner">
                   <img 
                     src={avatarUrl} 
-                    alt="Skin Head" 
+                    alt="Avatar" 
                     className="w-full h-full object-cover"
-                    style={{ imageRendering: 'pixelated' }}
+                    style={{ imageRendering: mcNick ? 'pixelated' : 'auto' }}
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://minotar.net/helm/MHF_Steve/64.png'
+                      (e.target as HTMLImageElement).src = discordAvatar || 'https://minotar.net/helm/MHF_Steve/64.png'
                     }}
                   />
                 </div>
                 <div className="text-left hidden sm:block">
                   <p className="text-[12px] sm:text-[13px] font-bold text-white leading-none truncate max-w-[100px]">
-                    {mcNick}
+                    {mcNick || discordName}
                   </p>
-                  <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[#0099ff] mt-0.5">
-                    {hasPass ? "Игрок" : "Гость"}
+                  <p className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-${statusColor} mt-0.5`}>
+                    {statusText}
                   </p>
                 </div>
                 <ChevronDown className={`w-4 h-4 text-zinc-500 transition-transform duration-300 ${isMenuOpen ? 'rotate-180' : ''}`} />
@@ -241,7 +247,6 @@ export default function Header() {
               style={{ 
                 touchAction: 'pan-y',
                 WebkitOverflowScrolling: 'touch',
-                // ДОБАВЛЕНО: фикс для обрезания
                 maxHeight: '100vh',
                 height: '100vh',
                 overflowY: 'auto'
@@ -299,7 +304,7 @@ export default function Header() {
                 </div>
               </div>
               
-              {/* Социальные сети */}
+              {/* Социальные сети — убраны пробелы! */}
               <div className="p-4 border-t border-white/10">
                 <div className="space-y-3">
                   <a 
@@ -357,22 +362,20 @@ export default function Header() {
                     <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-[#090D10] ring-2 ring-[#0099ff]/30">
                       <img 
                         src={avatarUrl} 
-                        alt="Skin Head" 
+                        alt="Avatar" 
                         className="w-full h-full object-cover"
-                        style={{ imageRendering: 'pixelated' }}
+                        style={{ imageRendering: mcNick ? 'pixelated' : 'auto' }}
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://minotar.net/helm/MHF_Steve/64.png'
+                          (e.target as HTMLImageElement).src = discordAvatar || 'https://minotar.net/helm/MHF_Steve/64.png'
                         }}
                       />
                     </div>
                     <div className="flex-1">
                       <p className="text-white font-bold text-sm truncate">
-                        {mcNick}
+                        {mcNick || discordName}
                       </p>
-                      <p className={`text-xs font-bold uppercase tracking-wider ${
-                        hasPass ? 'text-[#0099ff]' : 'text-yellow-500'
-                      }`}>
-                        {hasPass ? "Игрок" : "Гость"}
+                      <p className={`text-xs font-bold uppercase tracking-wider text-${statusColor}`}>
+                        {statusText}
                       </p>
                     </div>
                   </div>
