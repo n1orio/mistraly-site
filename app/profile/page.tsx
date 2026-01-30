@@ -2,7 +2,6 @@
 import { auth } from '@/lib/auth'
 import Image from 'next/image'
 import { getDiscordBanner } from '@/lib/discord'
-import { prisma } from '@/lib/prisma'
 
 interface ExtendedUser {
   id: string
@@ -11,9 +10,16 @@ interface ExtendedUser {
   image?: string | null
   discordId?: string | null
   banner?: string | null
+  bannerColor?: number | null
   minecraftNick?: string | null
   hasPass?: boolean | null
   discordName?: string | null
+}
+
+// Преобразуем числовой цвет в HEX
+function numberToHexColor(number: number): string {
+  if (!number) return '#5865F2' // Цвет по умолчанию (синий)
+  return `#${number.toString(16).padStart(6, '0')}`
 }
 
 export default async function ProfilePage() {
@@ -27,26 +33,41 @@ export default async function ProfilePage() {
   const cleanImage = userData.image?.trim()
   const hasImage = cleanImage && !cleanImage.includes('undefined')
   
-  // Используем баннер из БД или пытаемся получить его через Bot API
+  // Получаем баннер и цвет из Discord API
   let bannerUrl = userData.banner
-  if (!bannerUrl && userData.discordId) {
-    bannerUrl = await getDiscordBanner(userData.discordId)
+  let bannerColor = userData.bannerColor
+  let accentColorHex = '#5865F2'
+  
+  if (userData.discordId) {
+    const bannerData = await getDiscordBanner(userData.discordId)
     
-    // Сохраняем баннер в БД для будущих запросов
-    if (bannerUrl) {
+    bannerUrl = bannerData.banner
+    bannerColor = bannerData.accentColor
+    
+    // Сохраняем в БД
+    if (bannerUrl || bannerColor) {
+      const { prisma } = await import('@/lib/prisma')
       await prisma.user.update({
         where: { id: userData.id },
-        data: { banner: bannerUrl }
+        data: { 
+          banner: bannerUrl,
+          bannerColor: bannerColor?.toString() || null
+        }
       })
     }
+  }
+  
+  // Преобразуем цвет в HEX
+  if (bannerColor) {
+    accentColorHex = numberToHexColor(bannerColor)
   }
 
   return (
     <div className="min-h-screen bg-[#0D1117] text-white p-8">
       <div className="max-w-4xl mx-auto">
-        {/* Баннер - если есть, то показываем */}
+        {/* Баннер - если есть */}
         {bannerUrl ? (
-          <div className="w-full h-64 rounded-xl overflow-hidden mb-8">
+          <div className="w-full h-64 rounded-xl overflow-hidden mb-8 relative">
             <Image
               src={bannerUrl}
               alt="Discord Banner"
@@ -55,17 +76,26 @@ export default async function ProfilePage() {
               className="w-full h-full object-cover"
               unoptimized
             />
+            {/* Полоска цвета внизу */}
+            <div 
+              className="absolute bottom-0 left-0 right-0 h-1"
+              style={{ backgroundColor: accentColorHex }}
+            />
           </div>
         ) : (
-          // Если баннера нет - показываем цветной фон
-          <div className="w-full h-64 rounded-xl mb-8 overflow-hidden">
-            <div className="w-full h-full bg-gradient-to-r from-[#5865F2] to-[#4752C4] flex items-center justify-center">
+          // Если баннера нет - показываем цветную полоску
+          <div className="w-full h-20 rounded-xl mb-8 overflow-hidden relative">
+            <div className="w-full h-full bg-gradient-to-r from-[#161B22] to-[#21262D] flex items-center justify-center">
               <div className="text-center">
-                <div className="text-6xl mb-4">🎨</div>
-                <p className="text-white font-medium">Ваш Discord баннер</p>
-                <p className="text-white/70">Профиль с цветным фоном</p>
+                <div className="text-4xl mb-2">🎨</div>
+                <p className="text-white/70 text-sm">Баннер профиля Discord</p>
               </div>
             </div>
+            {/* Цветная полоска внизу */}
+            <div 
+              className="absolute bottom-0 left-0 right-0 h-1"
+              style={{ backgroundColor: accentColorHex }}
+            />
           </div>
         )}
         
@@ -131,6 +161,18 @@ export default async function ProfilePage() {
             <div className="bg-[#21262D] p-4 rounded-lg">
               <p className="text-sm text-gray-500">Has Pass:</p>
               <p className="font-semibold">{userData.hasPass ? 'Да ✅' : 'Нет ❌'}</p>
+            </div>
+            
+            {/* Акцентный цвет */}
+            <div className="bg-[#21262D] p-4 rounded-lg">
+              <p className="text-sm text-gray-500">Акцентный цвет:</p>
+              <div className="flex items-center gap-2 mt-1">
+                <div 
+                  className="w-8 h-8 rounded-md"
+                  style={{ backgroundColor: accentColorHex }}
+                />
+                <span className="font-mono">{accentColorHex.toUpperCase()}</span>
+              </div>
             </div>
           </div>
           

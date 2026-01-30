@@ -14,8 +14,9 @@ model User {
   emailVerified DateTime?
   image         String?
   discordId     String?   @unique
-  discordName   String?   @unique
+  discordName   String?
   banner        String?
+  bannerColor   String?   // Новый цвет баннера
   minecraftNick String?   @unique
   hasPass       Boolean   @default(false)
   accounts      Account[]
