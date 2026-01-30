@@ -1,7 +1,6 @@
 // app/profile/page.tsx
 import { auth } from '@/lib/auth'
 import Image from 'next/image'
-import { getDiscordBanner } from '@/lib/discord'
 
 interface ExtendedUser {
   id: string
@@ -10,17 +9,13 @@ interface ExtendedUser {
   image?: string | null
   discordId?: string | null
   banner?: string | null
-  bannerColor?: number | null
   minecraftNick?: string | null
   hasPass?: boolean | null
   discordName?: string | null
 }
 
-// Преобразуем числовой цвет в HEX
-function numberToHexColor(number: number): string {
-  if (!number) return '#5865F2' // Цвет по умолчанию (синий)
-  return `#${number.toString(16).padStart(6, '0')}`
-}
+// Цвет по умолчанию для полоски (синий Discord)
+const DEFAULT_ACCENT_COLOR = '#5865F2'
 
 export default async function ProfilePage() {
   const session = await auth()
@@ -32,35 +27,7 @@ export default async function ProfilePage() {
   const userData = session.user as ExtendedUser
   const cleanImage = userData.image?.trim()
   const hasImage = cleanImage && !cleanImage.includes('undefined')
-  
-  // Получаем баннер и цвет из Discord API
-  let bannerUrl = userData.banner
-  let bannerColor = userData.bannerColor
-  let accentColorHex = '#5865F2'
-  
-  if (userData.discordId) {
-    const bannerData = await getDiscordBanner(userData.discordId)
-    
-    bannerUrl = bannerData.banner
-    bannerColor = bannerData.accentColor
-    
-    // Сохраняем в БД
-    if (bannerUrl || bannerColor) {
-      const { prisma } = await import('@/lib/prisma')
-      await prisma.user.update({
-        where: { id: userData.id },
-        data: { 
-          banner: bannerUrl,
-          bannerColor: bannerColor?.toString() || null
-        }
-      })
-    }
-  }
-  
-  // Преобразуем цвет в HEX
-  if (bannerColor) {
-    accentColorHex = numberToHexColor(bannerColor)
-  }
+  const bannerUrl = userData.banner
 
   return (
     <div className="min-h-screen bg-[#0D1117] text-white p-8">
@@ -76,10 +43,10 @@ export default async function ProfilePage() {
               className="w-full h-full object-cover"
               unoptimized
             />
-            {/* Полоска цвета внизу */}
+            {/* Полоска цвета внизу (цвет по умолчанию) */}
             <div 
               className="absolute bottom-0 left-0 right-0 h-1"
-              style={{ backgroundColor: accentColorHex }}
+              style={{ backgroundColor: DEFAULT_ACCENT_COLOR }}
             />
           </div>
         ) : (
@@ -94,7 +61,7 @@ export default async function ProfilePage() {
             {/* Цветная полоска внизу */}
             <div 
               className="absolute bottom-0 left-0 right-0 h-1"
-              style={{ backgroundColor: accentColorHex }}
+              style={{ backgroundColor: DEFAULT_ACCENT_COLOR }}
             />
           </div>
         )}
@@ -162,18 +129,6 @@ export default async function ProfilePage() {
               <p className="text-sm text-gray-500">Has Pass:</p>
               <p className="font-semibold">{userData.hasPass ? 'Да ✅' : 'Нет ❌'}</p>
             </div>
-            
-            {/* Акцентный цвет */}
-            <div className="bg-[#21262D] p-4 rounded-lg">
-              <p className="text-sm text-gray-500">Акцентный цвет:</p>
-              <div className="flex items-center gap-2 mt-1">
-                <div 
-                  className="w-8 h-8 rounded-md"
-                  style={{ backgroundColor: accentColorHex }}
-                />
-                <span className="font-mono">{accentColorHex.toUpperCase()}</span>
-              </div>
-            </div>
           </div>
           
           {/* Кнопка покупки пропуска */}
@@ -187,7 +142,7 @@ export default async function ProfilePage() {
                 href="/buy-pass" 
                 className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
               >
-                Приобрести пропуск
+                Приобрести пропуск за 350₽
               </a>
             </div>
           )}
