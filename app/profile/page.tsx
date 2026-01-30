@@ -84,32 +84,19 @@ export default async function ProfilePage() {
                 {userData.name || 'Не указано имя'}
               </h1>
               
-              {/* Minecraft Nick */}
-              {userData.minecraftNick && (
-                <div className="mt-2">
-                  <p className="text-sm text-gray-500">Minecraft:</p>
-                  <p className="text-green-400 font-bold text-xl">
-                    {userData.minecraftNick}
-                  </p>
-                </div>
-              )}
-              
               {/* Discord Nick */}
               {userData.discordName && (
-                <div className="mt-2">
-                  <p className="text-sm text-gray-500">Discord:</p>
-                  <p className="text-blue-400 font-semibold text-lg">
-                    {userData.discordName}
-                  </p>
-                </div>
+                <p className="text-blue-400 font-semibold">
+                  Discord: {userData.discordName}
+                </p>
               )}
               
-              <p className="text-gray-400 mt-2">{userData.email}</p>
+              <p className="text-gray-400">{userData.email}</p>
               
               {/* Discord ID */}
-              <div className="mt-6 pt-4 border-t border-[#21262D]">
-                <p className="text-xs text-gray-500 uppercase tracking-wider">Discord ID:</p>
-                <p className="font-mono text-sm text-gray-300 break-all mt-1">
+              <div className="mt-4">
+                <p className="text-sm text-gray-500">Discord ID:</p>
+                <p className="font-mono text-lg break-all">
                   {userData.discordId || 'Не загружен'}
                 </p>
               </div>
@@ -119,16 +106,14 @@ export default async function ProfilePage() {
           {/* Дополнительная информация */}
           <div className="grid grid-cols-2 gap-4 mt-6">
             <div className="bg-[#21262D] p-4 rounded-lg">
+              <p className="text-sm text-gray-500">Minecraft Nick:</p>
+              <p className="font-semibold">{userData.minecraftNick || 'Не указан'}</p>
+            </div>
+            
+            <div className="bg-[#21262D] p-4 rounded-lg">
               <p className="text-sm text-gray-500">Has Pass:</p>
               <p className="font-semibold">{userData.hasPass ? 'Да ✅' : 'Нет ❌'}</p>
             </div>
-            
-            {userData.roles && userData.roles.length > 0 && (
-              <div className="bg-[#21262D] p-4 rounded-lg">
-                <p className="text-sm text-gray-500">Роли:</p>
-                <p className="font-semibold">{userData.roles.join(', ')}</p>
-              </div>
-            )}
           </div>
           
           {/* Кнопка покупки пропуска */}
