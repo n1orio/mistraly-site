@@ -10,32 +10,32 @@ declare module "next-auth" {
       email?: string | null
       image?: string | null
       discordId?: string | null
-      banner?: string | null
-      roles?: string[]
       minecraftNick?: string | null
-      hasPass?: boolean
+      hasPass?: boolean | null
       discordName?: string | null
+      roles?: string[] | null
     }
   }
 
   interface User {
-    image?: string
-    banner?: string
-    roles?: string[]
-    discordId?: string
-    minecraftNick?: string
-    hasPass?: boolean
+    id: string
+    name?: string | null
+    email?: string | null
+    image?: string | null
+    discordId?: string | null
+    minecraftNick?: string | null
+    hasPass?: boolean | null
+    discordName?: string | null
+    roles?: string[] | null
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
-    discordId?: string
-    banner?: string
-    roles?: string[]
-    minecraftNick?: string
-    hasPass?: boolean
-    picture?: string
-    discordName?: string
+    discordId?: string | null
+    minecraftNick?: string | null
+    hasPass?: boolean | null
+    discordName?: string | null
+    roles?: string[] | null
   }
 }
