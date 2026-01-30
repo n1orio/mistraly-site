@@ -4,7 +4,24 @@ import DiscordProvider from "next-auth/providers/discord"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "./prisma"
 
-declare module "next-auth/jwt" {
+// Расширяем типы сессии и JWT
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string
+      name: string
+      email: string
+      image?: string | null
+      discordId?: string | null
+      discordName?: string | null
+      minecraftNick?: string | undefined
+      hasPass?: boolean
+      banner?: string | null
+      roles?: string[]
+    }
+  }
+
+  // 🔴 JWT теперь внутри модуля next-auth
   interface JWT {
     banner?: string | null
     discordId?: string | null
@@ -35,43 +52,20 @@ export const {
     }),
   ],
   callbacks: {
-    async signIn({ user, account, profile }) {
-      if (profile?.id && user.id) {
-        const avatarUrl = (profile as any).image
-          ? `https://cdn.discordapp.com/avatars/${(profile as any).id}/${(profile as any).image}.${(profile as any).image.startsWith('a_') ? 'gif' : 'png'}?size=256`
-          : null
-        
-await prisma.user.upsert({
-  where: { id: user.id },
-  update: {
-    discordId: (profile as any).id,
-    name: (profile as any).username,
-    image: avatarUrl
-  },
-  create: {
-    id: user.id,
-    discordId: (profile as any).id,
-    name: (profile as any).username,
-    email: user.email || null,
-    image: avatarUrl
-  },
-})
-      }
-      return true
-    },
-    async session({ session, token }) {
+    async session({ session, token }: any) {
       if (session.user && token) {
-        ;(session.user as any).discordId = token.discordId
-        ;(session.user as any).banner = token.banner
-        ;(session.user as any).roles = token.roles || []
-        ;(session.user as any).image = token.picture || token.image
-        ;(session.user as any).discordName = token.discordName
-        ;(session.user as any).minecraftNick = token.minecraftNick
-        ;(session.user as any).hasPass = token.hasPass
+        session.user.discordId = token.discordId
+        session.user.banner = token.banner
+        session.user.roles = token.roles || []
+        session.user.image = token.picture || token.image
+        session.user.discordName = token.discordName
+        session.user.minecraftNick = token.minecraftNick
+        session.user.hasPass = token.hasPass
       }
       return session
     },
-    async jwt({ token, account, profile, user }) {
+    
+    async jwt({ token, account, profile, user }: any) {
       if (account?.provider === "discord" && profile) {
         token.discordId = (profile as any).id
         token.name = (profile as any).username
@@ -82,6 +76,30 @@ await prisma.user.upsert({
           token.picture = `https://cdn.discordapp.com/avatars/${(profile as any).id}/${(profile as any).image}.${avatarFormat}?size=256`
         }
         
+        // Обновляем пользователя в БД через Prisma
+        try {
+          await prisma.user.upsert({
+            where: { discordId: (profile as any).id },
+            update: {
+              discordId: (profile as any).id,
+              name: (profile as any).username,
+              image: token.picture,
+              discordName: token.discordName,
+            },
+            create: {
+              id: user?.id || (profile as any).id,
+              discordId: (profile as any).id,
+              name: (profile as any).username,
+              email: (profile as any).email || null,
+              image: token.picture,
+              discordName: token.discordName,
+            },
+          })
+        } catch (error) {
+          console.error('Error updating user:', error)
+        }
+        
+        // Загружаем баннер из Discord API
         try {
           const response = await fetch('https://discord.com/api/users/@me', {
             headers: { Authorization: `Bearer ${account.access_token}` },
@@ -93,6 +111,12 @@ await prisma.user.upsert({
               const isAnimated = userData.banner.startsWith('a_')
               const extension = isAnimated ? 'gif' : 'png'
               token.banner = `https://cdn.discordapp.com/banners/${userData.id}/${userData.banner}.${extension}?size=1024`
+              
+              // Обновляем баннер в БД
+              await prisma.user.update({
+                where: { discordId: (profile as any).id },
+                data: { banner: token.banner },
+              })
             }
           }
         } catch (error) {
@@ -100,13 +124,20 @@ await prisma.user.upsert({
         }
       }
       
+      // Загружаем данные из БД при обновлении токена
       if (user && !token.discordId) {
-        token.discordId = (user as any).discordId
-        token.banner = (user as any).banner
-        token.discordName = (user as any).discordName
-        token.minecraftNick = (user as any).minecraftNick
-        token.hasPass = (user as any).hasPass
-        token.roles = (user as any).roles
+        const dbUser = await prisma.user.findUnique({
+          where: { id: user.id },
+        })
+        
+        if (dbUser) {
+          token.discordId = dbUser.discordId
+          token.banner = dbUser.banner
+          token.discordName = dbUser.discordName
+          token.minecraftNick = dbUser.minecraftNick
+          token.hasPass = dbUser.hasPass
+          token.picture = dbUser.image
+        }
       }
       
       return token
