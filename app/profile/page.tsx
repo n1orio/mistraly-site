@@ -2,6 +2,7 @@
 import { auth } from '@/lib/auth'
 import Image from 'next/image'
 import { getDiscordBanner } from '@/lib/discord'
+import { prisma } from '@/lib/prisma'
 
 interface ExtendedUser {
   id: string
@@ -26,14 +27,13 @@ export default async function ProfilePage() {
   const cleanImage = userData.image?.trim()
   const hasImage = cleanImage && !cleanImage.includes('undefined')
   
-  // Получаем баннер только если его нет в сессии
+  // Используем баннер из БД или пытаемся получить его через Bot API
   let bannerUrl = userData.banner
   if (!bannerUrl && userData.discordId) {
     bannerUrl = await getDiscordBanner(userData.discordId)
     
     // Сохраняем баннер в БД для будущих запросов
     if (bannerUrl) {
-      const { prisma }: { prisma: any } = await import('@/lib/prisma')
       await prisma.user.update({
         where: { id: userData.id },
         data: { banner: bannerUrl }
@@ -44,8 +44,8 @@ export default async function ProfilePage() {
   return (
     <div className="min-h-screen bg-[#0D1117] text-white p-8">
       <div className="max-w-4xl mx-auto">
-        {/* Баннер - показываем ТОЛЬКО если есть */}
-        {bannerUrl && (
+        {/* Баннер - если есть, то показываем */}
+        {bannerUrl ? (
           <div className="w-full h-64 rounded-xl overflow-hidden mb-8">
             <Image
               src={bannerUrl}
@@ -55,6 +55,17 @@ export default async function ProfilePage() {
               className="w-full h-full object-cover"
               unoptimized
             />
+          </div>
+        ) : (
+          // Если баннера нет - показываем цветной фон
+          <div className="w-full h-64 rounded-xl mb-8 overflow-hidden">
+            <div className="w-full h-full bg-gradient-to-r from-[#5865F2] to-[#4752C4] flex items-center justify-center">
+              <div className="text-center">
+                <div className="text-6xl mb-4">🎨</div>
+                <p className="text-white font-medium">Ваш Discord баннер</p>
+                <p className="text-white/70">Профиль с цветным фоном</p>
+              </div>
+            </div>
           </div>
         )}
         
