@@ -48,7 +48,7 @@ export default function Header() {
   
   // Статус: "Есть проходка" / "Нет проходки"
   const statusText = hasPass ? "Есть проходка" : "Нет проходки"
-  const statusColor = hasPass ? "[#0099ff]" : "yellow-500"
+  const statusColor = hasPass ? "[#0099ff]" : "[#e32636]"
 
   const navLinks = [
     { name: "Главная", path: "/" },
