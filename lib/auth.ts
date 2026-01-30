@@ -4,7 +4,6 @@ import DiscordProvider from "next-auth/providers/discord"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "./prisma"
 
-// Расширяем типы сессии и JWT
 declare module "next-auth" {
   interface Session {
     user: {
@@ -17,18 +16,15 @@ declare module "next-auth" {
       minecraftNick?: string | undefined
       hasPass?: boolean
       banner?: string | null
-      roles?: string[]
     }
   }
 
-  // 🔴 JWT теперь внутри модуля next-auth
   interface JWT {
     banner?: string | null
     discordId?: string | null
     discordName?: string | null
     minecraftNick?: string | undefined
     hasPass?: boolean
-    roles?: string[]
     picture?: string | null
   }
 }
@@ -56,7 +52,6 @@ export const {
       if (session.user && token) {
         session.user.discordId = token.discordId
         session.user.banner = token.banner
-        session.user.roles = token.roles || []
         session.user.image = token.picture || token.image
         session.user.discordName = token.discordName
         session.user.minecraftNick = token.minecraftNick
@@ -73,10 +68,11 @@ export const {
         
         if ((profile as any).image) {
           const avatarFormat = (profile as any).image.startsWith('a_') ? 'gif' : 'png'
+          // 🔴 УБРАЛИ ПРОБЕЛЫ!
           token.picture = `https://cdn.discordapp.com/avatars/${(profile as any).id}/${(profile as any).image}.${avatarFormat}?size=256`
         }
         
-        // Обновляем пользователя в БД через Prisma
+        // Обновляем пользователя в БД
         try {
           await prisma.user.upsert({
             where: { discordId: (profile as any).id },
@@ -99,32 +95,11 @@ export const {
           console.error('Error updating user:', error)
         }
         
-        // Загружаем баннер из Discord API
-        try {
-          const response = await fetch('https://discord.com/api/users/@me', {
-            headers: { Authorization: `Bearer ${account.access_token}` },
-          })
-          
-          if (response.ok) {
-            const userData = await response.json()
-            if (userData.banner) {
-              const isAnimated = userData.banner.startsWith('a_')
-              const extension = isAnimated ? 'gif' : 'png'
-              token.banner = `https://cdn.discordapp.com/banners/${userData.id}/${userData.banner}.${extension}?size=1024`
-              
-              // Обновляем баннер в БД
-              await prisma.user.update({
-                where: { discordId: (profile as any).id },
-                data: { banner: token.banner },
-              })
-            }
-          }
-        } catch (error) {
-          console.error('Error fetching banner:', error)
-        }
+        // 🔴 УДАЛИЛИ ЗАПРОС БАННЕРА ЧЕРЕЗ /users/@me — он не работает с access_token
+        // Баннер будем получать через Bot API в profile page
       }
       
-      // Загружаем данные из БД при обновлении токена
+      // Загружаем данные из БД
       if (user && !token.discordId) {
         const dbUser = await prisma.user.findUnique({
           where: { id: user.id },

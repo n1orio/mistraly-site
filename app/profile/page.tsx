@@ -10,7 +10,6 @@ interface ExtendedUser {
   image?: string | null
   discordId?: string | null
   banner?: string | null
-  roles?: string[] | null
   minecraftNick?: string | null
   hasPass?: boolean | null
   discordName?: string | null
@@ -27,14 +26,26 @@ export default async function ProfilePage() {
   const cleanImage = userData.image?.trim()
   const hasImage = cleanImage && !cleanImage.includes('undefined')
   
-  // Получаем баннер через Discord Bot API
-  const bannerUrl = userData.discordId ? await getDiscordBanner(userData.discordId) : null
+  // Получаем баннер только если его нет в сессии
+  let bannerUrl = userData.banner
+  if (!bannerUrl && userData.discordId) {
+    bannerUrl = await getDiscordBanner(userData.discordId)
+    
+    // Сохраняем баннер в БД для будущих запросов
+    if (bannerUrl) {
+      const { prisma }: { prisma: any } = await import('@/lib/prisma')
+      await prisma.user.update({
+        where: { id: userData.id },
+        data: { banner: bannerUrl }
+      })
+    }
+  }
 
   return (
     <div className="min-h-screen bg-[#0D1117] text-white p-8">
       <div className="max-w-4xl mx-auto">
-        {/* Баннер */}
-        {bannerUrl ? (
+        {/* Баннер - показываем ТОЛЬКО если есть */}
+        {bannerUrl && (
           <div className="w-full h-64 rounded-xl overflow-hidden mb-8">
             <Image
               src={bannerUrl}
@@ -44,17 +55,6 @@ export default async function ProfilePage() {
               className="w-full h-full object-cover"
               unoptimized
             />
-          </div>
-        ) : (
-          <div className="w-full h-64 rounded-xl bg-[#21262D] flex items-center justify-center mb-8">
-            <div className="text-center">
-              <span className="text-xl block mb-2">Баннер не загружен</span>
-              {userData.discordId && (
-                <p className="text-sm text-gray-500 mt-2">
-                  Discord ID: {userData.discordId}
-                </p>
-              )}
-            </div>
           </div>
         )}
         
@@ -84,14 +84,21 @@ export default async function ProfilePage() {
                 {userData.name || 'Не указано имя'}
               </h1>
               
-              {/* Discord Nick */}
-              {userData.discordName && (
-                <p className="text-blue-400 font-semibold">
-                  Discord: {userData.discordName}
-                </p>
-              )}
+              {/* Отображение ников: Minecraft + Discord или только Discord */}
+              <div className="mt-2 space-y-1">
+                {userData.hasPass && userData.minecraftNick && (
+                  <p className="text-green-400 font-semibold text-lg">
+                    🎮 {userData.minecraftNick}
+                  </p>
+                )}
+                {userData.discordName && (
+                  <p className="text-blue-400 font-semibold text-lg">
+                    💬 {userData.discordName}
+                  </p>
+                )}
+              </div>
               
-              <p className="text-gray-400">{userData.email}</p>
+              <p className="text-gray-400 mt-2">{userData.email}</p>
               
               {/* Discord ID */}
               <div className="mt-4">
