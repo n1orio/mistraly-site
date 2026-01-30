@@ -1,18 +1,52 @@
 // app/auth/complete-profile/page.tsx
-import { auth } from '@/lib/auth'
-import { redirect } from 'next/navigation'
+"use client"
 
-export default async function CompleteProfilePage() {
-  const session = await auth()
-  
-  // Если пользователь не авторизован - редирект на главную
-  if (!session?.user) {
-    redirect('/')
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
+import { Loader2 } from "lucide-react"
+
+export default function CompleteProfilePage() {
+  const { data: session, update } = useSession()
+  const router = useRouter()
+  const [minecraftNick, setMinecraftNick] = useState(session?.user?.minecraftNick || "")
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+
+    try {
+      // Сохраняем ник в базе через API роут
+      const res = await fetch("/api/user/update-profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ minecraftNick: minecraftNick.trim() }),
+      })
+
+      if (!res.ok) throw new Error("Не удалось сохранить профиль")
+
+      // Обновляем сессию
+      await update({ ...session, user: { ...session?.user, minecraftNick: minecraftNick.trim() } })
+      
+      // Перенаправляем на главную или профиль
+      router.push("/profile")
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Ошибка при сохранении профиля")
+      setLoading(false)
+    }
   }
-  
-  // Если профиль уже заполнен - редирект на профиль
-  if (session.user.minecraftNick) {
-    redirect('/profile')
+
+  if (!session) {
+    return <div>Загрузка...</div>
+  }
+
+  // Если профиль уже заполнен — перенаправляем
+  if (session.user?.minecraftNick) {
+    router.push("/profile")
+    return null
   }
 
   return (
@@ -28,14 +62,15 @@ export default async function CompleteProfilePage() {
           </p>
         </div>
 
-        <form action="/api/update-profile" method="POST" className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-400 mb-2">
               Minecraft никнейм
             </label>
             <input
               type="text"
-              name="minecraftNick"
+              value={minecraftNick}
+              onChange={(e) => setMinecraftNick(e.target.value)}
               className="w-full bg-[#0D1117] border border-[#30363D] rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#0099ff] focus:border-transparent"
               placeholder="Steve"
               required
@@ -47,11 +82,25 @@ export default async function CompleteProfilePage() {
             </p>
           </div>
 
+          {error && (
+            <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
+              {error}
+            </div>
+          )}
+
           <button
             type="submit"
-            className="w-full bg-[#0099ff] hover:bg-[#0088ee] text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
+            disabled={loading || minecraftNick.trim().length < 3}
+            className="w-full bg-[#0099ff] hover:bg-[#0088ee] text-white font-bold py-3 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            Продолжить →
+            {loading ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Сохранение...
+              </>
+            ) : (
+              "Продолжить →"
+            )}
           </button>
         </form>
 
