@@ -1,7 +1,8 @@
-// app/profile/page.tsx
+// app/profile/[minecraftNick]/page.tsx
 import { auth } from '@/lib/auth'
 import Image from 'next/image'
 import { getDiscordBanner } from '@/lib/discord'
+import { getUserByMinecraftNick } from '@/lib/users'
 
 interface ExtendedUser {
   id: string
@@ -10,20 +11,58 @@ interface ExtendedUser {
   image?: string | null
   discordId?: string | null
   banner?: string | null
-  roles?: string[] | null
   minecraftNick?: string | null
   hasPass?: boolean | null
   discordName?: string | null
 }
 
-export default async function ProfilePage() {
+interface ProfileUser {
+  id: string
+  name: string | null
+  email: string | null
+  image: string | null
+  discordId: string | null
+  minecraftNick: string | null
+  hasPass: boolean | null
+  discordName: string | null
+  isCurrentUser: boolean
+}
+
+export default async function ProfileByMinecraftNickPage({
+  params
+}: {
+  params: { minecraftNick: string }
+}) {
   const session = await auth()
+  const currentUserId = session?.user?.id
   
-  if (!session?.user) {
-    return <div>Не авторизован</div>
+  // Получаем информацию о пользователе по нику Майнкрафт
+  const profileUser = await getUserByMinecraftNick(params.minecraftNick)
+  
+  if (!profileUser) {
+    return (
+      <div className="min-h-screen bg-[#0D1117] text-white p-8 flex items-center justify-center">
+        <div className="max-w-2xl mx-auto text-center">
+          <h1 className="text-4xl font-bold mb-4">Игрок не найден</h1>
+          <p className="text-gray-400 mb-6">
+            Игрок с ником "{decodeURIComponent(params.minecraftNick)}" не найден в базе данных
+          </p>
+          <a 
+            href="/profile" 
+            className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+          >
+            Вернуться в мой профиль
+          </a>
+        </div>
+      </div>
+    )
   }
   
-  const userData = session.user as ExtendedUser
+  const userData: ProfileUser = {
+    ...profileUser,
+    isCurrentUser: currentUserId === profileUser.id
+  }
+  
   const cleanImage = userData.image?.trim()
   const hasImage = cleanImage && !cleanImage.includes('undefined')
   
@@ -104,7 +143,9 @@ export default async function ProfilePage() {
                 </div>
               )}
               
-              <p className="text-gray-400 mt-2">{userData.email}</p>
+              {userData.email && (
+                <p className="text-gray-400 mt-2">{userData.email}</p>
+              )}
               
               {/* Discord ID */}
               <div className="mt-6 pt-4 border-t border-[#21262D]">
@@ -123,29 +164,26 @@ export default async function ProfilePage() {
               <p className="font-semibold">{userData.hasPass ? 'Да ✅' : 'Нет ❌'}</p>
             </div>
             
-            {userData.roles && userData.roles.length > 0 && (
-              <div className="bg-[#21262D] p-4 rounded-lg">
-                <p className="text-sm text-gray-500">Роли:</p>
-                <p className="font-semibold">{userData.roles.join(', ')}</p>
-              </div>
-            )}
           </div>
           
-          {/* Кнопка покупки пропуска */}
-          {!userData.hasPass && (
-            <div className="mt-8 p-6 bg-[#21262D] rounded-lg">
-              <h2 className="text-2xl font-bold mb-4">Купить пропуск</h2>
-              <p className="text-gray-400 mb-4">
-                Получите доступ к эксклюзивным возможностям сервера
-              </p>
+          {/* Кнопка возврата */}
+          <div className="mt-8 flex gap-4">
+            <a 
+              href="/profile" 
+              className="inline-block bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+            >
+              Мой профиль
+            </a>
+            
+            {!userData.isCurrentUser && (
               <a 
-                href="/buy-pass" 
+                href="/players" 
                 className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
               >
-                Приобрести пропуск
+                Список игроков
               </a>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>
