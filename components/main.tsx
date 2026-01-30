@@ -7,9 +7,10 @@ import { motion, useMotionValue, useSpring } from "framer-motion"
 import { useRouter } from "next/navigation"
 
 export default function SleekHero() {
-  const router = useRouter() // Инициализация роутера
+  const router = useRouter()
   const [copied, setCopied] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const [particles, setParticles] = useState<Array<{ left: number; top: number }>>([])
 
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
@@ -37,6 +38,15 @@ export default function SleekHero() {
       window.removeEventListener("mousemove", handleMouseMove)
     }
   }, [isMobile])
+
+  // Генерируем позиции частиц ТОЛЬКО на клиенте
+  useEffect(() => {
+    const generatedParticles = Array.from({ length: 30 }, () => ({
+      left: Math.random() * 100,
+      top: Math.random() * 100
+    }))
+    setParticles(generatedParticles)
+  }, [])
 
   const handleCopy = () => {
     navigator.clipboard.writeText("play.breeze.monster")
@@ -150,31 +160,33 @@ export default function SleekHero() {
         {/* Градиентное затемнение краев для глубины */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(8,11,14,0.85)_100%)] pointer-events-none" />
         
-        {/* Пульсирующие частицы */}
-        <div className="absolute inset-0">
-          {[...Array(30)].map((_, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ 
-                opacity: [0, 0.8, 0],
-                scale: [0, 1, 0],
-                x: [Math.random() * 100 - 50, Math.random() * 200 - 100],
-                y: [Math.random() * 100 - 50, Math.random() * 200 - 100]
-              }}
-              transition={{ 
-                duration: 3 + Math.random() * 2,
-                repeat: Infinity,
-                delay: i * 0.2
-              }}
-              className="absolute w-1 h-1 bg-[#0099ff] rounded-full"
-              style={{ 
-                left: `${Math.random() * 100}%`, 
-                top: `${Math.random() * 100}%` 
-              }}
-            />
-          ))}
-        </div>
+        {/* Пульсирующие частицы — ГЕНЕРИРУЕМ ТОЛЬКО НА КЛИЕНТЕ */}
+        {particles.length > 0 && (
+          <div className="absolute inset-0">
+            {particles.map((particle, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ 
+                  opacity: [0, 0.8, 0],
+                  scale: [0, 1, 0],
+                  x: [Math.random() * 100 - 50, Math.random() * 200 - 100],
+                  y: [Math.random() * 100 - 50, Math.random() * 200 - 100]
+                }}
+                transition={{ 
+                  duration: 3 + Math.random() * 2,
+                  repeat: Infinity,
+                  delay: i * 0.2
+                }}
+                className="absolute w-1 h-1 bg-[#0099ff] rounded-full"
+                style={{ 
+                  left: `${particle.left}%`, 
+                  top: `${particle.top}%` 
+                }}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* --- КОНТЕНТ --- */}
@@ -205,7 +217,7 @@ export default function SleekHero() {
         {/* КНОПКИ: адаптивное расположение */}
         <div className="mt-8 sm:mt-10 md:mt-12 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full max-w-3xl mx-auto">
           <Button 
-            onClick={() => router.push('/buy-pass')} // Кнопка теперь работает!
+            onClick={() => router.push('/buy-pass')}
             className="h-12 sm:h-14 w-full sm:w-64 text-base sm:text-lg bg-[#0099ff] hover:bg-white hover:text-black font-bold rounded-xl transition-all duration-300 shadow-[0_10px_25px_rgba(0,153,255,0.2)] active:scale-95"
           >
             <ShoppingCart className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
