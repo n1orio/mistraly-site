@@ -28,6 +28,7 @@ export const authOptions: NextAuthOptions = {
     },
 
     async session({ session, token, user }) {
+      // Используем приведение типа для обхода ошибки
       (session.user as any).id = token.sub || user.id
       ;(session.user as any).discordId = token.discordId || (user as any).discordId || null
       ;(session.user as any).minecraftNick = token.minecraftNick || (user as any).minecraftNick || null
