@@ -1,8 +1,7 @@
-// app/profile/[minecraftNick]/page.tsx
+// app/profile/page.tsx
 import { auth } from '@/lib/auth'
 import Image from 'next/image'
 import { getDiscordBanner } from '@/lib/discord'
-import { getUserByMinecraftNick } from '@/lib/users'
 
 interface ExtendedUser {
   id: string
@@ -11,58 +10,32 @@ interface ExtendedUser {
   image?: string | null
   discordId?: string | null
   banner?: string | null
+  roles?: string[] | null
   minecraftNick?: string | null
   hasPass?: boolean | null
   discordName?: string | null
 }
 
-interface ProfileUser {
-  id: string
-  name: string | null
-  email: string | null
-  image: string | null
-  discordId: string | null
-  minecraftNick: string | null
-  hasPass: boolean | null
-  discordName: string | null
-  isCurrentUser: boolean
-}
-
-export default async function ProfileByMinecraftNickPage({
-  params
-}: {
-  params: { minecraftNick: string }
-}) {
+export default async function ProfilePage() {
   const session = await auth()
-  const currentUserId = session?.user?.id
   
-  // Получаем информацию о пользователе по нику Майнкрафт
-  const profileUser = await getUserByMinecraftNick(params.minecraftNick)
-  
-  if (!profileUser) {
+  if (!session?.user) {
     return (
-      <div className="min-h-screen bg-[#0D1117] text-white p-8 flex items-center justify-center">
-        <div className="max-w-2xl mx-auto text-center">
-          <h1 className="text-4xl font-bold mb-4">Игрок не найден</h1>
-          <p className="text-gray-400 mb-6">
-            Игрок с ником "{decodeURIComponent(params.minecraftNick)}" не найден в базе данных
-          </p>
+      <div className="min-h-screen bg-[#0D1117] text-white flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Необходима авторизация</h1>
           <a 
-            href="/profile" 
+            href="/api/auth/signin/discord" 
             className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
           >
-            Вернуться в мой профиль
+            Войти через Discord
           </a>
         </div>
       </div>
     )
   }
   
-  const userData: ProfileUser = {
-    ...profileUser,
-    isCurrentUser: currentUserId === profileUser.id
-  }
-  
+  const userData = session.user as ExtendedUser
   const cleanImage = userData.image?.trim()
   const hasImage = cleanImage && !cleanImage.includes('undefined')
   
@@ -123,19 +96,19 @@ export default async function ProfileByMinecraftNickPage({
                 {userData.name || 'Не указано имя'}
               </h1>
               
-              {/* Minecraft Nick */}
+              {/* Minecraft Nick — ВЫШЕ */}
               {userData.minecraftNick && (
-                <div className="mt-2">
-                  <p className="text-sm text-gray-500">Minecraft:</p>
-                  <p className="text-green-400 font-bold text-xl">
+                <div className="mt-3">
+                  <p className="text-sm text-gray-500">Minecraft ник:</p>
+                  <p className="text-green-400 font-bold text-2xl">
                     {userData.minecraftNick}
                   </p>
                 </div>
               )}
               
-              {/* Discord Nick */}
+              {/* Discord Nick — ПОСЕРЕДИНЕ */}
               {userData.discordName && (
-                <div className="mt-2">
+                <div className="mt-4">
                   <p className="text-sm text-gray-500">Discord:</p>
                   <p className="text-blue-400 font-semibold text-lg">
                     {userData.discordName}
@@ -147,10 +120,10 @@ export default async function ProfileByMinecraftNickPage({
                 <p className="text-gray-400 mt-2">{userData.email}</p>
               )}
               
-              {/* Discord ID */}
-              <div className="mt-6 pt-4 border-t border-[#21262D]">
+              {/* Discord ID — САМЫЙ НИЗ */}
+              <div className="mt-6 pt-5 border-t border-[#21262D]">
                 <p className="text-xs text-gray-500 uppercase tracking-wider">Discord ID:</p>
-                <p className="font-mono text-sm text-gray-300 break-all mt-1">
+                <p className="font-mono text-sm text-gray-300 break-all mt-1.5">
                   {userData.discordId || 'Не загружен'}
                 </p>
               </div>
@@ -158,32 +131,55 @@ export default async function ProfileByMinecraftNickPage({
           </div>
           
           {/* Дополнительная информация */}
-          <div className="grid grid-cols-2 gap-4 mt-6">
-            <div className="bg-[#21262D] p-4 rounded-lg">
-              <p className="text-sm text-gray-500">Has Pass:</p>
-              <p className="font-semibold">{userData.hasPass ? 'Да ✅' : 'Нет ❌'}</p>
+          <div className="grid grid-cols-2 gap-4 mt-8">
+            <div className="bg-[#21262D] p-5 rounded-lg">
+              <p className="text-sm text-gray-500">Пропуск:</p>
+              <p className="font-bold text-xl mt-1">
+                {userData.hasPass ? (
+                  <span className="text-green-400 flex items-center gap-2">
+                    <span>✅</span> Активен
+                  </span>
+                ) : (
+                  <span className="text-yellow-400 flex items-center gap-2">
+                    <span>❌</span> Отсутствует
+                  </span>
+                )}
+              </p>
             </div>
             
-          </div>
-          
-          {/* Кнопка возврата */}
-          <div className="mt-8 flex gap-4">
-            <a 
-              href="/profile" 
-              className="inline-block bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
-            >
-              Мой профиль
-            </a>
-            
-            {!userData.isCurrentUser && (
-              <a 
-                href="/players" 
-                className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
-              >
-                Список игроков
-              </a>
+            {userData.roles && userData.roles.length > 0 && (
+              <div className="bg-[#21262D] p-5 rounded-lg">
+                <p className="text-sm text-gray-500">Роли:</p>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {userData.roles.map((role, index) => (
+                    <span 
+                      key={index} 
+                      className="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-sm font-medium"
+                    >
+                      {role}
+                    </span>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
+          
+          {/* Кнопка покупки пропуска */}
+          {!userData.hasPass && (
+            <div className="mt-10 p-6 bg-gradient-to-r from-[#1a232a] to-[#161b22] rounded-xl border border-[#0099ff]/20">
+              <h2 className="text-2xl font-bold mb-3 text-[#0099ff]">Получить пропуск</h2>
+              <p className="text-gray-300 mb-5">
+                Пропуск даёт доступ к эксклюзивным возможностям сервера: приватные территории, кастомные предметы и приоритетная поддержка.
+              </p>
+              <a 
+                href="/buy-pass" 
+                className="inline-flex items-center gap-2 bg-[#0099ff] hover:bg-[#0088ee] text-white font-bold py-3 px-7 rounded-lg transition-all hover:scale-[1.02] shadow-lg shadow-[#0099ff]/20"
+              >
+                Приобрести пропуск
+                <span className="text-lg">→</span>
+              </a>
+            </div>
+          )}
         </div>
       </div>
     </div>
