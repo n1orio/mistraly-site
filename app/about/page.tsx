@@ -286,45 +286,69 @@ export default function AboutPage() {
       
       <main className="max-w-6xl mx-auto pt-6 pb-16 px-4 sm:px-6 flex flex-col items-center relative">
 
-<div className="sticky top-24 z-30 mb-10 w-full max-w-[600px] mx-auto">
-  <div className="relative">
-
+{/* ИСПРАВЛЕННЫЙ И УЛУЧШЕННЫЙ БЛОК С ТАБАМИ */}
+<div className="sticky top-16 sm:top-18 z-30 mb-8 w-full px-4 sm:px-6">
+  <div className="relative max-w-5xl mx-auto">
+    {/* Декоративные линии сверху */}
     <div className="absolute -top-px left-0 w-full h-px bg-gradient-to-r from-transparent via-[#0099ff] to-transparent opacity-50" />
     
-
-    <div className="relative bg-[#080B0E] backdrop-blur-xl rounded-xl overflow-hidden border border-white/10">
-      <div className="flex w-full">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => changeTab(tab.id)}
-            aria-selected={activeTab === tab.id}
-            className={`relative flex-1 flex items-center justify-center gap-2 py-3 text-[13px] sm:text-[14px] font-bold transition-all duration-300 ${
-              activeTab === tab.id 
-                ? "text-[#0099ff]" 
-                : "text-zinc-300 hover:text-white"
-            }`}
-          >
-            <span className={activeTab === tab.id ? "text-[#0099ff]" : "text-zinc-400"}>
-              {tab.icon}
-            </span>
-            <span className="hidden sm:inline">{tab.label}</span>
-            <span className="sm:hidden">{tab.label[0]}</span>
-            {activeTab === tab.id && (
-              <motion.div 
-                layoutId="active-tab-bg" 
-                className="absolute inset-0 bg-[#0099ff]/5 rounded-xl"
-                initial={false}
-                transition={{ type: "spring", stiffness: 500, damping: 30 }}
-              />
-            )}
-          </button>
-        ))}
+    {/* Основное меню */}
+    <div className="relative bg-[#080B0E]/85 backdrop-blur-xl rounded-xl overflow-hidden border border-white/10 shadow-lg">
+      {/* Мобильная версия: прокрутка, Десктоп: равномерное распределение */}
+      <div 
+        className="flex overflow-x-auto scrollbar-hide md:overflow-visible"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
+        <div className="flex min-w-full md:min-w-0 md:w-full">
+          {tabs.map((tab) => (
+            <motion.button
+              key={tab.id}
+              onClick={() => changeTab(tab.id)}
+              aria-selected={activeTab === tab.id}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className={`relative flex items-center justify-center gap-2 px-3 sm:px-4 py-3.5 min-w-[100px] md:min-w-0 md:flex-1 text-[12px] sm:text-[13px] font-bold transition-all duration-300 ${
+                activeTab === tab.id 
+                  ? "text-[#0099ff]" 
+                  : "text-zinc-300 hover:text-white"
+              }`}
+            >
+              <span className={activeTab === tab.id ? "text-[#0099ff]" : "text-zinc-400"}>
+                {tab.icon}
+              </span>
+              <span className="hidden sm:inline">{tab.label}</span>
+              <span className="sm:hidden whitespace-nowrap text-[11px]">{tab.label}</span>
+              
+              {activeTab === tab.id && (
+                <>
+                  {/* Фон для активной вкладки на мобильных */}
+                  <motion.div 
+                    layoutId="active-tab-bg" 
+                    className="absolute inset-0 bg-[#0099ff]/5 rounded-xl md:hidden"
+                    initial={false}
+                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                  />
+                  {/* Линия-индикатор снизу на десктопе */}
+                  <motion.div 
+                    layoutId="active-tab-indicator"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0099ff] hidden md:block"
+                    initial={false}
+                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                  />
+                </>
+              )}
+            </motion.button>
+          ))}
+        </div>
       </div>
     </div>
     
-
+    {/* Декоративные линии снизу */}
     <div className="absolute -bottom-px left-0 w-full h-px bg-gradient-to-r from-transparent via-[#0099ff] to-transparent opacity-50" />
+    
+    {/* Градиентные подсказки о прокрутке (только на мобильных) */}
+    <div className="absolute top-0 bottom-0 left-0 w-8 bg-gradient-to-r from-[#090D10] to-transparent pointer-events-none md:hidden" />
+    <div className="absolute top-0 bottom-0 right-0 w-8 bg-gradient-to-l from-[#090D10] to-transparent pointer-events-none md:hidden" />
   </div>
 </div>
 

@@ -3,6 +3,175 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* app/globals.css */
+.docs-content {
+  padding-left: 1rem; /* 16px отступ от бокового меню */
+}
+
+@media (min-width: 1024px) {
+  .docs-sidebar {
+    width: 20rem; /* 320px ширина меню */
+  }
+  
+  .docs-content {
+    padding-left: 1rem; /* Уменьшенный отступ */
+  }
+}
+
+/* Плавные переходы для табов на ПК */
+[data-radix-scroll-area-viewport]::-webkit-scrollbar {
+  display: none;
+}
+/* Тени для фиксированных боковых панелей */
+@media (min-width: 1024px) {
+  .sticky-sidebar::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 20px;
+    background: linear-gradient(to top, #090D10 30%, transparent 100%);
+    pointer-events: none;
+  }
+  
+  .sticky-toc::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 20px;
+    background: linear-gradient(to top, #12181F 30%, transparent 100%);
+    pointer-events: none;
+  }
+}
+
+@media (min-width: 768px) {
+  .tab-content-enter {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  .tab-content-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  .tab-content-exit {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .tab-content-exit-active {
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+}
+/* Стили для скроллбара в оглавлении */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #0099ff;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #0088e6;
+}
+
+
+/* Скрытие скроллбара для прокручиваемых элементов */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
+/* Плавные тени для табов при наведении на ПК */
+@media (min-width: 768px) {
+  .tab-hover-effect:hover {
+    box-shadow: 0 4px 12px rgba(0, 153, 255, 0.15);
+  }
+}
+
+.prose {
+  max-width: none;
+}
+
+.prose h1 {
+  font-size: 2.25rem;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+}
+
+.prose h2 {
+  font-size: 1.875rem;
+  line-height: 1.3;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.prose h3 {
+  font-size: 1.5rem;
+  line-height: 1.4;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.prose p {
+  margin-bottom: 1rem;
+  line-height: 1.75;
+}
+
+.prose ul {
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem;
+}
+
+.prose li {
+  margin-bottom: 0.5rem;
+  line-height: 1.75;
+}
+
+.prose a {
+  color: #0099ff;
+  text-decoration: underline;
+}
+
+.prose a:hover {
+  color: #0088e6;
+}
+
+.prose hr {
+  margin: 2rem 0;
+}
+
+/* Кастомный скроллбар */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #0099ff;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #0088e6;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

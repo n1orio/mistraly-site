@@ -8,7 +8,7 @@ import { SiTelegram, SiDiscord } from "react-icons/si"
 import { useSession, signIn, signOut } from "next-auth/react"
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { RiHeadphoneLine } from "react-icons/ri"
+import { RiHeadphoneFill, RiTelegram2Fill } from "react-icons/ri"
 
 export default function Header() {
   const pathname = usePathname()
@@ -58,46 +58,68 @@ export default function Header() {
   ]
 
   return (
-    <header className={`sticky top-0 z-50 w-full px-4 sm:px-6 h-[64px] sm:h-[72px] flex items-center transition-all duration-300 ${
+    <header className={`sticky top-0 z-50 w-full px-4 sm:px-8 h-[64px] sm:h-[72px] flex items-center transition-all duration-300 ${
       scrolled 
-        ? 'border-b border-white/10 bg-[#080B0E]/80 backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.4)]' 
+        ? 'border-b border-white/10 bg-[#080B0E]/95 backdrop-blur-lg shadow-[0_4px_30px_rgba(0,0,0,0.5)]' 
         : 'bg-[#080B0E] border-b border-white/5 shadow-none'
     }`}>
       {/* Полоска сверху для темы в Firefox */}
-      <div className="absolute top-0 left-0 w-full h-[2px] bg-[#080B0E]" />
+      <div className="absolute top-0 left-0 w-full h-[3px] bg-[#080B0E]" />
       
       <div className="max-w-7xl mx-auto w-full flex items-center justify-between">
 
-        {/* ЛОГОТИП */}
-        <Link 
-          href="/" 
-          className="flex items-center font-sf font-bold text-base sm:text-xl tracking-wide select-none z-20 group"
-          onClick={() => setIsMobileNavOpen(false)}
-        >
-          <span className="text-white">Breeze</span>
-          <span className="relative inline-block ml-1">
-            <span className="absolute inset-x-0 bottom-[12%] h-[82%] bg-[#0099ff] -z-10 rounded-sm transition-all"></span>
-            <span className="relative z-10 px-1 text-white text-base sm:text-xl font-bold">.monster</span>
-          </span>
-        </Link>
+        {/* ЛЕВЫЙ БЛОК - ИКОНКА СЕРВЕРА + ЛОГОТИП */}
+        <div className="flex items-center gap-4">
+          {/* Иконка сервера PNG */}
+          <div className="w-11 h-11 rounded-xl overflow-hidden bg-gradient-to-br from-[#0099ff]/20 to-[#0077cc]/10 flex items-center justify-center border border-white/5">
+            <img 
+              src="/icons/server.png" 
+              alt="Server" 
+              className="w-8 h-8 object-contain"
+              onError={(e) => {
+                // Fallback если картинка не загрузилась
+                (e.target as HTMLImageElement).style.display = 'none'
+                const parent = (e.target as HTMLImageElement).parentElement
+                if (parent) {
+                  parent.innerHTML = '<div class="w-7 h-7 bg-gradient-to-br from-[#0099ff]/30 to-[#0077cc]/20 rounded-lg flex items-center justify-center"><div class="w-4 h-4 bg-[#0099ff] rounded-full"></div></div>'
+                }
+              }}
+            />
+          </div>
+          
+          {/* ЛОГОТИП */}
+          <Link 
+            href="/" 
+            className="flex items-center font-sf font-bold text-base sm:text-xl tracking-wide select-none z-20 group"
+            onClick={() => setIsMobileNavOpen(false)}
+          >
+            <span className="text-white bg-gradient-to-r from-white to-zinc-300 bg-clip-text text-transparent">Breeze</span>
+            <span className="relative inline-block ml-1.5">
+              <span className="absolute inset-x-0 bottom-[10%] h-[85%] bg-gradient-to-r from-[#0099ff] to-[#0077cc] -z-10 rounded-sm transition-all"></span>
+              <span className="relative z-10 px-1.5 text-white font-bold">.monster</span>
+            </span>
+          </Link>
+        </div>
 
         {/* ЦЕНТРАЛЬНЫЙ БЛОК — ТОЛЬКО НА ДЕСКТОПЕ */}
-        <nav className="hidden lg:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
-          <div className="flex items-center gap-6">
+        <nav className="hidden lg:flex items-center gap-10">
+          <div className="flex items-center gap-8">
             {navLinks.map((link) => (
               <Link 
                 key={link.path}
                 href={link.path}
-                className={`relative py-1 text-[14px] font-semibold tracking-wide transition-colors duration-300 ${
-                  pathname === link.path ? "text-[#0099ff]" : "text-white hover:text-[#0099ff]"
+                className={`relative py-2 px-2 text-[14px] font-semibold tracking-wide transition-all duration-300 ${
+                  pathname === link.path 
+                    ? "text-[#0099ff] scale-105" 
+                    : "text-zinc-300 hover:text-[#0099ff] hover:scale-105"
                 }`}
               >
                 {link.name}
                 {pathname === link.path && (
                   <motion.div 
                     layoutId="nav-underline"
-                    className="absolute bottom-[-20px] left-0 right-0 h-[2px] bg-[#0099ff] shadow-[0_0_10px_#0099ff]"
-                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    className="absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#0099ff] to-[#0077cc] shadow-[0_0_15px_rgba(0,153,255,0.6)]"
+                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
                   />
                 )}
               </Link>
@@ -105,33 +127,33 @@ export default function Header() {
           </div>
           
           {/* 🔗 СОЦСЕТИ — убраны пробелы! */}
-          <div className="flex items-center gap-4 border-l border-white/10 pl-8 ml-2">
-            <a href="https://t.me/breeze_monster" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#24a1de] transition-all">
-              <SiTelegram className="w-[18px] h-[18px]" />
+          <div className="flex items-center gap-5 border-l border-white/10 pl-8">
+            <a href="https://t.me/breeze_monster" target="_blank" rel="noopener noreferrer" className="text-zinc-300 hover:text-[#24a1de] transition-all hover:scale-110">
+              <RiTelegram2Fill className="w-6 h-6" />
             </a>
-            <a href="https://discord.gg/nPbWMhDeus" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#5865f2] transition-all">
-              <SiDiscord className="w-5 h-5" />
+            <a href="https://discord.gg/nPbWMhDeus" target="_blank" rel="noopener noreferrer" className="text-zinc-300 hover:text-[#5865f2] transition-all hover:scale-110">
+              <SiDiscord className="w-6 h-6" />
             </a>
-            <a href="https://t.me/NioR1o" target="_blank" rel="noopener noreferrer" className="text-white hover:text-white transition-all">
-              <RiHeadphoneLine className="w-5 h-5 stroke-[2.5px]" />
+            <a href="https://t.me/NioR1o" target="_blank" rel="noopener noreferrer" className="text-zinc-300 hover:text-white transition-all hover:scale-110">
+              <RiHeadphoneFill className="w-6 h-6 stroke-[2.5px]" />
             </a>
           </div>
         </nav>
 
         {/* ПРАВЫЙ БЛОК */}
-        <div className="flex items-center gap-2 sm:gap-3 z-20">
+        <div className="flex items-center gap-3 sm:gap-4 z-20">
           {status === "loading" ? (
-            <div className="flex items-center justify-center w-10 h-10">
-              <Loader2 className="w-5 h-5 text-zinc-500 animate-spin" />
+            <div className="flex items-center justify-center w-12 h-12">
+              <Loader2 className="w-6 h-6 text-[#0099ff] animate-spin" />
             </div>
           ) : data ? (
             <div className="relative">
               <button 
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="profile-menu-trigger flex items-center gap-2 sm:gap-3 bg-white/5 hover:bg-white/10 border border-white/5 p-1.5 pr-3 sm:pr-4 rounded-xl sm:rounded-2xl transition-all group"
+                className="profile-menu-trigger flex items-center gap-3 sm:gap-4 bg-gradient-to-br from-[#090D10] to-[#080B0E] hover:from-[#0a0e12] hover:to-[#090c0f] border border-white/10 p-2 pr-4 sm:pr-5 rounded-xl sm:rounded-2xl transition-all group shadow-lg shadow-[#0099ff]/10"
                 aria-label="Меню профиля"
               >
-                <div className="relative w-7 h-7 sm:w-8 sm:h-8 rounded-lg overflow-hidden bg-[#090D10] ring-2 ring-transparent group-hover:ring-[#0099ff]/30 transition-all shadow-inner">
+                <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-xl overflow-hidden bg-[#090D10] ring-2 ring-transparent group-hover:ring-[#0099ff]/40 transition-all shadow-inner">
                   <img 
                     src={avatarUrl} 
                     alt="Avatar" 
@@ -143,14 +165,14 @@ export default function Header() {
                   />
                 </div>
                 <div className="text-left hidden sm:block">
-                  <p className="text-[12px] sm:text-[13px] font-bold text-white leading-none truncate max-w-[100px]">
+                  <p className="text-[13px] sm:text-[14px] font-bold text-white leading-none truncate max-w-[120px]">
                     {mcNick || discordName}
                   </p>
-                  <p className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-${statusColor} mt-0.5`}>
+                  <p className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-${statusColor} mt-1`}>
                     {statusText}
                   </p>
                 </div>
-                <ChevronDown className={`w-4 h-4 text-zinc-500 transition-transform duration-300 ${isMenuOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-4 h-4 text-zinc-400 transition-transform duration-300 ${isMenuOpen ? 'rotate-180' : ''}`} />
               </button>
 
               <AnimatePresence>
@@ -161,37 +183,37 @@ export default function Header() {
                       onClick={() => setIsMenuOpen(false)}
                     />
                     <motion.div
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      initial={{ opacity: 0, y: 15, scale: 0.92 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      className="profile-menu absolute top-full right-0 mt-3 w-56 bg-[#12181F] border border-white/10 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-xl p-1.5 z-50"
+                      exit={{ opacity: 0, y: 15, scale: 0.92 }}
+                      className="profile-menu absolute top-full right-0 mt-4 w-60 bg-gradient-to-br from-[#12181F] to-[#0f151b] border border-white/10 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-lg p-2 z-50"
                     >
                       <Link 
                         href="/profile" 
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/5 transition-colors"
+                        className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-zinc-300 hover:text-white hover:bg-gradient-to-r from-[#0099ff]/10 to-transparent transition-colors"
                         onClick={() => setIsMenuOpen(false)}
                       >
-                        <User className="w-4 h-4" />
-                        Личный кабинет
+                        <User className="w-4 h-4 text-[#0099ff]" />
+                        <span className="flex-1">Личный кабинет</span>
                       </Link>
                       <Link 
                         href="/settings" 
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/5 transition-colors"
+                        className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-zinc-300 hover:text-white hover:bg-gradient-to-r from-[#0099ff]/10 to-transparent transition-colors"
                         onClick={() => setIsMenuOpen(false)}
                       >
-                        <Settings className="w-4 h-4" />
-                        Настройки
+                        <Settings className="w-4 h-4 text-[#0099ff]" />
+                        <span className="flex-1">Настройки</span>
                       </Link>
-                      <div className="h-[1px] bg-white/5 my-1.5" />
+                      <div className="h-[2px] bg-gradient-to-r from-transparent via-white/10 to-transparent my-2" />
                       <button 
                         onClick={() => {
                           signOut()
                           setIsMenuOpen(false)
                         }}
-                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors"
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors"
                       >
                         <LogOut className="w-4 h-4" />
-                        Выйти
+                        <span className="flex-1">Выйти</span>
                       </button>
                     </motion.div>
                   </>
@@ -204,18 +226,18 @@ export default function Header() {
                 signIn('discord')
                 setIsMobileNavOpen(false)
               }}
-              className="hover:bg-[#0099ff] bg-[#ffffff]/0 text-[#0099ff] hover:text-white font-bold text-[13px] sm:text-[14px] rounded-xl px-3 sm:px-4 h-9 sm:h-10 transition-all duration-300 flex items-center gap-2 border border-[#0099ff]/20 hover:border-[#0099ff]"
-              aria-label="Войти через Discord"
+              className="hover:bg-gradient-to-r from-[#5865f2] to-[#4752c4] bg-gradient-to-r from-[#5865f2]/90 to-[#4752c4]/90 text-white hover:text-white font-bold text-[13px] sm:text-[14px] rounded-xl px-5 sm:px-7 h-10 sm:h-11 transition-all duration-300 flex items-center gap-2.5 shadow-lg shadow-[#5865f2]/20 hover:shadow-[#5865f2]/40"
+              aria-label="Авторизоваться через Discord"
             >
-              <SiDiscord className="w-4 h-4" />
-              <span className="hidden xs:inline">Войти</span>
+              <SiDiscord className="w-5 h-5" />
+              <span className="hidden sm:block">Авторизоваться</span>
             </Button>
           )}
 
           {/* БУРГЕР-МЕНЮ */}
           <button
             onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
-            className="lg:hidden text-white p-2 -mr-2 hover:bg-white/10 rounded-lg transition-colors"
+            className="lg:hidden text-zinc-300 p-2.5 hover:bg-white/10 rounded-lg transition-colors hover:scale-110"
             aria-label={isMobileNavOpen ? "Закрыть меню" : "Открыть меню"}
             aria-expanded={isMobileNavOpen}
           >
@@ -233,17 +255,17 @@ export default function Header() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 z-40"
+              className="fixed inset-0 bg-black/70 z-40 backdrop-blur-sm"
             />
             
             {/* Меню */}
             <motion.div
               ref={mobileMenuRef}
-              initial={{ x: "-100%" }}
+              initial={{ x: "-110%" }}
               animate={{ x: 0 }}
-              exit={{ x: "-100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="fixed top-0 left-0 min-h-screen h-screen w-[85%] max-w-xs bg-[#090D10]/80 backdrop-blur-xl shadow-xl rounded-r-2xl z-50 overflow-y-auto"
+              exit={{ x: "-110%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 350 }}
+              className="fixed top-0 left-0 min-h-screen h-screen w-[88%] max-w-xs bg-gradient-to-br from-[#090D10] to-[#080B0E] backdrop-blur-xl shadow-2xl rounded-r-2xl z-50 overflow-y-auto"
               style={{ 
                 touchAction: 'pan-y',
                 WebkitOverflowScrolling: 'touch',
@@ -253,113 +275,113 @@ export default function Header() {
               }}
             >
               {/* Кнопка закрытия */}
-              <div className="absolute top-4 right-4 z-10">
+              <div className="absolute top-5 right-5 z-10">
                 <button
                   onClick={() => setIsMobileNavOpen(false)}
-                  className="text-white p-2 hover:bg-white/10 rounded-lg transition-colors"
+                  className="text-zinc-300 p-2.5 hover:bg-white/10 rounded-lg transition-colors hover:scale-110"
                   aria-label="Закрыть меню"
                 >
-                  <X className="w-6 h-6" />
+                  <X className="w-7 h-7" />
                 </button>
               </div>
               
               {/* Логотип в меню */}
-              <div className="p-4 pt-12 border-b border-white/10">
+              <div className="p-6 pt-16 border-b border-white/10">
                 <Link 
                   href="/" 
                   className="flex items-center font-sf font-bold text-xl tracking-wide text-white"
                   onClick={() => setIsMobileNavOpen(false)}
                 >
-                  <span>Breeze</span>
-                  <span className="relative inline-block ml-1">
-                    <span className="absolute inset-x-0 bottom-[12%] h-[82%] bg-[#0099ff] -z-10 rounded-sm"></span>
-                    <span className="relative z-10 px-1 text-white font-bold">.monster</span>
+                  <span className="bg-gradient-to-r from-white to-zinc-300 bg-clip-text text-transparent">Breeze</span>
+                  <span className="relative inline-block ml-2">
+                    <span className="absolute inset-x-0 bottom-[10%] h-[85%] bg-gradient-to-r from-[#0099ff] to-[#0077cc] -z-10 rounded-sm"></span>
+                    <span className="relative z-10 px-2 text-white font-bold">.monster</span>
                   </span>
                 </Link>
               </div>
               
               {/* Основные ссылки */}
-              <div className="p-4">
-                <div className="space-y-3">
+              <div className="p-6 pb-4">
+                <div className="space-y-2">
                   {navLinks.map((link) => (
                     <Link
                       key={link.path}
                       href={link.path}
-                      className={`flex items-center gap-3 p-3 rounded-lg transition-all ${
+                      className={`flex items-center gap-4 p-4 rounded-xl transition-all ${
                         pathname === link.path 
-                          ? "bg-[#0099ff]/10 text-[#0099ff] font-bold" 
-                          : "text-white hover:bg-[#0099ff]/20"
+                          ? "bg-gradient-to-r from-[#0099ff]/15 to-[#0077cc]/15 text-[#0099ff] font-bold shadow-lg shadow-[#0099ff]/20" 
+                          : "text-zinc-300 hover:bg-gradient-to-r from-[#0099ff]/10 to-transparent hover:text-white"
                       }`}
                       onClick={() => setIsMobileNavOpen(false)}
                     >
-                      <span className="text-lg">
+                      <span className="text-xl">
                         {link.name === "Главная" && "🏠"}
                         {link.name === "О сервере" && "🪨"}
                         {link.name === "Правила" && "🏛️"}
                         {link.name === "Вики" && "📖"}
                       </span>
-                      <span className="text-base flex-1">{link.name}</span>
+                      <span className="text-lg flex-1 font-medium">{link.name}</span>
                     </Link>
                   ))}
                 </div>
               </div>
               
               {/* Социальные сети — убраны пробелы! */}
-              <div className="p-4 border-t border-white/10">
-                <div className="space-y-3">
+              <div className="p-6 pt-4 border-t border-white/10">
+                <div className="space-y-2">
                   <a 
                     href="https://t.me/breeze_monster" 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="flex items-center justify-between p-3 rounded-lg text-white hover:bg-[#0099ff]/20"
+                    className="flex items-center justify-between p-4 rounded-xl text-zinc-300 hover:bg-gradient-to-r from-[#24a1de]/10 to-transparent hover:text-white transition-all"
                     onClick={() => setIsMobileNavOpen(false)}
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="text-lg">✉️</span>
-                      <span>Telegram канал</span>
+                    <div className="flex items-center gap-4">
+                      <span className="text-xl">✉️</span>
+                      <span className="text-lg font-medium">Telegram канал</span>
                     </div>
-                    <span className="text-white">→</span>
+                    <span className="text-lg text-[#24a1de]">→</span>
                   </a>
                   
                   <a 
                     href="https://discord.gg/nPbWMhDeus" 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="flex items-center justify-between p-3 rounded-lg text-white hover:bg-[#0099ff]/20"
+                    className="flex items-center justify-between p-4 rounded-xl text-zinc-300 hover:bg-gradient-to-r from-[#5865f2]/10 to-transparent hover:text-white transition-all"
                     onClick={() => setIsMobileNavOpen(false)}
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="text-lg">👾</span>
-                      <span>Discord сервер</span>
+                    <div className="flex items-center gap-4">
+                      <span className="text-xl">👾</span>
+                      <span className="text-lg font-medium">Discord сервер</span>
                     </div>
-                    <span className="text-white">→</span>
+                    <span className="text-lg text-[#5865f2]">→</span>
                   </a>
                   
                   <a 
                     href="https://t.me/NioR1o" 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="flex items-center justify-between p-3 rounded-lg text-white hover:bg-[#0099ff]/20"
+                    className="flex items-center justify-between p-4 rounded-xl text-zinc-300 hover:bg-gradient-to-r from-white/10 to-transparent hover:text-white transition-all"
                     onClick={() => setIsMobileNavOpen(false)}
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="text-lg">🎧</span>
-                      <span>Поддержка</span>
+                    <div className="flex items-center gap-4">
+                      <span className="text-xl">🎧</span>
+                      <span className="text-lg font-medium">Поддержка</span>
                     </div>
-                    <span className="text-white">→</span>
+                    <span className="text-lg text-white">→</span>
                   </a>
                 </div>
               </div>
               
               {/* Статус пользователя */}
-              <div className="p-4 border-t border-white/10">
+              <div className="p-6 pt-4 border-t border-white/10">
                 {status === "loading" ? (
-                  <div className="flex items-center justify-center py-4">
-                    <Loader2 className="w-5 h-5 text-zinc-500 animate-spin" />
+                  <div className="flex items-center justify-center py-6">
+                    <Loader2 className="w-6 h-6 text-[#0099ff] animate-spin" />
                   </div>
                 ) : data ? (
-                  <div className="flex items-center gap-3 p-3 bg-[#12181F] border border-white/10 rounded-lg">
-                    <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-[#090D10] ring-2 ring-[#0099ff]/30">
+                  <div className="flex items-center gap-4 p-4 bg-gradient-to-br from-[#12181F] to-[#0f151b] border border-white/10 rounded-xl">
+                    <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-[#090D10] ring-2 ring-[#0099ff]/40">
                       <img 
                         src={avatarUrl} 
                         alt="Avatar" 
@@ -371,10 +393,10 @@ export default function Header() {
                       />
                     </div>
                     <div className="flex-1">
-                      <p className="text-white font-bold text-sm truncate">
+                      <p className="text-white font-bold text-base truncate">
                         {mcNick || discordName}
                       </p>
-                      <p className={`text-xs font-bold uppercase tracking-wider text-${statusColor}`}>
+                      <p className={`text-xs font-bold uppercase tracking-wider text-${statusColor} mt-1`}>
                         {statusText}
                       </p>
                     </div>
@@ -385,10 +407,10 @@ export default function Header() {
                       signIn('discord')
                       setIsMobileNavOpen(false)
                     }}
-                    className="w-full bg-[#5865f2] hover:bg-[#4752c4] text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2"
+                    className="w-full bg-gradient-to-r from-[#5865f2] to-[#4752c4] hover:from-[#4752c4] hover:to-[#3a43a0] text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-3 shadow-lg shadow-[#5865f2]/30"
                   >
-                    <SiDiscord className="w-5 h-5" />
-                    Войти через Discord
+                    <SiDiscord className="w-6 h-6" />
+                    <span className="text-lg">Авторизоваться через Discord</span>
                   </Button>
                 )}
               </div>
