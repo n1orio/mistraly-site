@@ -1,0 +1,5 @@
+<script setup lang="ts">
+import PurchaseModal from './components/PurchaseModal.vue'
+import Navbar from './components/Navbar.vue'
+</script>
+<template><div class="min-h-screen bg-[var(--bg-page)] text-[var(--text-main)] flex flex-col items-center"><Navbar /><main class="w-full flex-1"><router-view /></main><PurchaseModal /><footer class="w-full max-w-6xl px-4 py-8 mt-auto border-t border-[var(--border-color)] flex flex-col sm:flex-row items-center justify-between text-xs text-[var(--text-muted)] gap-4"><div>© Breeze • Minecraft 1.21.1</div><div class="flex items-center gap-5"><router-link to="/offer" class="hover:text-[var(--text-main)] transition underline underline-offset-2">Оферта</router-link><router-link to="/faq" class="hover:text-[var(--text-main)] transition">FAQ</router-link><router-link to="/shop" class="hover:text-[var(--text-main)] transition">Магазин</router-link><router-link to="/profile" class="hover:text-[var(--text-main)] transition">Профиль</router-link></div></footer></div></template>
