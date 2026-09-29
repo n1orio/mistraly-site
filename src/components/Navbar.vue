@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { Cloud, HelpCircle, Moon, Send, ShoppingBag, Sun } from 'lucide-vue-next'
 import { useTheme } from '../composables/useTheme'
 
 const route = useRoute()
@@ -9,9 +8,9 @@ const { isDark, toggleTheme } = useTheme()
 const username = 'Nio'
 
 const tabs = [
-  { to: '/', label: 'О Breeze', icon: Cloud, exact: true },
-  { to: '/shop', label: 'Магазин', icon: ShoppingBag },
-  { to: '/faq', label: 'FAQ', icon: HelpCircle },
+  { to: '/', label: 'О Breeze', icon: 'logo', exact: true },
+  { to: '/shop', label: 'Магазин', icon: 'shop' },
+  { to: '/faq', label: 'FAQ', icon: 'faq' },
 ]
 
 function isActive(tab: { to: string; exact?: boolean }) {
@@ -77,7 +76,7 @@ onBeforeUnmount(() => {
           : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'"
       >
         <div class="relative z-30 grid grid-flow-col items-center gap-2 group-hover:bg-[var(--bg-card-hover)] px-3 py-2 rounded-full transition group-focus-visible:ring-2 group-focus-visible:ring-inset" data-content="">
-          <component :is="tab.icon" class="size-5" />
+          <img :src="`/icons/${tab.icon}.png`" class="size-6" alt="" />
           <span>{{ tab.label }}</span>
         </div>
       </router-link>
@@ -91,8 +90,8 @@ onBeforeUnmount(() => {
         title="Сменить тему"
         aria-label="Сменить тему"
       >
-        <Moon v-if="isDark" :size="16" class="text-[#0099FF]" />
-        <Sun v-else :size="16" class="text-[#0099FF]" />
+        <img v-if="isDark" src="/icons/dark.png" class="size-6" alt="" />
+        <img v-else src="/icons/light.png" class="size-6" alt="" />
       </button>
       <a
         href="https://t.me"
