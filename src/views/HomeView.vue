@@ -29,6 +29,21 @@ const phases = [
 </script>
 <template><main class="w-full flex-1 flex flex-col items-center bg-[var(--bg-page)] text-[var(--text-main)]"><section class="relative w-full overflow-hidden py-6 px-4 bg-[var(--bg-page)]" style="margin-top:-64px;padding-top:80px;">
   <div class="mx-auto max-w-4xl">
+    <!-- Hero content -->
+    <div class="text-center mb-6">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0099FF]/10 border border-[#0099FF]/20 text-xs font-semibold text-[#0099FF] mb-4">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#0099FF] animate-pulse"></span>
+        <span>MINECRAFT JAVA 1.21.1 • CREATE AERONAUTICS</span>
+      </div>
+      <h1 class="font-heading text-2xl sm:text-3xl md:text-4xl font-black text-[var(--text-main)] tracking-tight leading-[1.15] mb-3">Самый технологичный сервер <br class="hidden sm:inline" />с Create Aeronautics в Minecraft</h1>
+      <p class="text-sm text-[var(--text-muted)] max-w-xl mx-auto mb-6 leading-relaxed">Физика полетов, дирижабли, кастомный лаунчер и закрытое сообщество без гриферов и лишнего мусора.</p>
+      <div class="flex flex-wrap items-center justify-center gap-3">
+        <button @click="purchase.show" class="px-6 py-2.5 rounded-xl font-bold text-sm text-white bg-[#0099FF] hover:bg-[#0088EE] transition shadow-lg shadow-[#0099FF]/25 flex items-center gap-2 cursor-pointer"><span>Купить проходку</span><span>&rarr;</span></button>
+        <a href="#about" class="px-4 py-2.5 rounded-xl font-semibold text-sm text-[var(--text-muted)] hover:text-[var(--text-main)] bg-[var(--bg-card-hover)] hover:bg-[var(--bg-card-highlight)] border border-[var(--border-color)] transition">О сервере</a>
+        <a href="#roadmap" class="px-4 py-2.5 rounded-xl font-semibold text-sm text-[var(--text-muted)] hover:text-[var(--text-main)] bg-[var(--bg-card-hover)] hover:bg-[var(--bg-card-highlight)] border border-[var(--border-color)] transition flex items-center gap-2"><Download :size="16" /><span>Скачать лаунчер</span></a>
+      </div>
+    </div>
+    <!-- Carousel -->
     <div class="relative overflow-hidden" style="mask-image:linear-gradient(to right,transparent,black 8%,black 92%,transparent)">
       <div class="flex transition-transform duration-500 ease-in-out"
            :style="{ transform: 'translateX(calc(-' + (currentSlide * 33.333) + '%))' }">
@@ -39,7 +54,6 @@ const phases = [
                class="w-full aspect-video object-cover rounded-xl ring-1 ring-black/10 dark:ring-white/10 select-none shadow-lg"
                loading="lazy" />
         </div>
-        <!-- Duplicate first slides for infinite loop -->
         <div v-for="(img, i) in screenshots.slice(0,3)" :key="'dup-'+i"
              class="shrink-0 px-2"
              style="width:33.333%">
