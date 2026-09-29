@@ -55,10 +55,6 @@ const phases = [
     </div>
     <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-page)] via-[var(--bg-page)]/50 to-transparent pointer-events-none"></div>
     <div class="absolute bottom-0 left-0 right-0 z-10 pb-6 pt-24 text-center px-6">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0099FF]/10 border border-[#0099FF]/20 text-xs font-semibold text-[#0099FF] mb-3">
-        <span class="w-1.5 h-1.5 rounded-full bg-[#0099FF] animate-pulse"></span>
-        <span>MINECRAFT JAVA 1.21.1 &bull; CREATE AERONAUTICS</span>
-      </div>
       <h1 class="font-heading text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight leading-[1.15] mb-2 drop-shadow-lg">Mistraly</h1>
       <p class="text-sm text-white/80 max-w-xl mx-auto mb-4 leading-relaxed drop-shadow">Физика полетов, дирижабли, кастомный лаунчер и закрытое сообщество без гриферов и лишнего мусора.</p>
       <div class="flex flex-wrap items-center justify-center gap-2">
