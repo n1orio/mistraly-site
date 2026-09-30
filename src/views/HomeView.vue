@@ -58,9 +58,9 @@ const phases = [
  <h1 class="font-bebas text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight leading-[1.15] mb-2 drop-shadow-lg">Mistraly</h1>
  <p class="text-sm text-white/80 max-w-xl mx-auto mb-4 leading-relaxed drop-shadow">Физика полетов, дирижабли, кастомный лаунчер и закрытое сообщество без гриферов и лишнего мусора.</p>
  <div class="flex flex-wrap items-center justify-center gap-2">
- <button @click="purchase.show" class="px-5 py-2 font-bold text-sm text-white bg-[#0099FF] hover:bg-[#0088EE] transition shadow-lg shadow-[#0099FF]/25 flex items-center gap-2 cursor-pointer"><span>Купить проходку</span><span>&rarr;</span></button>
- <a href="#about" class="px-4 py-2 font-semibold text-sm text-white/90 hover:text-white bg-white/10 hover:bg-white/20 border border-white/20 transition">О сервере</a>
- <a href="#roadmap" class="px-4 py-2 font-semibold text-sm text-white/90 hover:text-white bg-white/10 hover:bg-white/20 border border-white/20 transition flex items-center gap-2"><Download :size="15" /><span>Скачать лаунчер</span></a>
+ <button @click="purchase.show" class="px-5 py-2 font-bold text-sm text-white bg-[#0099FF] hover:bg-[#0099FF]/80 transition cursor-pointer flex items-center gap-2" style="transform:rotate(-2.5deg) skewX(-0.8deg);border-bottom:3px solid rgba(0,0,0,0.2);border-right:1px solid rgba(255,255,255,0.1)"><span>Купить проходку</span></button>
+ <a href="#about" class="px-4 py-2 font-semibold text-sm text-white/80 hover:text-white border border-white/20 hover:border-white/40 transition" style="transform:rotate(0.8deg) skewX(0.5deg);border-bottom:2px solid rgba(255,255,255,0.1);border-right:1px solid rgba(255,255,255,0.08)">О СЕРВЕРЕ</a>
+ <a href="#roadmap" class="px-4 py-2 font-semibold text-sm text-white/80 hover:text-white border border-white/20 hover:border-white/40 transition flex items-center gap-2" style="transform:rotate(-1.5deg) skewX(-0.3deg);border-bottom:2px solid rgba(255,255,255,0.1);border-right:1px solid rgba(255,255,255,0.08)"><Download :size="15" /><span>ЛАУНЧЕР</span></a>
  </div>
  </div>
  </div>
