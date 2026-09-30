@@ -32,9 +32,9 @@ function scrollToContent() {
 <template><main class="w-full flex-1 flex flex-col items-center bg-[var(--bg-page)] text-[var(--text-main)]"><section class="relative w-full overflow-hidden bg-[var(--bg-page)]" style="margin-top:-64px;padding-top:64px;">
  <div class="relative">
  <div class="bg-gradient-to-b from-zinc-50/50 to-zinc-50 dark:from-black dark:to-zinc-950 pb-6 pt-28 overflow-hidden">
- <div class="mx-auto w-full min-w-0 px-4" style="max-width:1360px;">
+ <div class="mx-auto w-full min-w-0 px-4" style="max-width:1480px;">
  <div class="relative w-full" role="region" aria-roledescription="carousel">
- <div class="overflow-hidden" style="-webkit-mask-image:linear-gradient(to right,transparent 0%,transparent 17%,black 17%,black 83%,transparent 83%,transparent 100%);mask-image:linear-gradient(to right,transparent 0%,transparent 17%,black 17%,black 83%,transparent 83%,transparent 100%)">
+ <div class="overflow-hidden" style="-webkit-mask-image:linear-gradient(to right,transparent 0%,transparent 8%,black 22%,black 78%,transparent 92%,transparent 100%);mask-image:linear-gradient(to right,transparent 0%,transparent 8%,black 22%,black 78%,transparent 92%,transparent 100%)">
  <div class="flex transition-transform duration-500 ease-in-out"
  :style="{ transform: 'translateX(calc(-' + (currentSlide * 25) + '%))' }">
  <div v-for="(img, i) in screenshots" :key="i" role="group" aria-roledescription="slide"
