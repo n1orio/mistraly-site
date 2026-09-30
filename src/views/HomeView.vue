@@ -21,6 +21,11 @@ const phases = [
  { name: 'Желтая фаза', title: 'Закрытый бета-тест', desc: 'Выдача первых проходок, тест стабильности сервера с игроками, проверка синхронизации Discord-аккаунтов.', color: '#EAB308', status: 'Фаза ещё не началась' },
  { name: 'Зеленая фаза', title: 'Официальный запуск', desc: 'Открытие сервера для всех обладателей проходки, старт Первого Воздушного Сезона Breeze.', color: '#22C55E', status: 'Фаза ещё не началась' }
 ]
+function scrollToContent() {
+  const el = document.querySelector('#roadmap')
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
 </script>
 <template><main class="w-full flex-1 flex flex-col items-center bg-[var(--bg-page)] text-[var(--text-main)]"><section class="relative w-full overflow-hidden bg-[var(--bg-page)]" style="margin-top:-64px;padding-top:64px;">
  <div class="relative">
@@ -55,12 +60,10 @@ const phases = [
  </div>
  <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-page)] via-[var(--bg-page)]/50 to-transparent pointer-events-none"></div>
  <div class="absolute bottom-0 left-0 right-0 z-10 pb-6 pt-24 text-center px-6">
- <h1 class="font-cinzel text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight leading-[1.15] mb-2 drop-shadow-lg">Mistraly</h1>
+ <h1 class="font-cinzel text-5xl sm:text-6xl md:text-7xl text-white tracking-tight leading-[1.1] mb-3">MISTRALY</h1>
  <p class="text-sm text-white/80 max-w-xl mx-auto mb-8 leading-relaxed">Физика полетов, дирижабли, кастомный лаунчер и закрытое сообщество без гриферов и лишнего мусора.</p>
  <div class="flex flex-wrap items-center justify-center gap-2">
- <button @click="purchase.show" class="px-5 py-2 font-bold text-sm text-white bg-[#0099FF] hover:bg-[#0099FF]/80 transition cursor-pointer flex items-center gap-2" style="transform:rotate(-2.5deg) skewX(-0.8deg);border-bottom:3px solid rgba(0,0,0,0.2);border-right:1px solid rgba(255,255,255,0.1)"><span>Купить проходку</span></button>
- <a href="#about" class="px-4 py-2 font-semibold text-sm text-white/80 hover:text-white border border-white/20 hover:border-white/40 transition" style="transform:rotate(0.8deg) skewX(0.5deg);border-bottom:2px solid rgba(255,255,255,0.1);border-right:1px solid rgba(255,255,255,0.08)">О СЕРВЕРЕ</a>
- <a href="#roadmap" class="px-4 py-2 font-semibold text-sm text-white/80 hover:text-white border border-white/20 hover:border-white/40 transition flex items-center gap-2" style="transform:rotate(-1.5deg) skewX(-0.3deg);border-bottom:2px solid rgba(255,255,255,0.1);border-right:1px solid rgba(255,255,255,0.08)"><Download :size="15" /><span>ЛАУНЧЕР</span></a>
+ <button @click="scrollToContent" class="px-10 py-3 font-cinzel text-lg text-white bg-[#0099FF] hover:bg-[#0099FF]/80 transition cursor-pointer" style="transform:rotate(-1.5deg) skewX(-0.5deg);border-bottom:3px solid rgba(0,0,0,0.2);border-right:1px solid rgba(255,255,255,0.1)">ИГРАТЬ</button>
  </div>
  </div>
  </div>
