@@ -40,7 +40,7 @@ function scrollToContent() {
  <div v-for="(img, i) in screenshots" :key="i" role="group" aria-roledescription="slide"
  class="min-w-0 shrink-0 grow-0 px-0.5"
  style="flex-basis:25%">
- <div class=" overflow-hidden ring-1 ring-black/10 dark:ring-white/10 shadow-lg bg-white/5">
+ <div class=" overflow-hidden shadow-lg bg-white/5" style="clip-path:polygon(0% 2%,3% 0%,7% 3%,12% 0%,16% 2%,20% 0%,24% 3%,27% 1%,31% 4%,36% 0%,40% 3%,44% 1%,48% 4%,52% 1%,56% 3%,60% 0%,65% 2%,69% 0%,73% 3%,77% 1%,81% 4%,85% 0%,90% 2%,94% 0%,98% 3%,100% 2%,100% 98%,96% 100%,92% 97%,88% 100%,84% 98%,80% 100%,76% 97%,72% 100%,68% 98%,64% 100%,60% 97%,56% 99%,52% 96%,48% 100%,44% 98%,40% 100%,36% 97%,32% 99%,28% 96%,24% 100%,20% 98%,16% 100%,12% 97%,8% 99%,4% 96%,0% 98%)">
  <img :src="img" alt="" draggable="false" loading="lazy"
  class="w-full aspect-video object-cover select-none" />
  </div>
@@ -48,7 +48,7 @@ function scrollToContent() {
  <div v-for="(img, i) in screenshots.slice(0,4)" :key="'d'+i" role="group" aria-roledescription="slide"
  class="min-w-0 shrink-0 grow-0 px-0.5"
  style="flex-basis:25%">
- <div class=" overflow-hidden ring-1 ring-black/10 dark:ring-white/10 shadow-lg bg-white/5">
+ <div class=" overflow-hidden shadow-lg bg-white/5" style="clip-path:polygon(0% 2%,3% 0%,7% 3%,12% 0%,16% 2%,20% 0%,24% 3%,27% 1%,31% 4%,36% 0%,40% 3%,44% 1%,48% 4%,52% 1%,56% 3%,60% 0%,65% 2%,69% 0%,73% 3%,77% 1%,81% 4%,85% 0%,90% 2%,94% 0%,98% 3%,100% 2%,100% 98%,96% 100%,92% 97%,88% 100%,84% 98%,80% 100%,76% 97%,72% 100%,68% 98%,64% 100%,60% 97%,56% 99%,52% 96%,48% 100%,44% 98%,40% 100%,36% 97%,32% 99%,28% 96%,24% 100%,20% 98%,16% 100%,12% 97%,8% 99%,4% 96%,0% 98%)">
  <img :src="img" alt="" draggable="false" loading="lazy"
  class="w-full aspect-video object-cover select-none" />
  </div>
