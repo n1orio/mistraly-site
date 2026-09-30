@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
 import { ref } from 'vue'
-import { useTheme } from '../composables/useTheme'
 
 const route = useRoute()
-const { isDark, toggleTheme } = useTheme()
 const username = 'Nio'
 
 const tabs = [
@@ -43,29 +41,7 @@ function isActive(tab: { to: string; exact?: boolean }) {
     }"
    >{{ tab.label }}</router-link>
 
-   <button
-    type="button"
-    @click="toggleTheme"
-    class="cursor-pointer"
-    :style="{
-      background: 'rgba(255,255,255,0.08)',
-      padding: '8px 24px 8px 12px',
-      clipPath: 'polygon(0% 15%,100% 0%,100% 100%,0% 85%)',
-      transform: 'rotate(-0.5deg)',
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      border: 'none',
-      color: 'rgba(255,255,255,0.7)',
-      transition: 'all 0.15s'
-    }"
-    title="Сменить тему"
-   >
-    <template v-if="isDark">☾</template>
-    <template v-else>☀</template>
-   </button>
-
-   <a
+<a
     href="https://t.me"
     target="_blank"
     rel="noopener"
@@ -85,27 +61,7 @@ function isActive(tab: { to: string; exact?: boolean }) {
     title="Telegram"
    >✈</a>
 
-   <a
-    href="https://discord.gg"
-    target="_blank"
-    rel="noopener"
-    :style="{
-      background: 'rgba(255,255,255,0.08)',
-      padding: '8px 20px 8px 10px',
-      clipPath: 'polygon(0% 15%,100% 0%,100% 100%,0% 85%)',
-      transform: 'rotate(-0.3deg)',
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      border: 'none',
-      color: 'rgba(255,255,255,0.7)',
-      transition: 'all 0.15s',
-      textDecoration: 'none'
-    }"
-    title="Discord"
-   >◉</a>
-
-   <router-link
+<router-link
     to="/profile"
     class="font-cinzel font-black text-xs text-white"
     :style="{
