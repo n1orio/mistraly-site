@@ -29,7 +29,7 @@ function scrollToContent() {
 }
 
 </script>
-<template><svg style="position:absolute;width:0;height:0;pointer-events:none"><filter id="torn"><feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="4" result="noise" seed="3"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="8" xChannelSelector="R" yChannelSelector="G"/></filter></svg><main class="w-full flex-1 flex flex-col items-center bg-[var(--bg-page)] text-[var(--text-main)]"><section class="relative w-full overflow-hidden bg-[var(--bg-page)]" style="margin-top:-64px;padding-top:64px;">
+<template><svg style="position:absolute;width:0;height:0;pointer-events:none"><filter id="torn"><feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="2" result="noise" seed="5"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="14" xChannelSelector="R" yChannelSelector="G"/></filter></svg><main class="w-full flex-1 flex flex-col items-center bg-[var(--bg-page)] text-[var(--text-main)]"><section class="relative w-full overflow-hidden bg-[var(--bg-page)]" style="margin-top:-64px;padding-top:64px;">
  <div class="relative">
  <div class="bg-gradient-to-b from-zinc-50/50 to-zinc-50 dark:from-black dark:to-zinc-950 pb-6 pt-28 overflow-hidden">
  <div class="mx-auto w-full min-w-0 px-1" style="max-width:2200px;">
