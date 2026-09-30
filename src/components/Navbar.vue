@@ -6,9 +6,11 @@ const route = useRoute()
 const username = 'Nio'
 
 const tabs = [
- { to: '/', label: 'О Breeze', icon: 'logo', exact: true },
+ { to: '/', label: 'Breeze', icon: 'logo', exact: true },
  { to: '/shop', label: 'Магазин', icon: 'shop' },
  { to: '/faq', label: 'FAQ', icon: 'faq' },
+ { to: '/rules', label: 'Правила', icon: 'rules' },
+ { to: '/downloads', label: 'Загрузки', icon: 'downloads' },
 ]
 
 function isActive(tab: { to: string; exact?: boolean }) {
@@ -40,26 +42,6 @@ function isActive(tab: { to: string; exact?: boolean }) {
       textDecoration: 'none'
     }"
    >{{ tab.label }}</router-link>
-
-<a
-    href="https://t.me"
-    target="_blank"
-    rel="noopener"
-    :style="{
-      background: 'rgba(255,255,255,0.08)',
-      padding: '8px 20px 8px 10px',
-      clipPath: 'polygon(0% 15%,100% 0%,100% 100%,0% 85%)',
-      transform: 'rotate(0.8deg)',
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      border: 'none',
-      color: 'rgba(255,255,255,0.7)',
-      transition: 'all 0.15s',
-      textDecoration: 'none'
-    }"
-    title="Telegram"
-   >✈</a>
 
 <router-link
     to="/profile"
