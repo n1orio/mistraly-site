@@ -26,7 +26,7 @@ function isActive(tab: { to: string; exact?: boolean }) {
     v-for="(tab, i) in tabs"
     :key="tab.to"
     :to="tab.to"
-    class="font-cinzel font-black text-xs text-white cursor-pointer"
+    class="font-heading font-black text-xs text-white cursor-pointer"
     :style="{
       background: isActive(tab) ? '#0099FF' : 'rgba(255,255,255,0.08)',
       padding: '8px 28px 8px 14px',
@@ -45,7 +45,7 @@ function isActive(tab: { to: string; exact?: boolean }) {
 
 <router-link
     to="/profile"
-    class="font-cinzel font-black text-xs text-white"
+    class="font-heading font-black text-xs text-white"
     :style="{
       background: '#0099FF',
       padding: '8px 24px 8px 12px',
