@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, Plane, Cpu, Shirt, ShieldCheck, Download } f
 import { usePurchaseStore } from '../stores/purchase'
 const route = useRoute(); const purchase = usePurchaseStore(); const activePhase = ref(1)
 onMounted(() => { if (route.query.purchase === '1') purchase.show() })
+const playHover = ref(false)
 const screenshots = ['/2026-09-27_20.07.26.png', '/2026-09-27_20.07.35.png', '/2026-09-27_20.07.54.png', '/placeholder1.svg', '/placeholder2.svg', '/placeholder3.svg']
 const currentSlide = ref(0)
 let slideTimer: any
@@ -63,7 +64,7 @@ function scrollToContent() {
  <h1 class="font-cinzel font-black text-5xl sm:text-6xl md:text-7xl text-white tracking-tight leading-[1.1] mb-3">MISTRALY</h1>
  <p class="text-sm text-white/80 max-w-xl mx-auto mb-8 leading-relaxed">Физика полетов, дирижабли, кастомный лаунчер и закрытое сообщество без гриферов и лишнего мусора.</p>
  <div class="flex flex-wrap items-center justify-center gap-2">
- <div style="filter:drop-shadow(14px 14px 0 rgba(0,0,0,0.35));display:inline-flex"><button @click="scrollToContent" class="font-cinzel font-black text-lg text-white cursor-pointer" style="background:#0099FF;padding:14px 40px;clip-path:polygon(0% 12%,100% 0%,100% 100%,0% 88%);transform:rotate(-1.5deg);display:inline-flex;align-items:center;justify-content:center;border:none;text-align:center;transition:opacity 0.15s">ИГРАТЬ</button></div>
+ <div style="display:inline-flex;filter:drop-shadow(14px 14px 0 rgba(0,0,0,0.35))"><button @click="scrollToContent" @mouseenter="playHover = true" @mouseleave="playHover = false" class="font-cinzel font-black text-lg cursor-pointer" :style="{background: playHover ? 'white' : '#0099FF', padding: '14px 40px', clipPath: 'polygon(0% 12%,100% 0%,100% 100%,0% 88%)', transform: playHover ? 'rotate(-1.5deg) scale(1.06)' : 'rotate(-1.5deg)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', border: 'none', textAlign: 'center', color: playHover ? 'black' : 'white', transition: 'all 0.25s cubic-bezier(0.4,0,0.2,1)'}">ИГРАТЬ</button></div>
  </div>
  </div>
  </div>
