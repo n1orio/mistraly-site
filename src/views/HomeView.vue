@@ -32,13 +32,13 @@ function scrollToContent() {
 <template><main class="w-full flex-1 flex flex-col items-center bg-[var(--bg-page)] text-[var(--text-main)]"><section class="relative w-full overflow-hidden bg-[var(--bg-page)]" style="margin-top:-64px;padding-top:64px;">
  <div class="relative">
  <div class="bg-gradient-to-b from-zinc-50/50 to-zinc-50 dark:from-black dark:to-zinc-950 pb-6 pt-28 overflow-hidden">
- <div class="mx-auto w-full min-w-0 px-4" style="max-width:1480px;">
+ <div class="mx-auto w-full min-w-0 px-4" style="max-width:1600px;">
  <div class="relative w-full" role="region" aria-roledescription="carousel">
  <div class="overflow-hidden" style="-webkit-mask-image:linear-gradient(to right,transparent 0%,transparent 8%,black 22%,black 78%,transparent 92%,transparent 100%);mask-image:linear-gradient(to right,transparent 0%,transparent 8%,black 22%,black 78%,transparent 92%,transparent 100%)">
  <div class="flex transition-transform duration-500 ease-in-out"
  :style="{ transform: 'translateX(calc(-' + (currentSlide * 25) + '%))' }">
  <div v-for="(img, i) in screenshots" :key="i" role="group" aria-roledescription="slide"
- class="min-w-0 shrink-0 grow-0 px-2"
+ class="min-w-0 shrink-0 grow-0 px-3"
  style="flex-basis:25%">
  <div class=" overflow-hidden ring-1 ring-black/10 dark:ring-white/10 shadow-lg bg-white/5">
  <img :src="img" alt="" draggable="false" loading="lazy"
@@ -46,7 +46,7 @@ function scrollToContent() {
  </div>
  </div>
  <div v-for="(img, i) in screenshots.slice(0,4)" :key="'d'+i" role="group" aria-roledescription="slide"
- class="min-w-0 shrink-0 grow-0 px-2"
+ class="min-w-0 shrink-0 grow-0 px-3"
  style="flex-basis:25%">
  <div class=" overflow-hidden ring-1 ring-black/10 dark:ring-white/10 shadow-lg bg-white/5">
  <img :src="img" alt="" draggable="false" loading="lazy"
