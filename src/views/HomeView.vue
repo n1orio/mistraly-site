@@ -34,7 +34,7 @@ function scrollToContent() {
  <div class="bg-gradient-to-b from-zinc-50/50 to-zinc-50 dark:from-black dark:to-zinc-950 pb-6 pt-28 overflow-hidden">
  <div class="mx-auto w-full min-w-0 px-1" style="max-width:1920px;">
  <div class="relative w-full" role="region" aria-roledescription="carousel">
- <div class="overflow-hidden" style="-webkit-mask-image:linear-gradient(to right,transparent 0%,transparent 3%,black 7%,black 93%,transparent 97%,transparent 100%);mask-image:linear-gradient(to right,transparent 0%,transparent 3%,black 7%,black 93%,transparent 97%,transparent 100%)">
+ <div class="overflow-hidden" style="-webkit-mask-image:linear-gradient(to right,transparent 0%,transparent 5%,black 5%,black 95%,transparent 95%,transparent 100%);mask-image:linear-gradient(to right,transparent 0%,transparent 5%,black 5%,black 95%,transparent 95%,transparent 100%)">
  <div class="flex transition-transform duration-500 ease-in-out"
  :style="{ transform: 'translateX(calc(-' + (currentSlide * 25) + '%))' }">
  <div v-for="(img, i) in screenshots" :key="i" role="group" aria-roledescription="slide"
