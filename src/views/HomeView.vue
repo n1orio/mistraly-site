@@ -6,13 +6,14 @@ import { usePurchaseStore } from '../stores/purchase'
 const route = useRoute(); const purchase = usePurchaseStore(); const activePhase = ref(1)
 onMounted(() => { if (route.query.purchase === '1') purchase.show() })
 const playHover = ref(false)
-const screenshots = ['/2026-09-27_20.07.26.png', '/2026-09-27_20.07.35.png', '/2026-09-27_20.07.54.png', '/placeholder1.svg', '/placeholder2.svg', '/placeholder3.svg']
+const screenshots = ['/2026-09-27_20.07.26.png', '/2026-09-27_20.07.35.png', '/2026-09-27_20.07.54.png', '/placeholder1.svg']
 const currentSlide = ref(0)
 let slideTimer: any
 function startSlideShow() { slideTimer = setInterval(() => { currentSlide.value = (currentSlide.value + 1) % screenshots.length }, 4000) }
 function prevSlide() { currentSlide.value = (currentSlide.value - 1 + screenshots.length) % screenshots.length }
 function nextSlide() {
- currentSlide.value = (currentSlide.value + 1) % screenshots.length
+ if (currentSlide.value >= screenshots.length - 1) { currentSlide.value = 0; return }
+ currentSlide.value++
 }
 onMounted(startSlideShow)
 onUnmounted(() => clearInterval(slideTimer))
@@ -33,12 +34,12 @@ function scrollToContent() {
  <div class="bg-gradient-to-b from-zinc-50/50 to-zinc-50 dark:from-black dark:to-zinc-950 pb-6 pt-28 overflow-hidden">
  <div class="mx-auto w-full min-w-0 px-4" style="max-width:1360px;">
  <div class="relative w-full" role="region" aria-roledescription="carousel">
- <div class="overflow-hidden" style="-webkit-mask-image:linear-gradient(to right,transparent,black 12%,black 88%,transparent);mask-image:linear-gradient(to right,transparent,black 12%,black 88%,transparent)">
+ <div class="overflow-hidden" style="-webkit-mask-image:linear-gradient(to right,transparent 0%,transparent 17%,black 17%,black 83%,transparent 83%,transparent 100%);mask-image:linear-gradient(to right,transparent 0%,transparent 17%,black 17%,black 83%,transparent 83%,transparent 100%)">
  <div class="flex transition-transform duration-500 ease-in-out"
- :style="{ transform: 'translateX(calc(-' + (currentSlide * 50) + '%))' }">
+ :style="{ transform: 'translateX(calc(-' + (currentSlide * 25) + '%))' }">
  <div v-for="(img, i) in screenshots" :key="i" role="group" aria-roledescription="slide"
  class="min-w-0 shrink-0 grow-0 px-2"
- style="flex-basis:50%">
+ style="flex-basis:25%">
  <div class=" overflow-hidden ring-1 ring-black/10 dark:ring-white/10 shadow-lg bg-white/5">
  <img :src="img" alt="" draggable="false" loading="lazy"
  class="w-full aspect-video object-cover select-none" />
@@ -46,7 +47,7 @@ function scrollToContent() {
  </div>
  <div v-for="(img, i) in screenshots.slice(0,4)" :key="'d'+i" role="group" aria-roledescription="slide"
  class="min-w-0 shrink-0 grow-0 px-2"
- style="flex-basis:50%">
+ style="flex-basis:25%">
  <div class=" overflow-hidden ring-1 ring-black/10 dark:ring-white/10 shadow-lg bg-white/5">
  <img :src="img" alt="" draggable="false" loading="lazy"
  class="w-full aspect-video object-cover select-none" />
