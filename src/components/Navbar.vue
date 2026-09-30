@@ -6,11 +6,11 @@ const route = useRoute()
 const username = 'Nio'
 
 const tabs = [
- { to: '/', label: 'Breeze', icon: 'logo', exact: true },
- { to: '/shop', label: 'Магазин', icon: 'shop' },
- { to: '/faq', label: 'FAQ', icon: 'faq' },
- { to: '/rules', label: 'Правила', icon: 'rules' },
- { to: '/downloads', label: 'Загрузки', icon: 'downloads' },
+ { to: '/', label: 'Главная', icon: 'logo', exact: true, color: '#0099FF' },
+ { to: '/shop', label: 'Магазин', icon: 'shop', color: '#FFCC00' },
+ { to: '/faq', label: 'FAQ', icon: 'faq', color: '#0099FF' },
+ { to: '/rules', label: 'Правила', icon: 'rules', color: '#FF4444' },
+ { to: '/downloads', label: 'Загрузки', icon: 'downloads', color: '#9944FF' },
 ]
 
 function isActive(tab: { to: string; exact?: boolean }) {
@@ -28,8 +28,8 @@ function isActive(tab: { to: string; exact?: boolean }) {
     :to="tab.to"
     class="font-heading font-black text-xs text-white cursor-pointer"
     :style="{
-      background: isActive(tab) ? '#0099FF' : 'rgba(255,255,255,0.08)',
-      padding: '8px 28px 8px 14px',
+      background: isActive(tab) ? tab.color : 'rgba(255,255,255,0.08)',
+      padding: isActive(tab) ? '10px 32px 10px 18px' : '8px 28px 8px 14px',
       clipPath: 'polygon(0% 15%,100% 0%,100% 100%,0% 85%)',
       transform: i % 2 === 0 ? 'rotate(-1deg)' : 'rotate(0.5deg)',
       display: 'inline-flex',
@@ -39,7 +39,9 @@ function isActive(tab: { to: string; exact?: boolean }) {
       textAlign: 'center',
       color: isActive(tab) ? 'white' : 'rgba(255,255,255,0.7)',
       transition: 'all 0.15s',
-      textDecoration: 'none'
+      textDecoration: 'none',
+      fontSize: isActive(tab) ? '14px' : '12px',
+      fontWeight: isActive(tab) ? '900' : '700'
     }"
    >{{ tab.label }}</router-link>
 
