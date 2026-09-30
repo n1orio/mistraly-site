@@ -63,7 +63,7 @@ function scrollToContent() {
  <h1 class="font-cinzel font-black text-5xl sm:text-6xl md:text-7xl text-white tracking-tight leading-[1.1] mb-3">MISTRALY</h1>
  <p class="text-sm text-white/80 max-w-xl mx-auto mb-8 leading-relaxed">Физика полетов, дирижабли, кастомный лаунчер и закрытое сообщество без гриферов и лишнего мусора.</p>
  <div class="flex flex-wrap items-center justify-center gap-2">
- <button @click="scrollToContent" class="font-cinzel font-black text-lg text-white cursor-pointer" style="background:#0099FF;padding:14px 40px;clip-path:polygon(5% 0%,100% 0%,100% 100%,15% 100%);transform:rotate(-1.5deg);filter:drop-shadow(12px 14px 0 rgba(0,0,0,0.35));display:inline-flex;align-items:center;justify-content:center;border:none;text-align:center;transition:opacity 0.15s">ИГРАТЬ</button>
+ <button @click="scrollToContent" class="font-cinzel font-black text-lg text-white cursor-pointer" style="background:#0099FF;padding:14px 40px;clip-path:polygon(0% 12%,100% 0%,100% 100%,0% 88%);transform:rotate(-1.5deg);filter:drop-shadow(14px 14px 0 rgba(0,0,0,0.35));display:inline-flex;align-items:center;justify-content:center;border:none;text-align:center;transition:opacity 0.15s">ИГРАТЬ</button>
  </div>
  </div>
  </div>
