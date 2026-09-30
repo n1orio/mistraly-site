@@ -30,8 +30,8 @@ function scrollToContent() {
 </script>
 <template><main class="w-full flex-1 flex flex-col items-center bg-[var(--bg-page)] text-[var(--text-main)]"><section class="relative w-full overflow-hidden bg-[var(--bg-page)]" style="margin-top:-64px;padding-top:64px;">
  <div class="relative">
- <div class="bg-gradient-to-b from-zinc-50/50 to-zinc-50 dark:from-black dark:to-zinc-950 pb-6 pt-20 overflow-hidden">
- <div class="mx-auto w-full min-w-0 px-4" style="max-width:1200px;">
+ <div class="bg-gradient-to-b from-zinc-50/50 to-zinc-50 dark:from-black dark:to-zinc-950 pb-6 pt-28 overflow-hidden">
+ <div class="mx-auto w-full min-w-0 px-4" style="max-width:1360px;">
  <div class="relative w-full" role="region" aria-roledescription="carousel">
  <div class="overflow-hidden" style="-webkit-mask-image:linear-gradient(to right,transparent,black 12%,black 88%,transparent);mask-image:linear-gradient(to right,transparent,black 12%,black 88%,transparent)">
  <div class="flex transition-transform duration-500 ease-in-out"
