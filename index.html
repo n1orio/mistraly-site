@@ -9,7 +9,15 @@
       // Применяем сохранённую тему до загрузки приложения, чтобы избежать белой вспышки
       try { var t = localStorage.getItem('breeze_theme'); if (t ? t === 'dark' : true) document.documentElement.classList.add('dark') } catch (e) {}
     </script>
-  <style>html{zoom:1.15}img{image-rendering:pixelated;image-rendering:-moz-crisp-edges;image-rendering:crisp-edges}</style></head>
+  <style>html{zoom:1.15}img{image-rendering:pixelated;image-rendering:-moz-crisp-edges;image-rendering:crisp-edges}</style><link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap" rel="stylesheet">
+<style>.font-dela{font-family:"Dela Gothic One",cursive}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>.font-bebas{font-family:"Bebas Neue",sans-serif;letter-spacing:0.02em}</style>
+</head>
   <body>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
