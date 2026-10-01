@@ -176,7 +176,11 @@ const hints: Record<string, string> = {
               Проверка заказа
             </h2>
             <p class="text-xs text-zinc-400 mb-5">
-              Подтвердите данные перед переходом к оплате:
+              {{
+                store.isFreeMode
+                  ? 'Подтвердите данные — выдача произойдёт сразу:'
+                  : 'Подтвердите данные перед переходом к оплате:'
+              }}
             </p>
 
             <!-- Квитанция заказа с пунктирной рамкой -->
@@ -220,7 +224,13 @@ const hints: Record<string, string> = {
                 class="comic-btn w-full py-3.5 px-6 font-heading font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
                 :style="{ '--btn-bg': '#0099FF', '--btn-color': '#FFFFFF' }"
               >
-                {{ store.submitting ? 'Оформляем счет…' : 'Перейти к оплате' }}
+                {{
+                  store.submitting
+                    ? 'Оформляем…'
+                    : store.isFreeMode
+                      ? 'Получить'
+                      : 'Перейти к оплате'
+                }}
               </button>
             </div>
           </div>
@@ -235,7 +245,7 @@ const hints: Record<string, string> = {
             </div>
 
             <span class="font-heading font-black text-xs uppercase tracking-wider text-emerald-400 mb-1">
-              УСПЕШНО ОПЛАЧЕНО
+              {{ store.isFreeMode ? 'ПОЛУЧЕНО' : 'УСПЕШНО ОПЛАЧЕНО' }}
             </span>
             <h2 class="font-heading font-black text-2xl text-white tracking-tight uppercase mb-2">
               Заказ выполнен!

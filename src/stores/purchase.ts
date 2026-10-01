@@ -30,6 +30,8 @@ interface PurchaseResult {
   purchase_id: string
   delivery_id: string | null
   delivery: boolean
+  /** Бэкенд работает в режиме без приёма оплаты (FREE_PURCHASES). */
+  free: boolean
 }
 
 /**
@@ -48,6 +50,12 @@ export const usePurchaseStore = defineStore('purchase', () => {
   const error = ref('')
   const orderDone = ref(false)
   const result = ref<PurchaseResult | null>(null)
+  /**
+   * Режим без приёма оплаты. Пока платёжный провайдер не подключён,
+   * бэкенд отдаёт free: true — тогда интерфейс не обещает оплату,
+   * а пишет «получено».
+   */
+  const isFreeMode = ref(false)
 
   /** Товар, если покупка инициирована из /shop, иначе null (проходка). */
   const item = ref<ShopItem | null>(null)
@@ -149,6 +157,7 @@ export const usePurchaseStore = defineStore('purchase', () => {
       }
       orderDone.value = true
       step.value = 4
+      isFreeMode.value = !!result.value?.free
       await auth.refreshProfile()
       return true
     } catch (e) {
@@ -165,6 +174,7 @@ export const usePurchaseStore = defineStore('purchase', () => {
     error.value = ''
     orderDone.value = false
     result.value = null
+    isFreeMode.value = false
   }
 
   return {
@@ -173,6 +183,7 @@ export const usePurchaseStore = defineStore('purchase', () => {
     nickname,
     checking,
     submitting,
+    isFreeMode,
     error,
     orderDone,
     result,
