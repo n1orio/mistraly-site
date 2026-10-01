@@ -5,11 +5,11 @@ export default {
   theme: {
     extend: {
       colors: {
-        brand: { dark: '#0A0B0E', card: '#12141A', blue: '#0080FF', cyan: '#00BBFF' }
+        brand: { dark: '#0A0B0E', card: '#2B2B2B', blue: '#0080FF', cyan: '#00BBFF' }
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
-        heading: ['Unbounded', 'sans-serif']
+        heading: ['Russo One', 'sans-serif']
       }
     }
   },

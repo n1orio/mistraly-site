@@ -20,7 +20,7 @@ function isActive(tab: { to: string; exact?: boolean }) {
 
 </script>
 <template>
- <header class="fixed top-0 left-0 right-0 z-50 flex items-center justify-center py-3 px-4 pointer-events-none" style="background:linear-gradient(to bottom,rgba(0,0,0,0.6) 0%,transparent 100%)">
+ <header class="fixed top-0 left-0 right-0 z-50 flex items-center justify-center py-3 px-4 pointer-events-none" style="background:var(--nav-bg);backdrop-filter:blur(6px)">
   <div class="flex items-center gap-2 pointer-events-auto">
    <router-link
     v-for="(tab, i) in tabs"

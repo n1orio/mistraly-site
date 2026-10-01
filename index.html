@@ -9,10 +9,14 @@
       // Применяем сохранённую тему до загрузки приложения, чтобы избежать белой вспышки
       try { var t = localStorage.getItem('breeze_theme'); if (t ? t === 'dark' : true) document.documentElement.classList.add('dark') } catch (e) {}
     </script>
-  <style>html{zoom:1.15}img{image-rendering:pixelated;image-rendering:-moz-crisp-edges;image-rendering:crisp-edges}</style><link rel="preconnect" href="https://fonts.googleapis.com">
+  <style>html{zoom:1.15}
+/* Пиксельное приближение только для игровых скриншотов. Раньше правило было
+   глобальным на любую картинку, из-за чего иконки модов рендерились
+   с пиксельной лесенкой. */
+.pixel-art{image-rendering:pixelated;image-rendering:-moz-crisp-edges;image-rendering:crisp-edges}</style><link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:wght@400;700;900&family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
-<style>.font-heading{font-family:"Fira Sans Condensed",sans-serif;font-weight:900;letter-spacing:0.02em}body{font-family:"PT Root UI","Inter",system-ui,-apple-system,sans-serif}</style>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:wght@400;700;900&family=Cinzel:wght@400;700;900&family=Russo+One&display=swap" rel="stylesheet">
+<style>.font-heading{font-family:"Russo One","Fira Sans Condensed",sans-serif;font-weight:400;letter-spacing:0.01em}body{font-family:"PT Root UI","Inter",system-ui,-apple-system,sans-serif}</style>
 </head>
   <body>
     <div id="app"></div>
