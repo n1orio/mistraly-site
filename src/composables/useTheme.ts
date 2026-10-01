@@ -8,7 +8,8 @@ export function useTheme() {
   function applyTheme(dark: boolean) {
     isDark.value = dark
     document.documentElement.classList.toggle('dark', dark)
-    localStorage.setItem('breeze_theme', dark ? 'dark' : 'light')
+    localStorage.setItem('mistraly_theme', dark ? 'dark' : 'light')
+    localStorage.removeItem('breeze_theme')
   }
 
   function getCenter(event?: MouseEvent) {
@@ -79,7 +80,7 @@ export function useTheme() {
   }
 
   function initTheme() {
-    const saved = localStorage.getItem('breeze_theme')
+    const saved = localStorage.getItem('mistraly_theme') || localStorage.getItem('breeze_theme')
     applyTheme(saved ? saved === 'dark' : true)
   }
 

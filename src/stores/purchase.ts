@@ -16,7 +16,7 @@ export const usePurchaseStore = defineStore('purchase', () => {
     open.value = true;
     error.value = '';
     orderDone.value = false;
-    if (localStorage.getItem('breeze_token')) {
+    if (localStorage.getItem('mistraly_token') || localStorage.getItem('breeze_token')) {
       step.value = 2
     } else {
       step.value = 1

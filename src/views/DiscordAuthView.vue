@@ -33,9 +33,13 @@ onMounted(async () => {
     const res = await axios.post('http://localhost:3001/api/auth/discord', { code, nonce: nonce || undefined })
     if (res.data.success) {
       const d = res.data.data
-      localStorage.setItem('breeze_token', d.token)
-      localStorage.setItem('breeze_user', JSON.stringify(d.user))
-      localStorage.setItem('breeze_discord', JSON.stringify(d.discord))
+      localStorage.setItem('mistraly_token', d.token)
+      localStorage.setItem('mistraly_user', JSON.stringify(d.user))
+      localStorage.setItem('mistraly_discord', JSON.stringify(d.discord))
+      // Убираем прежние ключи, сохраняя уже выданную сессию
+      localStorage.removeItem('breeze_token')
+      localStorage.removeItem('breeze_user')
+      localStorage.removeItem('breeze_discord')
       success.value = true
       // Закрываем окно если авторизация шла из лаунчера (через polling)
       if (nonce) { setTimeout(() => window.close(), 1000) } else if (isPurchase) { setTimeout(() => router.push('/?purchase=1'), 1000) } else { setTimeout(() => router.push('/profile'), 1500) }
@@ -54,7 +58,7 @@ onMounted(async () => {
         <div class="w-12 h-12 rounded-xl bg-[#5865F2]/10 text-[#5865F2] flex items-center justify-center mx-auto mb-5">
           <MessageCircle :size="24" />
         </div>
-        <h2 class="font-heading text-xl font-bold text-[var(--text-main)] mb-2">{{ success ? 'Успешно!' : 'Авторизация в экосистеме Breeze' }}</h2>
+        <h2 class="font-heading text-xl font-bold text-[var(--text-main)] mb-2">{{ success ? 'Успешно!' : 'Авторизация в экосистеме Mistraly' }}</h2>
         <p class="text-sm text-[var(--text-muted)] mb-6">{{ success ? 'Можете закрыть это окно.' : 'Мы используем Discord для мгновенного входа без паролей и защиты сервера.' }}</p>
         <button v-if="!success" @click="startDiscordAuth" class="w-full px-7 py-3 rounded-xl font-bold text-sm text-white bg-[#5865F2] hover:bg-[#4752C4] transition shadow-lg shadow-[#5865F2]/25 flex items-center justify-center gap-2 cursor-pointer">
           <MessageCircle :size="16" /> Войти через Discord
