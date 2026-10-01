@@ -6,6 +6,7 @@ import { usePurchaseStore } from '../stores/purchase'
 import HowToJoin from '../components/HowToJoin.vue'
 import Gear3D from '../components/Gear3D.vue'
 import ModHighlights from '../components/ModHighlights.vue'
+import FaqSection from '../components/FaqSection.vue'
 const route = useRoute(); const purchase = usePurchaseStore()
 onMounted(() => { if (route.query.purchase === '1') purchase.show() })
 const playHover = ref(false)
@@ -64,7 +65,7 @@ function scrollToContent() {
       <feDisplacementMap in="SourceGraphic" in2="noise" scale="10" xChannelSelector="R" yChannelSelector="G"/>
     </filter>
   </defs>
-</svg><main class="w-full flex-1 flex flex-col items-center page-bg bg-[var(--bg-page)] text-[var(--text-main)]"><section class="relative w-full overflow-hidden page-bg bg-[var(--bg-page)]" style="margin-top:-64px;padding-top:clamp(110px,24vw,260px);padding-bottom:64px;">
+</svg><main class="w-full flex-1 flex flex-col items-center page-bg bg-[var(--bg-page)] text-[var(--text-main)]"><section class="relative w-full overflow-hidden page-bg bg-[var(--bg-page)]" style="margin-top:-64px;padding-top:clamp(110px,24vw,260px);padding-bottom:112px;">
   <div class="relative">
     <div class="relative z-10 mx-auto w-full max-w-4xl px-6 pb-24 pt-4 text-center">
       <div class="relative mb-4 mt-6 sm:mt-14 inline-block">
@@ -145,8 +146,9 @@ function scrollToContent() {
   </div>
 </section>
 <ModHighlights />
-<section id="how-to-play" class="w-full max-w-5xl px-4 pt-8 pb-2">
-  <div class="text-center mb-4">
+<FaqSection />
+<section id="how-to-play" class="w-full max-w-5xl px-4 pt-20 pb-10">
+  <div class="text-center mb-5">
     <h2 class="font-heading text-2xl sm:text-3xl text-[var(--text-main)] tracking-tight mb-2">Но как <a href="#stages" class="play-cta" @click.prevent="scrollToContent">поиграть</a>-то?</h2>
     <p class="text-xs sm:text-sm text-[var(--text-muted)]">Коротко о том, что нужно, чтобы попасть на сервер</p>
   </div>

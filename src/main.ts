@@ -10,8 +10,7 @@ const router = createRouter({ history: createWebHistory(), routes: [
   { path: '/auth/discord', name: 'DiscordAuth', component: () => import('./views/DiscordAuthView.vue') },
   { path: '/shop', name: 'Shop', component: () => import('./views/ShopView.vue') },
   { path: '/profile', name: 'Profile', component: () => import('./views/SiteProfileView.vue') },
-  { path: '/offer', name: 'Offer', component: () => import('./views/OfferView.vue') },
-  { path: '/faq', name: 'Faq', component: () => import('./views/FaqView.vue') }
+  { path: '/offer', name: 'Offer', component: () => import('./views/OfferView.vue') }
 ] })
 // Инициализация темы ДО монтирования: ставим класс dark/light на <html>
 // из localStorage, чтобы хеадер и страница не мигали светлой темой и

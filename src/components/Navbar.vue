@@ -3,7 +3,6 @@ import { useRoute } from 'vue-router'
 import {
   Home,
   ShoppingBag,
-  HelpCircle,
   ScrollText,
   Download
 } from 'lucide-vue-next'
@@ -27,13 +26,6 @@ const tabs = [
     icon: ShoppingBag,
     color: '#FFCC00',
     clipPath: 'polygon(0% 0%, 100% 0%, 98% 100%, 2% 88%)' // скос вправо-вниз
-  },
-  {
-    to: '/faq',
-    label: 'FAQ',
-    icon: HelpCircle,
-    color: '#00D26A',
-    clipPath: 'polygon(0% 0%, 100% 0%, 100% 90%, 0% 92%)' // слегка непараллельный низ
   },
   {
     to: '/rules',

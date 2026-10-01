@@ -62,7 +62,7 @@ function showFallback(e: Event) {
 </script>
 
 <template>
-  <section class="w-full max-w-5xl px-4 py-10">
+  <section class="w-full max-w-5xl px-4 py-24">
     <!-- Заголовок секции -->
     <div class="text-center mb-8">
       <h2 class="font-heading text-2xl sm:text-3xl text-[var(--text-main)] tracking-tight mb-2">
@@ -74,7 +74,7 @@ function showFallback(e: Event) {
     </div>
 
     <!-- Сетка 2x2 -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 lg:gap-x-10 lg:gap-y-7 pt-2">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12 lg:gap-x-10 lg:gap-y-14 pt-6">
       <div
         v-for="mod in mods"
         :key="mod.id"

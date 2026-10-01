@@ -31,7 +31,6 @@ const route = useRoute()
       <div>© Breeze • Minecraft 1.21.1</div>
       <div class="flex items-center gap-5">
         <router-link to="/offer" class="hover:text-[var(--text-main)] transition underline underline-offset-2">Оферта</router-link>
-        <router-link to="/faq" class="hover:text-[var(--text-main)] transition">FAQ</router-link>
         <router-link to="/shop" class="hover:text-[var(--text-main)] transition">Магазин</router-link>
         <router-link to="/profile" class="hover:text-[var(--text-main)] transition">Профиль</router-link>
       </div>

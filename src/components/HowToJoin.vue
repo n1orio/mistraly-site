@@ -4,7 +4,7 @@ const purchase = usePurchaseStore()
 </script>
 
 <template>
-  <section id="stages" class="w-full py-24 flex flex-col items-center relative overflow-hidden page-bg">
+  <section id="stages" class="w-full py-32 flex flex-col items-center relative overflow-hidden page-bg">
 
     <!-- Фоновая пунктирная линия -->
     <div class="absolute inset-y-0 left-1/2 -translate-x-1/2 w-0.5 border-r-2 border-dashed border-[#4D4B33] pointer-events-none opacity-40"></div>

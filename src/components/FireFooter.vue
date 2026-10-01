@@ -191,7 +191,6 @@ onMounted(() => {
         <div>© Breeze • Minecraft 1.21.1</div>
         <div class="flex items-center gap-6">
           <router-link to="/offer" class="hover:text-black transition underline underline-offset-2">Оферта</router-link>
-          <router-link to="/faq" class="hover:text-black transition">FAQ</router-link>
           <router-link to="/shop" class="hover:text-black transition">Магазин</router-link>
           <router-link to="/profile" class="hover:text-black transition">Профиль</router-link>
         </div>
