@@ -94,8 +94,12 @@ async function logout() {
   window.location.assign('/')
 }
 
+// Тот же относительный /api, что и в client.ts: на проде это Caddy-прокси,
+// поэтому URL не должен указывать на localhost игрока.
 const skinPreviewUrl = computed(() =>
-  user.value?.username ? `${import.meta.env.VITE_API_URL || 'http://localhost:3001/api'}/user/skin/${user.value.username}` : undefined
+  user.value?.username
+    ? `${import.meta.env.VITE_API_URL || '/api'}/user/skin/${user.value.username}`
+    : undefined
 )
 
 /** Статус выдачи для игровых покупок. */

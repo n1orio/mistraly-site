@@ -1,11 +1,16 @@
 import axios, { AxiosError, type AxiosInstance, type InternalAxiosRequestConfig } from 'axios'
 
 /**
- * Базовый URL бэкенда. В dev — напрямую, в проде — через /api на том же домене,
- * чтобы cookie были first-party и не ломались CORS.
+ * Базовый URL бэкенда.
+ *
+ * По умолчанию — относительный /api: на проде Caddy отдаёт сайт и проксирует
+ * /api/* на backend, поэтому cookie остаются first-party. Абсолютный
+ * http://localhost:3001 в браузере игрока указывал бы на его собственную
+ * машину — покупки просто не работали бы. Для dev переопределяем через
+ * VITE_API_URL.
  */
 export const API_URL: string =
-  (import.meta.env.VITE_API_URL as string | undefined) || 'http://localhost:3001/api'
+  (import.meta.env.VITE_API_URL as string | undefined) || '/api'
 
 interface RetriableConfig extends InternalAxiosRequestConfig {
   /** Флаг, чтобы не пустить запрос в бесконечный цикл refresh → 401 → refresh. */
