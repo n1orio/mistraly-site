@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Check, ChevronLeft, MessageCircle, ShieldCheck, X } from 'lucide-vue-next'
+import { Check, ChevronLeft, MessageCircle, ShieldCheck, X, Sparkles, Terminal } from 'lucide-vue-next'
 import { usePurchaseStore } from '../stores/purchase'
 import { useAuthStore } from '../stores/auth'
 
@@ -15,13 +15,12 @@ function startAuth() {
 }
 
 /**
- * Что именно купит игрок. Для item/unban предмет уходит в очередь выдачи:
- * мод заберёт его при входе, если сейчас его нет на сервере.
+ * Подсказки доставки предметов
  */
 const deliveryHint = {
-  item: 'Предмет будет выдан при следующем входе на сервер.',
-  unban: 'Снятие блокировок произойдёт при следующем входе на сервер.',
-  pass: 'Доступ к серверу откроется сразу после оплаты.'
+  item: 'Предмет будет выдан автоматически при следующем входе на сервер.',
+  unban: 'Снятие блокировок применится при следующем подключении к серверу.',
+  pass: 'Сезонный пропуск активируется мгновенно после подтверждения оплаты.'
 }
 
 const hints: Record<string, string> = {
@@ -34,149 +33,299 @@ const hints: Record<string, string> = {
 <template>
   <div
     v-if="store.open"
-    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md select-none"
     @click.self="store.close"
   >
-    <div class="relative w-full max-w-md bg-[#2B2B2B] border border-white/[0.08] rounded-2xl p-6 shadow-2xl text-white">
+    <div class="modal-outer w-full max-w-md relative">
+
+      <!-- Кнопка закрытия (крестик) со скосом -->
       <button
-        class="absolute top-5 right-5 text-slate-400 hover:text-white transition"
+        class="close-btn absolute -top-3 -right-3 z-30 w-8 h-8 bg-[#18191c] hover:bg-white text-white hover:text-black flex items-center justify-center border border-white/20 transition cursor-pointer"
         @click="store.close"
       >
-        <X :size="20" />
+        <X :size="16" />
       </button>
 
-      <div class="flex items-center justify-between mb-6 pr-8">
-        <span class="text-xs font-semibold uppercase tracking-wider text-[#00BBFF]">
-          {{ store.item ? 'Оформление заказа' : 'Mistraly Pass' }}
-        </span>
-        <div class="flex items-center gap-1.5">
-          <span
-            v-for="n in 3"
-            :key="n"
-            class="w-6 h-1 rounded-full transition-all"
-            :class="store.step >= n ? 'bg-gradient-to-r from-[#0080FF] to-[#00BBFF]' : 'bg-white/10'"
-          />
+      <!-- Карточка терминала покупки -->
+      <div
+        class="modal-card bg-[#151619] p-7 sm:p-8 relative overflow-hidden text-left"
+        style="clip-path: polygon(0% 1.2%, 100% 0%, 99% 99%, 1% 100%);"
+      >
+        <!-- Тонкий фоновый полутоновый растр -->
+        <div class="comic-dots-pattern" aria-hidden="true" />
+
+        <div class="relative z-10">
+
+          <!-- ВЕРХНЯЯ СТРОКА: Статус и индикатор шагов -->
+          <div class="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
+            <span
+              class="font-heading font-black text-[11px] uppercase tracking-wider px-2.5 py-0.5 text-black"
+              style="background-color: #0099FF; transform: rotate(-1.5deg);"
+            >
+              {{ store.item ? 'ТЕРМИНАЛ // ЗАКАЗ' : 'MISTRALY PASS' }}
+            </span>
+
+            <!-- Рубленый степпер 1-2-3 -->
+            <div class="flex items-center gap-1.5 font-mono text-[10px]">
+              <span
+                v-for="n in 3"
+                :key="n"
+                class="px-1.5 py-0.5 border font-bold transition-all"
+                :class="store.step >= n
+                  ? 'bg-[#0099FF] text-black border-[#0099FF]'
+                  : 'bg-white/5 text-zinc-500 border-white/10'"
+              >
+                0{{ n }}
+              </span>
+            </div>
+          </div>
+
+          <!-- ================= ШАГ 1: ВХОД ЧЕРЕЗ DISCORD ================= -->
+          <div v-if="store.step === 1" class="flex flex-col items-center text-center py-2">
+            <div
+              class="w-16 h-16 rounded-xl bg-[#5865F2]/15 text-[#5865F2] border border-[#5865F2]/30 flex items-center justify-center mb-5"
+              style="transform: rotate(-2deg); box-shadow: 4px 4px 0px rgba(0,0,0,0.5);"
+            >
+              <MessageCircle :size="30" />
+            </div>
+
+            <h2 class="font-heading font-black text-2xl text-white tracking-tight uppercase mb-2">
+              Авторизация профиля
+            </h2>
+            <p class="text-xs text-zinc-400 mb-6 leading-relaxed max-w-xs">
+              Для оформления покупки и привязки предметов требуется вход через Discord. Профиль создается мгновенно без паролей.
+            </p>
+
+            <div class="comic-btn-wrap w-full mb-4">
+              <button
+                @click="startAuth"
+                class="comic-btn w-full py-3.5 px-6 font-heading font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2.5 cursor-pointer"
+                :style="{ '--btn-bg': '#5865F2', '--btn-color': '#FFFFFF' }"
+              >
+                <MessageCircle :size="16" />
+                Войти через Discord
+              </button>
+            </div>
+
+            <div class="flex items-center gap-2 text-[11px] font-mono text-zinc-500">
+              <ShieldCheck :size="14" class="text-emerald-400 shrink-0" />
+              <span>Безопасный шлюз без ввода пароля</span>
+            </div>
+          </div>
+
+          <!-- ================= ШАГ 2: ВВОД НИКНЕЙМА ================= -->
+          <div v-else-if="store.step === 2" class="flex flex-col">
+            <button
+              v-if="auth.isAuthenticated"
+              class="inline-flex items-center gap-1 font-mono text-xs text-zinc-500 hover:text-white mb-3 transition cursor-pointer self-start"
+              @click="store.step = 1"
+            >
+              <ChevronLeft :size="14" /> Назад
+            </button>
+
+            <h2 class="font-heading font-black text-2xl text-white tracking-tight uppercase mb-1">
+              Игровой никнейм
+            </h2>
+            <p class="text-xs text-zinc-400 mb-5 leading-relaxed">
+              Укажите ник (от 3 до 16 символов). Покупки и проходка привязываются к нему в базе сервера.
+            </p>
+
+            <div class="relative mb-3">
+              <input
+                v-model="store.nickname"
+                maxlength="16"
+                placeholder="Ваш ник в Minecraft..."
+                class="w-full px-4 py-3 bg-black/45 border border-white/15 focus:border-[#0099FF] text-white text-sm font-mono placeholder:text-zinc-600 outline-none transition"
+                style="clip-path: polygon(0% 6%, 100% 0%, 100% 94%, 0% 100%);"
+                @input="store.error = ''"
+              />
+            </div>
+
+            <span v-if="store.error" class="text-xs font-mono text-rose-400 mb-3 block">
+              ⚠ {{ store.error }}
+            </span>
+
+            <div class="comic-btn-wrap w-full mt-2">
+              <button
+                :disabled="!store.isNicknameValid || store.checking"
+                @click="store.checkNickname"
+                class="comic-btn w-full py-3.5 px-6 font-heading font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                :style="{ '--btn-bg': '#0099FF', '--btn-color': '#FFFFFF' }"
+              >
+                {{ store.checking ? 'Проверяем базу…' : 'Продолжить →' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- ================= ШАГ 3: ЧЕК И ПОДТВЕРЖДЕНИЕ ================= -->
+          <div v-else-if="store.step === 3" class="flex flex-col">
+            <button
+              class="inline-flex items-center gap-1 font-mono text-xs text-zinc-500 hover:text-white mb-3 transition cursor-pointer self-start"
+              @click="store.step = 2"
+            >
+              <ChevronLeft :size="14" /> Изменить ник
+            </button>
+
+            <h2 class="font-heading font-black text-2xl text-white tracking-tight uppercase mb-1">
+              Проверка заказа
+            </h2>
+            <p class="text-xs text-zinc-400 mb-5">
+              Подтвердите данные перед переходом к оплате:
+            </p>
+
+            <!-- Квитанция заказа с пунктирной рамкой -->
+            <div class="receipt-box bg-black/45 border border-dashed border-white/15 p-4 mb-4 space-y-2.5 font-mono text-xs">
+              <div class="flex justify-between">
+                <span class="text-zinc-500">Получатель:</span>
+                <strong class="text-white">{{ store.nickname }}</strong>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-zinc-500">Discord:</span>
+                <strong class="text-white">{{ auth.user?.username || auth.discord?.discord_username || 'Привязан' }}</strong>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-zinc-500">Позиция:</span>
+                <strong class="text-white">
+                  {{ store.item ? store.item.name : 'Mistraly Pass' }}
+                  <span v-if="store.item && store.quantity > 1" class="text-[#0099FF]"> × {{ store.quantity }}</span>
+                </strong>
+              </div>
+
+              <div class="border-t border-white/10 pt-2.5 flex justify-between items-center text-sm">
+                <span class="font-heading font-black text-white uppercase tracking-wider text-xs">ИТОГО:</span>
+                <strong class="font-heading font-black text-xl text-[#0099FF]">
+                  {{ store.total || store.priceLabel }}
+                </strong>
+              </div>
+            </div>
+
+            <p v-if="hints[store.item?.item_type || 'pass']" class="text-[11px] font-mono text-zinc-500 mb-4 leading-relaxed">
+              // {{ hints[store.item?.item_type || 'pass'] }}
+            </p>
+
+            <span v-if="store.error" class="text-xs font-mono text-rose-400 mb-3 block">
+              ⚠ {{ store.error }}
+            </span>
+
+            <div class="comic-btn-wrap w-full">
+              <button
+                :disabled="store.submitting"
+                @click="store.confirmOrder"
+                class="comic-btn w-full py-3.5 px-6 font-heading font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                :style="{ '--btn-bg': '#0099FF', '--btn-color': '#FFFFFF' }"
+              >
+                {{ store.submitting ? 'Оформляем счет…' : 'Перейти к оплате' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- ================= ШАГ 4: ГОТОВО ================= -->
+          <div v-else class="flex flex-col items-center text-center py-4">
+            <div
+              class="w-16 h-16 bg-emerald-500/15 border-2 border-emerald-500 text-emerald-400 flex items-center justify-center mb-4"
+              style="transform: rotate(3deg); box-shadow: 4px 4px 0px rgba(0,0,0,0.5);"
+            >
+              <Check :size="32" />
+            </div>
+
+            <span class="font-heading font-black text-xs uppercase tracking-wider text-emerald-400 mb-1">
+              УСПЕШНО ОПЛАЧЕНО
+            </span>
+            <h2 class="font-heading font-black text-2xl text-white tracking-tight uppercase mb-2">
+              Заказ выполнен!
+            </h2>
+            <p class="text-xs text-zinc-400 mb-2">
+              {{ store.result?.item }} для игрока <strong class="text-white">{{ store.nickname }}</strong>
+            </p>
+            <p class="text-[11px] font-mono text-zinc-500 mb-6 max-w-xs leading-relaxed">
+              {{
+                store.result?.delivery
+                  ? 'Зайдите на сервер — предмет будет выдан модом в инвентарь.'
+                  : 'Доступ открыт. Скачайте лаунчер и подключайтесь.'
+              }}
+            </p>
+
+            <div class="comic-btn-wrap inline-flex">
+              <button
+                @click="store.close"
+                class="comic-btn px-10 py-3 font-heading font-black text-xs uppercase tracking-wider cursor-pointer"
+                :style="{ '--btn-bg': '#FFFFFF', '--btn-color': '#101113' }"
+              >
+                Закрыть окно
+              </button>
+            </div>
+          </div>
+
         </div>
       </div>
 
-      <!-- Шаг 1: вход через Discord -->
-      <div v-if="store.step === 1" class="flex flex-col items-center text-center">
-        <div class="w-14 h-14 rounded-2xl bg-[#5865F2]/10 text-[#5865F2] flex items-center justify-center mb-4">
-          <MessageCircle :size="28" />
-        </div>
-        <h2 class="text-xl font-bold text-white mb-2">Сначала войдите через Discord</h2>
-        <p class="text-xs text-slate-400 mb-6 leading-relaxed max-w-xs">
-          Для игры на сервере требуется привязка Discord. Ваш аккаунт будет защищён от взлома.
-        </p>
-        <button
-          @click="startAuth"
-          class="w-full py-3 rounded-xl font-semibold text-sm text-white bg-[#5865F2] hover:bg-[#4752C4] transition flex items-center justify-center gap-2 mb-4"
-        >
-          <MessageCircle :size="18" /> Войти через Discord
-        </button>
-        <div class="flex items-center gap-2 text-xs text-slate-500">
-          <ShieldCheck :size="14" class="text-emerald-400" /> Без паролей и лишней регистрации
-        </div>
-      </div>
-
-      <!-- Шаг 2: никнейм -->
-      <div v-else-if="store.step === 2" class="flex flex-col">
-        <button
-          v-if="auth.isAuthenticated"
-          class="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-white mb-4"
-          @click="store.step = 1"
-        >
-          <ChevronLeft :size="14" /> Назад
-        </button>
-        <h2 class="text-xl font-bold text-white mb-2">Укажите игровой никнейм</h2>
-        <p class="text-xs text-slate-400 mb-4">
-          От 3 до 16 символов: латиница, цифры и символ подчёркивания. Ник привязывается к вашему
-          аккаунту — через него будут выдаваться покупки.
-        </p>
-        <input
-          v-model="store.nickname"
-          maxlength="16"
-          placeholder="Ваш игровой ник"
-          class="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] focus:border-[#0080FF] focus:outline-none text-white text-sm mb-2"
-          @input="store.error = ''"
-        />
-        <span v-if="store.error" class="text-xs text-rose-400 mb-3">{{ store.error }}</span>
-        <button
-          :disabled="!store.isNicknameValid || store.checking"
-          @click="store.checkNickname"
-          class="w-full mt-2 py-3 rounded-xl font-semibold text-sm text-white bg-gradient-to-r from-[#0080FF] to-[#00BBFF] disabled:opacity-50 transition"
-        >
-          {{ store.checking ? 'Проверяем ник…' : 'Продолжить →' }}
-        </button>
-      </div>
-
-      <!-- Шаг 3: подтверждение -->
-      <div v-else-if="store.step === 3" class="flex flex-col">
-        <button
-          class="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-white mb-4"
-          @click="store.step = 2"
-        >
-          <ChevronLeft :size="14" /> Изменить ник
-        </button>
-        <h2 class="text-xl font-bold text-white mb-2">Проверьте данные</h2>
-        <p class="text-xs text-slate-400 mb-4">Подтвердите заказ перед оплатой.</p>
-        <div class="bg-white/[0.03] border border-white/[0.06] rounded-xl p-4 space-y-2.5 text-xs text-slate-300 mb-4">
-          <div class="flex justify-between">
-            <span class="text-slate-500">Игровой ник:</span>
-            <strong class="text-white">{{ store.nickname }}</strong>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-slate-500">Привязанный Discord:</span>
-            <strong class="text-white">{{ auth.user?.username || auth.discord?.discord_username || 'Привязан' }}</strong>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-slate-500">Товар:</span>
-            <strong class="text-white">
-              {{ store.item ? store.item.name : 'Проходка Mistraly' }}
-              <span v-if="store.item && store.quantity > 1" class="text-slate-400">× {{ store.quantity }}</span>
-            </strong>
-          </div>
-          <div class="border-t border-white/[0.06] pt-2.5 flex justify-between text-sm">
-            <span class="font-medium text-white">Итого:</span>
-            <strong class="text-[#00BBFF] font-bold">{{ store.total || store.priceLabel }}</strong>
-          </div>
-        </div>
-        <p v-if="hints[store.item?.item_type || 'pass']" class="text-[11px] text-slate-500 mb-3 leading-relaxed">
-          {{ hints[store.item?.item_type || 'pass'] }}
-        </p>
-        <span v-if="store.error" class="text-xs text-rose-400 mb-3">{{ store.error }}</span>
-        <button
-          :disabled="store.submitting"
-          @click="store.confirmOrder"
-          class="w-full py-3 rounded-xl font-semibold text-sm text-white bg-gradient-to-r from-[#0080FF] to-[#00BBFF] hover:opacity-90 disabled:opacity-60 transition shadow-lg shadow-[#0080FF]/20"
-        >
-          {{ store.submitting ? 'Оформляем…' : 'Оплатить' }}
-        </button>
-      </div>
-
-      <!-- Шаг 4: готово -->
-      <div v-else class="flex flex-col items-center text-center py-4">
-        <div class="w-14 h-14 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4">
-          <Check :size="28" />
-        </div>
-        <h2 class="text-xl font-bold text-white mb-1">Покупка оформлена!</h2>
-        <p class="text-xs text-slate-400 mb-2">
-          {{ store.result?.item }} для ника <strong class="text-white">{{ store.nickname }}</strong>
-        </p>
-        <p class="text-[11px] text-slate-500 mb-6">
-          {{
-            store.result?.delivery
-              ? 'Зайдите на сервер — предмет выдаст мод.'
-              : 'Доступ открыт, можно заходить на сервер.'
-          }}
-        </p>
-        <button
-          @click="store.close"
-          class="px-6 py-2.5 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-[#0080FF] to-[#00BBFF] hover:opacity-90 transition"
-        >
-          Готово
-        </button>
-      </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+/* Внешняя тень модального окна */
+.modal-outer {
+  filter: drop-shadow(14px 14px 0px rgba(0, 0, 0, 0.8));
+}
+
+.modal-card {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Крестик закрытия */
+.close-btn {
+  clip-path: polygon(0% 10%, 100% 0%, 100% 90%, 0% 100%);
+  filter: drop-shadow(3px 3px 0px rgba(0, 0, 0, 0.5));
+}
+
+/* Фоновый точечный растр */
+.comic-dots-pattern {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.06;
+  background-image: radial-gradient(#0099FF 1.5px, transparent 1.5px);
+  background-size: 9px 9px;
+  background-position: 0 0;
+  z-index: 1;
+}
+
+/* =========================================================
+   ФИРМЕННЫЕ КНОПКИ В СТИЛЕ САЙТА:
+   Жесткая тень, при ховере растут, БЕЛЕЮТ, текст чернеет
+   ========================================================= */
+.comic-btn-wrap {
+  position: relative;
+  display: flex;
+  filter: drop-shadow(5px 5px 0px rgba(0, 0, 0, 0.7));
+  transition: filter 0.22s ease;
+}
+
+.comic-btn-wrap:hover {
+  filter: drop-shadow(7px 7px 0px rgba(0, 0, 0, 0.85));
+}
+
+.comic-btn {
+  background-color: var(--btn-bg);
+  color: var(--btn-color);
+  clip-path: polygon(0% 12%, 100% 0%, 100% 100%, 0% 88%);
+  transform: rotate(-1.2deg);
+  border: none;
+  user-select: none;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+              background-color 0.2s ease,
+              color 0.2s ease;
+}
+
+/* Ховер: рост, белый фон, черный текст */
+.comic-btn:hover {
+  transform: scale(1.04) rotate(-1.2deg);
+  background-color: #FFFFFF !important;
+  color: #0d0e10 !important;
+}
+
+.comic-btn:active {
+  transform: scale(0.96) rotate(-1.2deg);
+}
+</style>
