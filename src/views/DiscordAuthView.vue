@@ -15,16 +15,28 @@ const errorMessage_ = ref('')
 const success = ref(false)
 const clientId = import.meta.env.VITE_DISCORD_CLIENT_ID || ''
 
-// Nonce из лаунчера или state
-const launcherNonce = computed(() => (route.query.nonce as string) || (route.query.state as string) || '')
-const isPurchase = computed(() => route.query.purchase === '1')
+// Discord возвращает state байт-в-байт. Лаунчер кладёт туда свой nonce,
+// а модалка покупки — маркер 'purchase'. Раньше state читался как nonce
+// без разбора, поэтому 'purchase' ушёл бы в бэкенд как nonce и окно
+// закрылось вместо возврата на сайт.
+const PURCHASE_STATE = 'purchase'
+
+const rawState = computed(() => (route.query.state as string) || '')
+/** Nonce лаунчера: всё, что не наш служебный маркер. */
+const launcherNonce = computed(() => {
+  const fromQuery = (route.query.nonce as string) || ''
+  const value = fromQuery || rawState.value
+  return value === PURCHASE_STATE ? '' : value
+})
+/** Намерение вернуться к покупке. */
+const isPurchase = computed(() => rawState.value === PURCHASE_STATE || route.query.purchase === '1')
 const redirectAfter = computed(() => (route.query.redirect as string) || '')
 
 const destination = computed(() => {
   if (launcherNonce.value) return ''
   if (redirectAfter.value) return redirectAfter.value
   if (isPurchase.value) return '/?purchase=1'
-  return auth.isAdmin ? '/profile' : '/profile'
+  return '/profile'
 })
 
 function startDiscordAuth() {
@@ -32,8 +44,9 @@ function startDiscordAuth() {
     errorMessage_.value = 'Discord авторизация временно не настроена.'
     return
   }
+  // Ровно зарегистрированный в Discord путь, без query-строки.
   const redirect = encodeURIComponent(`${location.origin}/auth/discord`)
-  const state = launcherNonce.value || undefined
+  const state = launcherNonce.value || (isPurchase.value ? PURCHASE_STATE : undefined)
   location.href =
     `https://discord.com/api/oauth2/authorize?client_id=${clientId}` +
     `&redirect_uri=${redirect}&response_type=code&scope=identify` +

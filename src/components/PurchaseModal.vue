@@ -8,10 +8,16 @@ const auth = useAuthStore()
 
 function startAuth() {
   const clientId = import.meta.env.VITE_DISCORD_CLIENT_ID || ''
-  const redirect = encodeURIComponent(`${window.location.origin}/auth/discord?purchase=1`)
+  // Discord сверяет redirect_uri с зарегистрированным ПОБАЙТОВО, включая
+  // query-строку. Раньше тут стояло "/auth/discord?purchase=1" — такой URI
+  // в приложении не зарегистрирован, и Discord отвечал «Некорректный
+  // OAuth2 redirect_uri». Поэтому шлём ровно зарегистрированный путь,
+  // а намерение вернуться к покупке передаём через state.
+  const redirect = encodeURIComponent(`${window.location.origin}/auth/discord`)
   location.href =
     `https://discord.com/api/oauth2/authorize?client_id=${clientId}` +
-    `&redirect_uri=${redirect}&response_type=code&scope=identify`
+    `&redirect_uri=${redirect}&response_type=code&scope=identify` +
+    `&state=${encodeURIComponent('purchase')}`
 }
 
 /**
