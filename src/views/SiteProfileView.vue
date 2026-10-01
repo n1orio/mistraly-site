@@ -95,10 +95,12 @@ async function logout() {
 }
 
 // Тот же относительный /api, что и в client.ts: на проде это Caddy-прокси,
-// поэтому URL не должен указывать на localhost игрока.
+// поэтому URL не должен указывать на localhost игрока. PNG-вариант бэкенда
+// лежит на /user/skin/png/:username — отдельный путь, потому что .png
+// после параметра axum не различает.
 const skinPreviewUrl = computed(() =>
   user.value?.username
-    ? `${import.meta.env.VITE_API_URL || '/api'}/user/skin/${user.value.username}`
+    ? `${import.meta.env.VITE_API_URL || '/api'}/user/skin/png/${user.value.username}`
     : undefined
 )
 
