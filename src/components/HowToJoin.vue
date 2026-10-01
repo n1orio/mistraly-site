@@ -46,7 +46,7 @@ const purchase = usePurchaseStore()
               </p>
               <span class="skew-wrap">
                 <button
-                  @click="purchase.show"
+                  @click="purchase.showPass()"
                   style="--btn-bg:#5865F2; --btn-color:#FFFFFF"
                   class="skew-btn px-5 py-2.5 font-black text-xs uppercase tracking-widest cursor-pointer"
                 >
@@ -94,7 +94,7 @@ const purchase = usePurchaseStore()
               </p>
               <span class="skew-wrap skew-end">
                 <button
-                  @click="purchase.show"
+                  @click="purchase.showPass()"
                   style="--btn-bg:#F6C442; --btn-color:#1C1B0D"
                   class="skew-btn skew-btn-flip px-5 py-2.5 font-black text-xs uppercase tracking-widest cursor-pointer"
                 >

@@ -42,7 +42,7 @@ export const SELLER = {
   inn: '233908635830',
   email: 'nior1o@icloud.com',
   phone: '+7 993 315-75-43',
-  telegram: '@nior1o',
+  telegram: 'https://t.me/mistralynet',
   address: '352901, Российская Федерация, Краснодарский край, г. Армавир, ул. Дзержинского, д. 49, кв. 8',
   site: 'https://mistraly.net'
 } as const

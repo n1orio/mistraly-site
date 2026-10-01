@@ -1,13 +1,33 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import {
   Home,
   ShoppingBag,
   ScrollText,
 } from 'lucide-vue-next'
+import { useAuthStore } from '../stores/auth'
 
 const route = useRoute()
-const username = 'Nio'
+const auth = useAuthStore()
+
+// Раньше здесь стояла заглушка 'Nio' — любой посетитель видел чужой ник.
+const username = computed(() => auth.user?.username || auth.discord?.discord_username || '')
+
+/** Аватар Discord, если он есть; иначе первая буква ника. */
+const avatarUrl = computed(() => {
+  const hash = auth.discord?.discord_avatar
+  if (!hash || !auth.discord?.discord_id) return undefined
+  return `https://cdn.discordapp.com/avatars/${auth.discord.discord_id}/${hash}.png?size=64`
+})
+
+function startAuth() {
+  const clientId = import.meta.env.VITE_DISCORD_CLIENT_ID || ''
+  const redirect = encodeURIComponent(`${location.origin}/auth/discord`)
+  location.href =
+    `https://discord.com/api/oauth2/authorize?client_id=${clientId}` +
+    `&redirect_uri=${redirect}&response_type=code&scope=identify`
+}
 
 // У каждой вкладки своя индивидуальная форма среза (clipPath)
 const tabs = [
@@ -70,8 +90,24 @@ function isActive(tab: { to: string; exact?: boolean }) {
       <!-- Тонкий разделитель -->
       <div class="h-6 w-px bg-white/10 mx-1 mt-2 self-start" />
 
-      <!-- Профиль игрока со своей формой -->
+      <!-- Вход / профиль: без сессии это кнопка авторизации -->
+      <a
+        v-if="!auth.isAuthenticated"
+        href="#"
+        class="nav-tab profile-tab group"
+        :style="{ '--accent': '#5865F2' }"
+        @click.prevent="startAuth"
+      >
+        <span
+          class="tab-shape"
+          style="clip-path: polygon(0% 0%, 100% 0%, 100% 89%, 0% 100%);"
+        />
+        <span class="tab-body">
+          <span class="tab-text font-heading font-black tracking-tight">Войти</span>
+        </span>
+      </a>
       <router-link
+        v-else
         to="/profile"
         class="nav-tab profile-tab group"
         :class="{ 'is-active': route.path === '/profile' }"
@@ -83,7 +119,13 @@ function isActive(tab: { to: string; exact?: boolean }) {
         />
         <span class="tab-body">
           <span class="avatar-badge font-heading font-black">
-            {{ username[0] }}
+            <img
+              v-if="avatarUrl"
+              :src="avatarUrl"
+              :alt="username"
+              class="w-full h-full object-cover"
+            />
+            <template v-else>{{ username.charAt(0) }}</template>
           </span>
           <span class="tab-text font-heading font-black tracking-tight">
             {{ username }}
@@ -205,6 +247,7 @@ function isActive(tab: { to: string; exact?: boolean }) {
   height: 17px;
   background: rgba(255, 255, 255, 0.25);
   border-radius: 2px;
+  overflow: hidden;
   font-size: 11px;
   line-height: 1;
   color: #FFFFFF;

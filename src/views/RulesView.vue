@@ -1,8 +1,24 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { Shield, BookOpen, Anchor, MessageSquare, Scale, Search, X, AlertTriangle, ArrowUpRight } from 'lucide-vue-next'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import {
+  Shield,
+  BookOpen,
+  Anchor,
+  MessageSquare,
+  Scale,
+  Search,
+  X,
+  AlertTriangle,
+  Link as LinkIcon,
+  Check,
+  ArrowUpRight,
+  HelpCircle,
+  Clock
+} from 'lucide-vue-next'
 
 const searchQuery = ref('')
+const copiedRuleId = ref<string | null>(null)
+const currentHash = ref('')
 
 interface RuleChapter {
   id: string
@@ -142,7 +158,7 @@ const rulesData: RuleChapter[] = [
   }
 ]
 
-// ГЛОБАЛЬНЫЙ ПОИСК ПО ВСЕМУ ТЕКСТУ
+// Глобальный поиск
 const searchResults = computed(() => {
   const q = searchQuery.value.trim().toLowerCase()
   if (!q) return []
@@ -187,21 +203,56 @@ const searchResults = computed(() => {
 function scrollTo(id: string) {
   const el = document.getElementById(id)
   if (el) {
-    const yOffset = -90
+    const yOffset = -100
     const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset
     window.scrollTo({ top: y, behavior: 'smooth' })
   }
 }
 
+// Копирование ссылки
+function copyRuleLink(num: string) {
+  const ruleId = `rule-${num.replace('.', '-')}`
+  const url = `${window.location.origin}${window.location.pathname}#${ruleId}`
+
+  navigator.clipboard.writeText(url).then(() => {
+    copiedRuleId.value = ruleId
+    currentHash.value = ruleId
+    window.history.replaceState(null, '', `#${ruleId}`)
+    setTimeout(() => {
+      if (copiedRuleId.value === ruleId) {
+        copiedRuleId.value = null
+      }
+    }, 2000)
+  })
+}
+
 function selectSearchResult(targetId: string) {
   searchQuery.value = ''
+  currentHash.value = targetId
+  window.history.replaceState(null, '', `#${targetId}`)
   setTimeout(() => scrollTo(targetId), 50)
 }
+
+function handleHashChange() {
+  const hash = window.location.hash.replace('#', '')
+  if (hash) {
+    currentHash.value = hash
+    setTimeout(() => scrollTo(hash), 150)
+  }
+}
+
+onMounted(() => {
+  handleHashChange()
+  window.addEventListener('hashchange', handleHashChange)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('hashchange', handleHashChange)
+})
 </script>
 
 <template>
-  <main class="w-full flex-1 flex flex-col items-center justify-start page-bg bg-[var(--bg-page)] text-[var(--text-main)] px-4 sm:px-8 lg:px-12 pt-28 pb-24 sm:pt-36">
-    <!-- Расширенный контейнер до 1500px на весь монитор -->
+  <main class="w-full flex-1 flex flex-col items-center justify-start page-bg bg-[var(--bg-page)] text-[var(--text-main)] px-4 sm:px-6 lg:px-8 pt-28 pb-28 sm:pt-36">
     <div class="w-full max-w-[1500px]">
 
       <!-- Заголовок страницы -->
@@ -209,19 +260,19 @@ function selectSearchResult(targetId: string) {
         <h1 class="font-heading text-3xl sm:text-4xl text-[var(--text-main)] tracking-tight mb-2">
           Свод <span class="word-hl">правил</span>
         </h1>
-        <p class="text-xs sm:text-sm text-[var(--text-muted)] max-w-xl mx-auto">
+        <p class="text-xs sm:text-sm text-[var(--text-muted)] max-w-lg mx-auto">
           Официальный кодекс инженеров, пилотов и исследователей сервера Mistraly.
         </p>
       </div>
 
-      <!-- ГЛОБАЛЬНЫЙ ПОИСК ПО ВСЕМУ ТЕКСТУ -->
-      <div class="relative w-full max-w-3xl mx-auto mb-12">
+      <!-- ГЛОБАЛЬНЫЙ ПОИСК -->
+      <div class="relative w-full max-w-2xl mx-auto mb-10">
         <div class="search-bar-wrap flex items-center bg-[#151619] border border-white/15 p-2.5 px-4 shadow-xl rounded-lg">
           <Search :size="18" class="text-zinc-400 shrink-0 mr-3 pointer-events-none" />
           <input
             v-model="searchQuery"
             type="text"
-            placeholder="Быстрый поиск по всем правилам (например: 'читы', 'твинк', 'дирижабль', 'фермы')..."
+            placeholder="Быстрый поиск по всем правилам (читы, твинк, дирижабль, чат)..."
             class="w-full bg-transparent text-sm font-mono text-white placeholder:text-zinc-500 outline-none"
           />
           <button
@@ -233,10 +284,10 @@ function selectSearchResult(targetId: string) {
           </button>
         </div>
 
-        <!-- Выпадающие результаты поиска -->
+        <!-- Выпадающий список совпадений -->
         <div
           v-if="searchQuery.trim()"
-          class="absolute left-0 right-0 top-full mt-2 bg-[#17181c] border border-white/15 p-3 shadow-2xl z-40 max-h-96 overflow-y-auto space-y-2 rounded-lg"
+          class="absolute left-0 right-0 top-full mt-2 bg-[#17181c] border border-white/15 p-3 shadow-2xl z-40 max-h-96 overflow-y-auto space-y-2 rounded-lg text-left"
         >
           <div class="text-[11px] font-mono text-zinc-400 px-2 pb-1 border-b border-white/10 flex justify-between">
             <span>НАЙДЕНО СОВПАДЕНИЙ: {{ searchResults.length }}</span>
@@ -251,7 +302,7 @@ function selectSearchResult(targetId: string) {
             v-for="res in searchResults"
             :key="res.targetId"
             @click="selectSearchResult(res.targetId)"
-            class="p-2.5 bg-black/30 hover:bg-white/10 transition cursor-pointer border border-white/5 flex flex-col gap-1 text-left rounded"
+            class="p-2.5 bg-black/30 hover:bg-white/10 transition cursor-pointer border border-white/5 flex flex-col gap-1 rounded"
           >
             <div class="flex items-center gap-2">
               <span class="font-heading font-black text-xs text-[#0099FF]">
@@ -268,12 +319,16 @@ function selectSearchResult(targetId: string) {
         </div>
       </div>
 
-      <!-- ГЛАВНАЯ СЕТКА: Сайдбар слева + Широкая лента чтения справа -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <!--
+        ИДЕАЛЬНО СБАЛАНСИРОВАННАЯ ТРЁХКОЛОНОЧНАЯ СЕТКА:
+        Слева сайдбар (260px) + ПО ЦЕНТРУ ПРАВИЛА (max-w-3xl) + Справа балансир (260px)
+        В результате центральный блок находится ТОЧНО по центру экрана!
+      -->
+      <div class="w-full flex justify-center items-start gap-8 relative">
 
-        <!-- ЛЕВАЯ КОЛОНКА: Закрепленная навигация (Sticky TOC) -->
-        <aside class="lg:col-span-4 xl:col-span-3 sticky top-24 hidden lg:flex flex-col gap-2">
-          <div class="text-[11px] font-mono font-bold tracking-widest text-zinc-500 uppercase px-2 mb-1">
+        <!-- ЛЕВАЯ ПАНЕЛЬ: Оглавление глав (Sticky, 260px) -->
+        <aside class="hidden xl:flex flex-col gap-2 w-64 shrink-0 sticky top-24 select-none">
+          <div class="text-[11px] font-mono font-bold tracking-widest text-zinc-500 uppercase px-2 mb-1 text-left">
             РАЗДЕЛЫ КОДЕКСА
           </div>
 
@@ -281,38 +336,21 @@ function selectSearchResult(targetId: string) {
             v-for="chap in rulesData"
             :key="chap.id"
             @click="scrollTo(chap.id)"
-            class="toc-btn group p-3.5 flex items-center justify-between bg-[#151619] hover:bg-[#1a1b1f] border border-white/5 hover:border-white/15 transition-all duration-150 cursor-pointer rounded-lg border-l-4"
+            class="toc-btn group p-3 flex items-center justify-between bg-[#151619] hover:bg-[#1a1b1f] border border-white/5 hover:border-white/15 transition-all duration-150 cursor-pointer rounded-lg border-l-4"
             :style="{ borderLeftColor: chap.badgeColor }"
           >
-            <div class="flex items-center gap-3 min-w-0 pr-2">
-              <component :is="chap.icon" :size="16" class="shrink-0" :style="{ color: chap.badgeColor }" />
+            <div class="flex items-center gap-2.5 min-w-0 pr-2">
+              <component :is="chap.icon" :size="15" class="shrink-0" :style="{ color: chap.badgeColor }" />
               <span class="font-heading font-bold text-xs text-zinc-300 group-hover:text-white transition-colors truncate">
                 {{ chap.title }}
               </span>
             </div>
-            <ArrowUpRight :size="14" class="text-zinc-600 group-hover:text-zinc-300 transition shrink-0" />
-          </div>
-
-          <!-- Помощь / Тикеты -->
-          <div class="mt-4 p-4 bg-[#151619] border border-white/10 rounded-lg text-left">
-            <span class="font-heading font-black text-xs uppercase text-zinc-200 block mb-1">
-              Нужна помощь?
-            </span>
-            <p class="text-xs text-zinc-400 leading-relaxed mb-3">
-              Если вас загриферили или произошел спор, создайте тикет в Discord.
-            </p>
-            <a
-              href="https://discord.gg"
-              target="_blank"
-              class="font-heading font-black text-xs uppercase tracking-wider text-[#0099FF] hover:underline inline-flex items-center gap-1"
-            >
-              Открыть тикет в Discord →
-            </a>
+            <ArrowUpRight :size="13" class="text-zinc-600 group-hover:text-zinc-300 transition shrink-0" />
           </div>
         </aside>
 
-        <!-- ПРАВАЯ КОЛОНКА: Чистая полноразмерная лента чтения без ряби и эффектов -->
-        <div class="lg:col-span-8 xl:col-span-9 flex flex-col gap-8">
+        <!-- ЦЕНТРАЛЬНЫЙ БЛОК: Читательская лента строго по центру экрана -->
+        <div class="w-full max-w-3xl flex-1 flex flex-col gap-8">
           <section
             v-for="chap in rulesData"
             :key="chap.id"
@@ -341,20 +379,23 @@ function selectSearchResult(targetId: string) {
               </span>
             </div>
 
-            <!-- Список правил внутри главы: чистый, комфортный для глаз текст -->
+            <!-- Список правил в главе -->
             <div class="space-y-4">
               <article
                 v-for="rule in chap.rules"
                 :key="rule.num"
                 :id="`rule-${rule.num.replace('.', '-')}`"
-                class="rule-box p-4 sm:p-5 rounded-lg border transition-colors duration-150"
-                :class="rule.isWarning ? 'border-red-500/25 bg-red-500/[0.03]' : 'border-white/[0.06] bg-[#101113]/60'"
+                class="rule-box p-4 sm:p-5 rounded-lg border transition-all duration-300 relative group"
+                :class="[
+                  rule.isWarning ? 'border-red-500/25 bg-red-500/[0.03]' : 'border-white/[0.06] bg-[#101113]/70',
+                  currentHash === `rule-${rule.num.replace('.', '-')}` ? 'is-target-highlight' : ''
+                ]"
               >
-                <!-- Заголовок правила -->
+                <!-- Заголовок правила + кнопка копирования ссылки -->
                 <div class="flex items-start justify-between gap-3 mb-2.5">
-                  <div class="flex items-center gap-2.5">
+                  <div class="flex items-center gap-2.5 flex-wrap">
                     <span
-                      class="font-mono text-xs font-bold px-2 py-0.5 rounded"
+                      class="font-mono text-xs font-bold px-2 py-0.5 rounded select-all"
                       :class="rule.isWarning ? 'text-red-300 bg-red-500/20' : 'text-zinc-300 bg-white/10'"
                     >
                       § {{ rule.num }}
@@ -364,10 +405,28 @@ function selectSearchResult(targetId: string) {
                     </h3>
                   </div>
 
-                  <AlertTriangle v-if="rule.isWarning" :size="17" class="text-red-400 shrink-0 mt-0.5" />
+                  <!-- КНОПКА СКОПИРОВАТЬ ССЫЛКУ -->
+                  <button
+                    type="button"
+                    @click="copyRuleLink(rule.num)"
+                    class="copy-link-btn flex items-center gap-1.5 px-2 py-1 rounded text-[11px] font-mono transition cursor-pointer select-none"
+                    :class="copiedRuleId === `rule-${rule.num.replace('.', '-')}`
+                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                      : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/15 border border-white/10'"
+                    :title="'Скопировать ссылку на правило ' + rule.num"
+                  >
+                    <template v-if="copiedRuleId === `rule-${rule.num.replace('.', '-')}`">
+                      <Check :size="13" class="text-emerald-400" />
+                      <span>Скопировано!</span>
+                    </template>
+                    <template v-else>
+                      <LinkIcon :size="13" />
+                      <span class="opacity-0 group-hover:opacity-100 transition-opacity hidden sm:inline">Ссылка</span>
+                    </template>
+                  </button>
                 </div>
 
-                <!-- Текст правила: удобный для чтения размер шрифта и интервал -->
+                <!-- Текст правила -->
                 <p class="text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal mb-3.5">
                   {{ rule.text }}
                 </p>
@@ -386,6 +445,38 @@ function selectSearchResult(targetId: string) {
             </div>
           </section>
         </div>
+
+        <!-- ПРАВАЯ ПАНЕЛЬ: Балансир (Sticky, 260px) — сохраняет центр экрана -->
+        <aside class="hidden xl:flex flex-col gap-3 w-64 shrink-0 sticky top-24 select-none">
+          <!-- Поддержка -->
+          <div class="p-4 bg-[#151619] border border-white/10 rounded-lg text-left shadow-lg">
+            <div class="flex items-center gap-2 text-zinc-300 font-heading font-bold text-xs uppercase mb-1.5">
+              <HelpCircle :size="15" class="text-[#0099FF]" />
+              <span>Помощь состава</span>
+            </div>
+            <p class="text-xs text-zinc-400 leading-relaxed mb-3">
+              Если произошел спор, вас загриферили или нужна апелляция:
+            </p>
+            <a
+              href="https://discord.gg/22uJ8rya7Y"
+              target="_blank"
+              class="font-heading font-black text-xs uppercase tracking-wider text-[#0099FF] hover:underline inline-flex items-center gap-1"
+            >
+              Тикет в Discord →
+            </a>
+          </div>
+
+          <!-- Инфо-виджет -->
+          <div class="p-4 bg-[#151619] border border-white/5 rounded-lg text-left font-mono text-[11px] text-zinc-500 space-y-2">
+            <div class="flex items-center gap-1.5 text-zinc-400">
+              <Clock :size="13" />
+              <span>РЕДАКЦИЯ: 2026.1</span>
+            </div>
+            <div class="border-t border-white/5 pt-2">
+              Незнание правил не освобождает от ответственности.
+            </div>
+          </div>
+        </aside>
 
       </div>
     </div>
@@ -408,13 +499,39 @@ function selectSearchResult(targetId: string) {
   user-select: none;
 }
 
-/* Карточки глав: мягкая естественная тень */
+/* Карточка главы */
 .chapter-card {
   box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.5);
 }
 
-/* Кнопки сайдбара */
+/* Сайдбар */
 .toc-btn {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/*
+ * ЭФФЕКТ ВЫДЕЛЕНИЯ ПРАВИЛА ПРИ ПЕРЕХОДЕ ПО ССЫЛКЕ:
+ * Неоновая подсветка + мягкая пульсация
+ */
+.is-target-highlight,
+:target {
+  border-color: #0099FF !important;
+  background: rgba(0, 153, 255, 0.08) !important;
+  box-shadow: 0 0 24px rgba(0, 153, 255, 0.35), inset 0 0 0 1px #0099FF !important;
+  animation: rulePulse 2s ease-out;
+}
+
+@keyframes rulePulse {
+  0% {
+    box-shadow: 0 0 35px rgba(0, 153, 255, 0.8), inset 0 0 0 2px #0099FF;
+    transform: scale(1.01);
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(0, 153, 255, 0.4), inset 0 0 0 1px #0099FF;
+    transform: scale(1);
+  }
+  100% {
+    box-shadow: 0 0 18px rgba(0, 153, 255, 0.25), inset 0 0 0 1px #0099FF;
+  }
 }
 </style>

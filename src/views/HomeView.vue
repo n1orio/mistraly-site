@@ -8,7 +8,7 @@ import Gear3D from '../components/Gear3D.vue'
 import ModHighlights from '../components/ModHighlights.vue'
 import FaqSection from '../components/FaqSection.vue'
 const route = useRoute(); const purchase = usePurchaseStore()
-onMounted(() => { if (route.query.purchase === '1') purchase.show() })
+onMounted(() => { if (route.query.purchase === '1') purchase.showPass() })
 const playHover = ref(false)
 const slideCount = 3
 // карусель скрыта: управляется одним флагом
