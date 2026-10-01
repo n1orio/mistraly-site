@@ -191,6 +191,10 @@ onMounted(() => {
         <div>© Breeze • Minecraft 1.21.1</div>
         <div class="flex items-center gap-6">
           <router-link to="/offer" class="hover:text-black transition underline underline-offset-2">Оферта</router-link>
+          <router-link to="/refund" class="hover:text-black transition">Возврат</router-link>
+          <router-link to="/privacy" class="hover:text-black transition">Персональные данные</router-link>
+          <router-link to="/license" class="hover:text-black transition">Лицензии</router-link>
+          <router-link to="/contacts" class="hover:text-black transition">Контакты</router-link>
           <router-link to="/shop" class="hover:text-black transition">Магазин</router-link>
           <router-link to="/profile" class="hover:text-black transition">Профиль</router-link>
         </div>

@@ -4,7 +4,6 @@ import {
   Home,
   ShoppingBag,
   ScrollText,
-  Download
 } from 'lucide-vue-next'
 
 const route = useRoute()
@@ -28,18 +27,11 @@ const tabs = [
     clipPath: 'polygon(0% 0%, 100% 0%, 98% 100%, 2% 88%)' // скос вправо-вниз
   },
   {
-    to: '/rules',
+    to: '/offer',
     label: 'Правила',
     icon: ScrollText,
     color: '#FF4444',
     clipPath: 'polygon(0% 0%, 100% 0%, 99% 88%, 1% 100%)' // диагональный срез
-  },
-  {
-    to: '/downloads',
-    label: 'Загрузки',
-    icon: Download,
-    color: '#9944FF',
-    clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 87%)' // резкий подъем слева
   },
 ]
 
