@@ -47,8 +47,13 @@ withDefaults(defineProps<{
   <div
     class="gear-wrap"
     :style="{
-      width: size + 'px',
-      height: size + 'px',
+      /*
+       * Размер ограничен 150% ширины экрана: на десктопе 1100px
+       * (min берёт size), на телефоне — 150vw, иначе бокс шире
+       * вьюпорта и шестерня уезжает за края.
+       */
+      width: 'min(' + size + 'px, 150vw)',
+      height: 'min(' + size + 'px, 150vw)',
       opacity: dim
     }"
     aria-hidden="true"

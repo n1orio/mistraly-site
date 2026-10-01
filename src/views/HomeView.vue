@@ -64,15 +64,15 @@ function scrollToContent() {
       <feDisplacementMap in="SourceGraphic" in2="noise" scale="10" xChannelSelector="R" yChannelSelector="G"/>
     </filter>
   </defs>
-</svg><main class="w-full flex-1 flex flex-col items-center page-bg bg-[var(--bg-page)] text-[var(--text-main)]"><section class="relative w-full overflow-hidden page-bg bg-[var(--bg-page)]" style="margin-top:-64px;padding-top:260px;padding-bottom:64px;">
+</svg><main class="w-full flex-1 flex flex-col items-center page-bg bg-[var(--bg-page)] text-[var(--text-main)]"><section class="relative w-full overflow-hidden page-bg bg-[var(--bg-page)]" style="margin-top:-64px;padding-top:clamp(110px,24vw,260px);padding-bottom:64px;">
   <div class="relative">
     <div class="relative z-10 mx-auto w-full max-w-4xl px-6 pb-24 pt-4 text-center">
-      <div class="relative mb-4 mt-14 inline-block">
+      <div class="relative mb-4 mt-6 sm:mt-14 inline-block">
         <!-- шестерня Create позади заголовка -->
-        <div class="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-[430px] -z-10 will-change-opacity" :style="{ opacity: gearOpacity }">
+        <div class="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-[150px] md:-translate-y-[430px] -z-10 will-change-opacity" :style="{ opacity: gearOpacity }">
           <Gear3D :size="1100" :speed="20" :dim="0.55" />
         </div>
-        <h1 class="font-heading font-black text-7xl sm:text-8xl md:text-9xl text-white tracking-tight leading-[1.05] relative">MISTRALY</h1>
+        <h1 class="font-heading text-5xl sm:text-8xl md:text-9xl text-white tracking-tight leading-[1.05] relative">MISTRALY</h1>
       </div>
       <p class="text-base sm:text-lg text-[var(--text-muted)] max-w-2xl mx-auto mb-10 leading-relaxed">Физика полетов, дирижабли, кастомный лаунчер и закрытое сообщество без гриферов и лишнего мусора.</p>
       <div class="flex flex-wrap items-center justify-center gap-2">

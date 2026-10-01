@@ -10,6 +10,9 @@
       try { var t = localStorage.getItem('breeze_theme'); if (t ? t === 'dark' : true) document.documentElement.classList.add('dark') } catch (e) {}
     </script>
   <style>html{zoom:1.15}
+/* На телефонах zoom 1.15 раздувает интерфейс: навигация перестаёт
+   помещаться в 375px, текст и кнопки выходят за край. Отключаем. */
+@media (max-width:1024px){html{zoom:1}}
 /* Пиксельное приближение только для игровых скриншотов. Раньше правило было
    глобальным на любую картинку, из-за чего иконки модов рендерились
    с пиксельной лесенкой. */
