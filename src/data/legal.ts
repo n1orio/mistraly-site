@@ -41,7 +41,7 @@ export const SELLER = {
   email: 'TODO: почта для обращений',
   phone: 'TODO: телефон с кодом города',
   address: 'TODO: адрес регистрации',
-  site: 'https://mistraly.ru'
+  site: 'https://mistraly.net'
 } as const
 
 export const docs: Record<string, LegalDoc> = {
