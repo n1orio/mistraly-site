@@ -11,6 +11,7 @@ const router = createRouter({ history: createWebHistory(), routes: [
   { path: '/shop', name: 'Shop', component: () => import('./views/ShopView.vue') },
   { path: '/profile', name: 'Profile', component: () => import('./views/SiteProfileView.vue') },
   { path: '/offer', name: 'Offer', component: () => import('./views/OfferView.vue') },
+  { path: '/rules', name: 'Rules', component: () => import('./views/RulesView.vue') },
   // Документы, обязательные для модерации платёжного шлюза
   { path: '/contacts', name: 'Contacts', component: () => import('./views/ContactsView.vue') },
   { path: '/privacy', name: 'Privacy', component: () => import('./views/PrivacyView.vue') },

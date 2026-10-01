@@ -27,7 +27,7 @@ const tabs = [
     clipPath: 'polygon(0% 0%, 100% 0%, 98% 100%, 2% 88%)' // скос вправо-вниз
   },
   {
-    to: '/offer',
+    to: '/rules',
     label: 'Правила',
     icon: ScrollText,
     color: '#FF4444',
