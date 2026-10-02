@@ -43,22 +43,17 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.resolve(__dirname, '..')
 const MODEL_PATH = path.join(ROOT, 'public/models/create/cogwheel.json')
 const MODEL = JSON.parse(fs.readFileSync(MODEL_PATH, 'utf8'))
-/** Размер (в пикселях) каждой текстуры: UV в модели считаются по её сетке. */
-const TEX_SIZE = (() => {
-  const out = {}
-  for (const name of new Set(Object.values(MODEL.textures))) {
-    if (!name.startsWith('create:block/')) continue
-    const file = path.join(ROOT, 'public/models/create', name.replace('create:block/', '') + '.png')
-    if (fs.existsSync(file)) {
-      const buf = fs.readFileSync(file)
-      // размер берём из самого PNG (IHDR: ширина/высота на байтах 16..24)
-      out[name] = [buf.readUInt32BE(16), buf.readUInt32BE(20)]
-    } else {
-      out[name] = MODEL.texture_size ?? [16, 16]
-    }
-  }
-  return out
-})()
+/**
+ * Minecraft задаёт UV в ФИКСИРОВАННОМ пространстве 0..16 — полный блок
+ * всегда ровно 16 единиц, независимо от размера текстуры.
+ *
+ * Делить на реальный размер PNG нельзя. У create:block/cogwheel.png
+ * размер 32x32, и деление на 32 вместо 16 сжимает UV вдвое: грань
+ * занимает только левую верхнюю четверть картинки, и та растягивается
+ * в два раза крупнее — текстура «наезжает» на соседние грани.
+ * Поэтому нормализуем всегда по UV_SCALE, а не по texSize.
+ */
+const UV_SCALE = 16
 
 /**
  * Порядок граней BoxGeometry в three: +X, -X, +Y, -Y, +Z, -Z.
@@ -81,14 +76,15 @@ const SHADE = { up: 1.0, down: 0.5, north: 0.8, south: 0.8, east: 0.6, west: 0.6
  *
  * `rotation` в блочной модели поворачивает текстутуру на грани на 90°/180°/270°.
  */
-function applyFaceUV(geo, faceIndex, uv, texSize, rotation = 0) {
-  const [tw, th] = texSize
-  const clamp = (n, m) => Math.min(Math.max(n, 0), m)
-  const [x1, y1, x2, y2] = [clamp(uv[0], tw), clamp(uv[1], th), clamp(uv[2], tw), clamp(uv[3], th)]
-  const uL = x1 / tw
-  const uR = x2 / tw
-  const vT = y1 / th
-  const vB = y2 / th
+function applyFaceUV(geo, faceIndex, uv, rotation = 0) {
+  // uv приходит в единицах Minecraft (0..16), поэтому клампим в этом же
+  // пространстве, а уже потом делим на UV_SCALE
+  const clamp = (n) => Math.min(Math.max(n, 0), UV_SCALE)
+  const [x1, y1, x2, y2] = [clamp(uv[0]), clamp(uv[1]), clamp(uv[2]), clamp(uv[3])]
+  const uL = x1 / UV_SCALE
+  const uR = x2 / UV_SCALE
+  const vT = y1 / UV_SCALE
+  const vB = y2 / UV_SCALE
 
   // 4 угла в порядке вершин бокса: [TL, TR, BL, BR]
   let corners = [
@@ -171,8 +167,6 @@ function buildElement(el, matsApi) {
     if (face?.uv) {
       // в модели ссылки на текстуры с решёткой: "#0", "#1_2", "#3"
       const texKey = String(face.texture).replace(/^#/, '')
-      const modelPath = MODEL.textures[texKey]
-      const size = TEX_SIZE[modelPath] ?? MODEL.texture_size ?? [16, 16]
       // сдвиг UV при обрезке оси по Y (боковые грани теряют нижнюю часть)
       let uv = face.uv
       if (uvShift > 0 && key !== 'up' && key !== 'down') {
@@ -182,7 +176,7 @@ function buildElement(el, matsApi) {
         // и грань брала текстуру выше по атласу, чем должна.
         uv = [uv[0], uv[1], uv[2], Math.max(uv[1], uv[3] - uvShift)]
       }
-      applyFaceUV(geo, i, uv, size, face.rotation ?? 0)
+      applyFaceUV(geo, i, uv, face.rotation ?? 0)
       perFace[i] = matsApi.get(face.texture, shade)
     } else {
       // грани без UV в модели нет — прячем её в точку, чтобы не тянуть лишний пиксель текстуры
