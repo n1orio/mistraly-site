@@ -23,7 +23,16 @@ const props = withDefaults(defineProps<{
   speed?: number
   /** вращать ли */
   spin?: boolean
-  /** ракурс камеры как у model-viewer: «<азимут>deg <высота>deg <радиус>%» */
+  /**
+   * Ракурс камеры: «<азимут>deg <высота>deg <радиус>%». phi — угол от +
+   * Y, то есть 0deg — строго сверху, 180deg — строго снизу.
+   *
+   * Раньше стояло 160deg, то есть вид СНИЗУ: вал торчит вверх и был
+   * полностью закрыт корпусом — на странице его не было видно вообще
+   * (в том числе в версии на model-viewer). 100deg — вид чуть сверху,
+   * вал виден и при этом косой силуэт с зубьями читается как шестерня.
+   * Проп не задаётся из HomeView, крутится только здесь.
+   */
   cameraOrbit?: string
   /** поле зрения камеры, градусы */
   fieldOfView?: string
@@ -35,7 +44,7 @@ const props = withDefaults(defineProps<{
   size: 1100,
   speed: 20,
   spin: true,
-  cameraOrbit: '225deg 160deg 140%',
+  cameraOrbit: '225deg 100deg 140%',
   fieldOfView: '26deg',
   dim: 0.55,
   exposure: 1.1
