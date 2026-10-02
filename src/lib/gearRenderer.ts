@@ -16,12 +16,12 @@ import { Engine } from '@babylonjs/core/Engines/engine'
 import { Scene } from '@babylonjs/core/scene'
 import { ArcRotateCamera } from '@babylonjs/core/Cameras/arcRotateCamera'
 import { Vector3 } from '@babylonjs/core/Maths/math.vector'
-import { Color4 } from '@babylonjs/core/Maths/math.color'
+import { Color3, Color4 } from '@babylonjs/core/Maths/math.color'
 import { Texture } from '@babylonjs/core/Materials/Textures/texture'
+import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial'
 import { TransformNode } from '@babylonjs/core/Meshes/transformNode'
 import { LoadAssetContainerAsync } from '@babylonjs/core/Loading/sceneLoader'
 import '@babylonjs/core/Materials/PBR/pbrMaterial'
-import '@babylonjs/core/Materials/standardMaterial'
 // регистрирует glTF2-лоадер в SceneLoader, которым грузим cogwheel.glb
 import '@babylonjs/loaders/glTF/2.0'
 
@@ -73,6 +73,13 @@ export interface GearRendererOptions {
   cameraOrbit: string
   /** поле зрения камеры, градусы */
   fieldOfView: string
+  /**
+   * Сдвиг чёрной копии-тени вниз-вправо, в единицах модели (модель 16 юнитов
+   * на весь кадр). 0 — тени нет.
+   */
+  shadowOffset: number
+  /** непрозрачность тени, 1 — сплошной чёрный */
+  shadowOpacity: number
 }
 
 export interface GearRenderer {
@@ -169,10 +176,48 @@ export async function createGearRenderer(
   pivot.addChild(src)
   pivot.getChildMeshes().forEach((m) => { m.isPickable = false; m.receiveShadows = false })
 
-  // Радиус камеры считается по bounding sphere, а она валидна только после
-  // пересчёта мировых матриц — иначе сцена пуста и r падает в дефолт 8.
+  // Радиус камеры считаем ДО добавления тени: bounding sphere по всей сцене
+  // раздулся бы на сдвинутую копию и шестерня стала бы мельче.
   pivot.computeWorldMatrix(true)
   applyCamera(scene, camera, opts.cameraOrbit, opts.fieldOfView)
+
+  /**
+   * Тень: чёрная копия шестерн��, сдвинутая вниз-вправо.
+   *
+   * Копия нужна именно чёрной и без текстур — иначе получится вторая
+   * шестерня, а не тень. Материал unlit с чёрным emissive: освещение не
+   * участвует, цвет ровно (0,0,0) на всех гранях.
+   *
+   * Сдвиг задаём в плоскости экрана (по векторам камеры), а не в мире:
+   * при постоянном мировом смещении тень уезжала бы вокруг шестерни
+   * вместе с её вращением. Плюс толкаем копию чуть дальше от камеры,
+   * чтобы работал обычный depth test и шестерня её перекрывала — без
+   * отдельного renderingGroupId.
+   */
+  let shadowPivot: TransformNode | null = null
+  if (opts.shadowOffset > 0) {
+    const shadowMat = new StandardMaterial('gearShadow', scene)
+    shadowMat.disableLighting = true
+    shadowMat.emissiveColor = Color3.Black()
+    shadowMat.diffuseColor = Color3.Black()
+    shadowMat.specularColor = Color3.Black()
+    if (opts.shadowOpacity < 1) {
+      shadowMat.alpha = opts.shadowOpacity
+    }
+
+    // clone без рекурсии по детям не нужен — нам нужна полная копия.
+    // Геометрия при этом шэрится с оригиналом, память не дублируется.
+    const shadowSrc = src.clone('gearShadowRoot', null) as TransformNode | null
+    if (shadowSrc) {
+      shadowPivot = new TransformNode('gearShadow', scene)
+      shadowPivot.addChild(shadowSrc)
+      shadowPivot.getChildMeshes().forEach((m) => {
+        m.material = shadowMat
+        m.isPickable = false
+        m.receiveShadows = false
+      })
+    }
+  }
 
   // Ждём готовности текстур и компиляции шейдеров ДО запуска цикла.
   // Иначе первый же кадр рисуется на полуготовых материалах, а компиляция
@@ -180,6 +225,10 @@ export async function createGearRenderer(
   // есть, но секунды-две не двигается. Так мы показываем её уже готовой
   // и сразу вращающейся.
   await scene.whenReadyAsync()
+
+  const camRight = new Vector3()
+  const camUp = new Vector3()
+  const camFwd = new Vector3()
 
   let raf = 0
   let last = performance.now()
@@ -191,7 +240,27 @@ export async function createGearRenderer(
     const dt = Math.min((now - last) / 1000, 0.1)
     last = now
     if (spinState.spin && spinState.speed > 0) {
-      pivot.rotation.y += (Math.PI * 2 * dt) / spinState.speed
+      const step = (Math.PI * 2 * dt) / spinState.speed
+      pivot.rotation.y += step
+      if (shadowPivot) shadowPivot.rotation.y = pivot.rotation.y
+    }
+    if (shadowPivot) {
+      /*
+       * Берём оси прямо из мировой матрицы камеры, а не через
+       * Vector3.Cross. Babylon — система ЛЕВАЯ, и кросс-продукт в ней
+       * даёт противоположный «правый» вектор: тень уезжала влево вместо
+       * вправо. В матрице локальные оси лежат так:
+       *   m[0..2] = X (вправо), m[4..6] = Y (вверх), m[8..10] = Z (вперёд).
+       */
+      const m = camera.getWorldMatrix().m
+      camRight.set(m[0], m[1], m[2])
+      camUp.set(m[4], m[5], m[6])
+      camFwd.set(m[8], m[9], m[10])
+      const d = opts.shadowOffset
+      // вправо, вниз и чуть вглубь — чтобы работал depth test
+      shadowPivot.position.copyFrom(camRight).scaleInPlace(d)
+      shadowPivot.position.addInPlace(camUp.scale(-d))
+      shadowPivot.position.addInPlace(camFwd.scale(d * 0.35))
     }
     scene.render()
   }

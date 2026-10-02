@@ -40,14 +40,23 @@ const props = withDefaults(defineProps<{
   dim?: number
   /** экспозиция рендера */
   exposure?: number
+  /**
+   * Сдвиг чёрной копии-тени вниз-вправо в единицах модели (шестерня — 16
+   * юнитов). 0 — тени нет.
+   */
+  shadowOffset?: number
+  /** непрозрачность тени, 1 — сплошной чёрный */
+  shadowOpacity?: number
 }>(), {
   size: 1100,
   speed: 20,
   spin: true,
-  cameraOrbit: '225deg 160deg 130%',
+  cameraOrbit: '225deg 20deg 130%',
   fieldOfView: '26deg',
   dim: 0.55,
-  exposure: 1.1
+  exposure: 1.1,
+  shadowOffset: 0.42,
+  shadowOpacity: 1
 })
 
 const wrap = ref<HTMLElement | null>(null)
@@ -77,7 +86,9 @@ async function init() {
   renderer = await createGearRenderer(canvas.value, {
     exposure: props.exposure,
     cameraOrbit: props.cameraOrbit,
-    fieldOfView: props.fieldOfView
+    fieldOfView: props.fieldOfView,
+    shadowOffset: props.shadowOffset,
+    shadowOpacity: props.shadowOpacity
   }, spinState)
   if (!alive) {
     renderer.dispose()
