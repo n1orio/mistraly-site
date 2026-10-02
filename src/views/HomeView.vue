@@ -23,6 +23,17 @@ function updateGearOpacity() {
   gearOpacity.value = Math.max(0, 1 - window.scrollY / 260)
  })
 }
+/** каждая буква заголовка повёрнута в свою сторону */
+const titleLetters = [
+  { char: 'M', rotate: -4, shift: 1 },
+  { char: 'I', rotate: 2, shift: -3 },
+  { char: 'S', rotate: -2, shift: 4 },
+  { char: 'T', rotate: 3, shift: -1 },
+  { char: 'R', rotate: -3, shift: 2 },
+  { char: 'A', rotate: 1, shift: -4 },
+  { char: 'L', rotate: -1, shift: 3 },
+  { char: 'Y', rotate: 4, shift: 4 },
+]
 const screenshots = ['/2026-09-27_20.07.26.png', '/2026-09-27_20.07.35.png', '/2026-09-27_20.07.54.png']
 const currentSlide = ref(0)
 let slideTimer: any
@@ -73,7 +84,11 @@ function scrollToContent() {
         <div class="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-[150px] md:-translate-y-[430px] -z-10 will-change-opacity" :style="{ opacity: gearOpacity }">
           <Gear3D :size="1100" :speed="20" :dim="0.55" />
         </div>
-        <h1 class="font-heading text-5xl sm:text-8xl md:text-9xl text-white tracking-tight leading-[1.05] relative">MISTRALY</h1>
+        <h1 class="font-heading text-5xl sm:text-8xl md:text-9xl text-white tracking-tight leading-[1.05] relative flex justify-center" aria-label="MISTRALY">
+          <span v-for="(ch, i) in titleLetters" :key="i" aria-hidden="true"
+                class="title-letter inline-block will-change-transform"
+                :style="{ transform: 'rotate(' + ch.rotate + 'deg) translateY(' + ch.shift + 'px)' }">{{ ch.char }}</span>
+        </h1>
       </div>
       <p class="text-base sm:text-lg text-[var(--text-muted)] max-w-2xl mx-auto mb-10 leading-relaxed">Физика полетов, дирижабли, кастомный лаунчер и закрытое сообщество без гриферов и лишнего мусора.</p>
       <div class="flex flex-wrap items-center justify-center gap-2">
@@ -172,5 +187,21 @@ function scrollToContent() {
   transform: rotate(-1.5deg);
   cursor: pointer;
   user-select: none;
+}
+
+/* Буквы заголовка «MISTRALY»: каждая чуть повёрнута в свою сторону. */
+.title-letter {
+  transform-origin: 50% 60%;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+h1:hover .title-letter {
+  transform: rotate(0deg) translateY(-4px) scale(1.04);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .title-letter {
+    transition: none;
+  }
 }
 </style>
