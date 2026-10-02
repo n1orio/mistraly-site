@@ -488,7 +488,7 @@ onUnmounted(() => {
 .word-hl {
   display: inline-block;
   color: #181611;
-  background: #0099FF;
+  background: #FF4444;
   font-weight: 400;
   padding: 0 0.28em;
   margin: 0 0.04em;
