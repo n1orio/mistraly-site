@@ -84,6 +84,17 @@ export const usePurchaseStore = defineStore('purchase', () => {
   /** Ник уже привязан к аккаунту и бэкенд его знает. */
   const hasLinkedNickname = computed(() => !!nickname.value)
 
+  /**
+   * Проходка уже действует. pass_expires_at = null означает бессрочную —
+   * именно её выдаёт покупка, поэтому «нет даты» здесь не «неизвестно».
+   */
+  const hasActivePass = computed(() => {
+    if (!auth.user?.has_pass) return false
+    const expires = auth.user.pass_expires_at
+    if (!expires) return true
+    return new Date(expires).getTime() > Date.now()
+  })
+
   const PRICE_LABEL = '350 ₽'
 
   /**
@@ -123,8 +134,17 @@ export const usePurchaseStore = defineStore('purchase', () => {
     void resolveNickname()
   }
 
-  /** Открыть модалку без товара — покупка проходки. Ник не нужен. */
+  /** Открыть модалку без товара — покупка проходки. Ник не нужен.
+   *
+   * Если проходка уже есть, модалка не открывается: показывать «перейти к
+   * оплате» человеку с действующим доступом бессмысленно.
+   */
   function showPass() {
+    if (hasActivePass.value) {
+      open.value = false
+      error.value = ''
+      return
+    }
     open.value = true
     item.value = null
     quantity.value = 1
@@ -195,6 +215,13 @@ export const usePurchaseStore = defineStore('purchase', () => {
           error.value = 'Проходка сейчас недоступна'
           return false
         }
+        // Проходка бессрочная и одноразовая: если она уже есть, повторная
+        // покупка — лишняя оплата. Бэкенд всё равно отобьёт, но лучше не
+        // доводить до запроса и не показывать чужое сообщение об ошибке.
+        if (hasActivePass.value) {
+          error.value = 'У вас уже есть бессрочная проходка'
+          return false
+        }
         result.value = await unwrap<PurchaseResult>(
           api.post('/shop/purchase', { item_id: pass.id })
         )
@@ -244,6 +271,7 @@ export const usePurchaseStore = defineStore('purchase', () => {
     isNicknameValid,
     needsNickname,
     hasLinkedNickname,
+    hasActivePass,
     priceLabel: PRICE_LABEL,
     showItem,
     showPass,

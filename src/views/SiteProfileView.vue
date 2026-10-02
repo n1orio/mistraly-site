@@ -54,6 +54,12 @@ async function loadPurchases() {
 }
 
 async function buyPass() {
+  // Проходка бессрочная и покупается один раз. Проверяем здесь, чтобы не
+  // открывать модалку оплаты человеку, у которого доступ уже есть.
+  if (hasPass.value) {
+    statusMsg.value = 'У вас уже есть бессрочная проходка'
+    return
+  }
   try {
     const items = await unwrap<ShopItem[]>(api.get('/shop/items'))
     const passItem = items.find((i) => i.item_type === 'pass')
@@ -61,7 +67,7 @@ async function buyPass() {
       statusMsg.value = 'Проходка сейчас недоступна'
       return
     }
-    purchaseStore.showItem(passItem, 1)
+    purchaseStore.showPass()
   } catch (e) {
     statusMsg.value = errorMessage(e)
   }
@@ -158,15 +164,22 @@ function deliveryLabel(status: string): { text: string; cls: string } {
                 <AlertTriangle :size="14" /> Без проходки
               </div>
             </div>
-            <p v-if="pass?.expires_at" class="text-[11px] text-[var(--text-muted)] mb-4">
-              Действует до {{ new Date(pass.expires_at).toLocaleDateString('ru-RU') }}
+            <!-- pass_expires_at = null — бессрочная проходка, именно такую
+                 выдаёт покупка. Раньше здесь всегда печаталась дата, и для
+                 вечного доступа она была бы враньём. -->
+            <p class="text-[11px] text-[var(--text-muted)] mb-4">
+              {{
+                pass?.expires_at
+                  ? `Действует до ${new Date(pass.expires_at).toLocaleDateString('ru-RU')}`
+                  : 'Бессрочный доступ'
+              }}
             </p>
             <button
               v-if="!hasPass"
               @click="buyPass"
               class="w-full py-2.5 rounded-xl font-bold text-xs text-[var(--text-main)] bg-gradient-to-r from-[#0080FF] to-[#00BBFF] hover:opacity-90 transition"
             >
-              Купить проходку
+              Купить проходку навсегда
             </button>
             <a
               v-else

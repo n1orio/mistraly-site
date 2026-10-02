@@ -232,8 +232,11 @@ function handlePassClick() {
         </h3>
         <p class="text-xs sm:text-sm text-[var(--text-muted)] max-w-md mx-auto mb-6">
           Пропуск Mistraly Pass открывает доступ к серверу, лаунчеру на Rust и закрытому сообществу.
+          Бессрочный, покупается один раз.
         </p>
-        <div class="comic-btn-wrap inline-flex">
+        <!-- v-if: при действующей проходке повторная оплата не нужна, -->
+        <!-- поэтому и кнопки не показываем. -->
+        <div v-if="!purchaseStore.hasActivePass" class="comic-btn-wrap inline-flex">
           <button
             @click="handlePassClick"
             class="comic-btn font-heading font-black text-sm uppercase tracking-wider px-8 py-3.5 inline-flex items-center justify-center gap-2 cursor-pointer"
@@ -242,6 +245,9 @@ function handlePassClick() {
             Оформить проходку →
           </button>
         </div>
+        <p v-else class="text-xs font-semibold text-emerald-400">
+          Проходка уже оформлена — доступ бессрочный.
+        </p>
       </div>
 
     </div>
