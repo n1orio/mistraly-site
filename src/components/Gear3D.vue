@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import '@google/model-viewer'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import type { GearRenderer } from '../lib/gearRenderer'
 
 /**
- * Пиксельная 3D-шестерня Create на <model-viewer>.
+ * Пиксельная 3D-шестерня Create на Babylon.js.
  *
- * Модель не нарисована вручную: scripts/make-cogwheel-glb.mjs конвертирует
- * блочную модель create:block/cogwheel из create-1.21.1-6.0.10.jar
- * (assets/create/models/block/cogwheel.json + текстуры block/*.png)
- * в public/models/create/cogwheel.glb с кубическим освещением граней
- * и nearest-фильтром — тем же пиксельным видом, что и в игре.
+ * Сам рендер вынесен в src/lib/gearRenderer.ts и подключается динамическим
+ * импортом: Babylon весит около мегабайта, а шестерня — фоновый декор,
+ * который не должен задерживать первую отрисовку главной.
  *
  * Низ уводится в прозрачность через mask-image по альфа-каналу самого
  * рендера, а не оверлеем цвета фона: маска работает на любом фоне и не
@@ -17,14 +16,14 @@ import '@google/model-viewer'
  * Позиционирование намеренно не делаем — контейнер позиционирует
  * вызывающий код (HomeView), иначе смещения translate сложатся.
  */
-withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
   /** сторона области в CSS-пикселях */
   size?: number
   /** секунд на оборот */
   speed?: number
   /** вращать ли */
   spin?: boolean
-  /** наклон/ракурс камеры: «30deg 65deg 105m» */
+  /** ракурс камеры как у model-viewer: «<азимут>deg <высота>deg <радиус>%» */
   cameraOrbit?: string
   /** поле зрения камеры, градусы */
   fieldOfView?: string
@@ -41,10 +40,64 @@ withDefaults(defineProps<{
   dim: 0.55,
   exposure: 1.1
 })
+
+const wrap = ref<HTMLElement | null>(null)
+const canvas = ref<HTMLCanvasElement | null>(null)
+
+let renderer: GearRenderer | null = null
+let resizeObs: ResizeObserver | null = null
+/**
+ * Скорость и вращение лежат в мутируемом объекте, а не в замыкании рендерера:
+ * цикл читает их каждый кадр, иначе смена speed/spin на странице не дала бы
+ * эффекта до пересоздания движка.
+ */
+const spinState = { speed: props.speed, spin: props.spin }
+/** true, пока компонент жив: иначе гонка динамического импорта успевает
+ *  создать движок уже после unmount и оставляет его висеть в памяти. */
+let alive = false
+
+async function init() {
+  if (!canvas.value || !wrap.value) return
+  const host = wrap.value
+  alive = true
+
+  const { createGearRenderer } = await import('../lib/gearRenderer')
+  if (!alive || !canvas.value) return
+  renderer = await createGearRenderer(canvas.value, {
+    exposure: props.exposure,
+    cameraOrbit: props.cameraOrbit,
+    fieldOfView: props.fieldOfView
+  }, spinState)
+  if (!alive) {
+    renderer.dispose()
+    renderer = null
+    return
+  }
+
+  resizeObs = new ResizeObserver(() => renderer?.resize())
+  resizeObs.observe(host)
+}
+
+onMounted(() => { void init() })
+
+onBeforeUnmount(() => {
+  alive = false
+  resizeObs?.disconnect()
+  renderer?.dispose()
+  renderer = null
+})
+
+watch(() => [props.cameraOrbit, props.fieldOfView], () => {
+  renderer?.setCamera(props.cameraOrbit, props.fieldOfView)
+})
+watch(() => props.exposure, (v) => renderer?.setExposure(v))
+watch(() => props.speed, (v) => { spinState.speed = v })
+watch(() => props.spin, (v) => { spinState.spin = v })
 </script>
 
 <template>
   <div
+    ref="wrap"
     class="gear-wrap"
     :style="{
       /*
@@ -58,26 +111,7 @@ withDefaults(defineProps<{
     }"
     aria-hidden="true"
   >
-    <model-viewer
-      src="/models/create/cogwheel.glb"
-      loading="eager"
-      reveal="auto"
-      disable-zoom
-      disable-pan
-      disable-tap
-      interpolation-decay="120"
-      :camera-orbit="cameraOrbit"
-      :field-of-view="fieldOfView"
-      :auto-rotate="spin ? true : false"
-      :rotation-speed="spin ? `${(360 / speed).toFixed(2)}deg` : '0deg'"
-      min-camera-orbit="auto 0deg auto"
-      max-camera-orbit="auto 180deg 600%"
-      shadow-intensity="0"
-      shadow-root="none"
-      environment-image="legacy"
-      interaction-prompt="none"
-      :exposure="exposure"
-    />
+    <canvas ref="canvas" class="gear-canvas" />
   </div>
 </template>
 
@@ -116,15 +150,12 @@ withDefaults(defineProps<{
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
 }
-.gear-wrap :deep(model-viewer) {
+.gear-canvas {
+  display: block;
   width: 100%;
   height: 100%;
-  background: transparent !important;
-  --poster-color: transparent;
-  --progress-bar-color: transparent;
-  --progress-mask: transparent;
-}
-.gear-wrap :deep(model-viewer::part(default-progress-bar)) {
-  display: none;
+  outline: none;
+  background: transparent;
+  touch-action: none;
 }
 </style>
