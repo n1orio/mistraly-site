@@ -165,7 +165,7 @@ function scrollToContent() {
 <section id="how-to-play" class="w-full max-w-5xl px-4 pt-20 pb-10">
   <div class="text-center mb-5">
     <h2 class="font-heading text-2xl sm:text-3xl text-[var(--text-main)] tracking-tight mb-2">Но как <a href="#stages" class="play-cta" @click.prevent="scrollToContent">поиграть</a>-то?</h2>
-    <p class="text-xs sm:text-sm text-[var(--text-muted)]">Коротко о том, что нужно, чтобы попасть на сервер</p>
+    <p class="text-xs sm:text-sm text-[var(--text-muted)]">3 телодвижения</p>
   </div>
 </section>
 <HowToJoin />

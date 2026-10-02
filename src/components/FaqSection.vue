@@ -108,7 +108,7 @@ const content = computed(() => selected.value.content ?? [])
         Частые <span class="word-hl">вопросы</span>
       </h2>
       <p class="text-xs sm:text-sm text-[var(--text-muted)] max-w-xl mx-auto">
-        Ответы на главные вопросы об игре, лаунчере и правилах сервера.
+        Поможем разобраться
       </p>
     </div>
 

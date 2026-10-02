@@ -69,7 +69,7 @@ function showFallback(e: Event) {
         Сердце <span class="word-hl">сервера</span>
       </h2>
       <p class="text-xs sm:text-sm text-[var(--text-muted)] max-w-2xl mx-auto">
-        Мы собрали модульный сеттинг, где инженерия дополняет исследование мира и делает каждый полёт дирижабля осмысленным.
+        Надоела ванилла?
       </p>
     </div>
 
