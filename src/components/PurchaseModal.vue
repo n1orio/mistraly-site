@@ -25,43 +25,44 @@ const hints: Record<string, string> = {
 <template>
   <div
     v-if="store.open"
-    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md select-none spider-overlay"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md select-none"
     @click.self="store.close"
   >
-    <!-- Внешний комиксный контейнер со смещением черного контура -->
-    <div class="spider-modal-frame w-full max-w-md relative">
+    <!-- Внешний комиксный фрейм с двойной жесткой тенью -->
+    <div class="comic-modal-frame w-full max-w-md relative">
 
-      <!-- Кнопка закрытия (Комиксный стикер с крестиком) -->
+      <!-- Кнопка закрытия (вырезанный стикер) -->
       <button
-        class="spider-close-btn absolute -top-3 -right-3 z-30 w-9 h-9 bg-[#FF0055] hover:bg-white text-white hover:text-black flex items-center justify-center font-black cursor-pointer transition-all"
+        class="comic-close-btn absolute -top-3 -right-3 z-30 w-9 h-9 bg-[#FF0055] hover:bg-white text-white hover:text-black flex items-center justify-center cursor-pointer transition-transform"
         @click="store.close"
       >
         <X :size="18" stroke-width="3" />
       </button>
 
-      <!-- Главная карточка терминала -->
-      <div class="spider-card bg-[#0D0E12] border-2 border-white p-7 sm:p-8 relative overflow-hidden text-left">
-        <!-- Ben-Day Dots Растр печати комикса -->
-        <div class="benday-dots" aria-hidden="true" />
+      <!-- Главная карточка: живая вибрирующая бумага -->
+      <div class="comic-paper-card relative overflow-hidden bg-[#111216] border-2 border-white/90 p-7 sm:p-8 text-left">
 
-        <!-- Линии скоростного экшена (Spider-Verse Speed Lines) -->
-        <div class="speed-lines" aria-hidden="true" />
+        <!-- СЛОЙ 1: Шевелящаяся текстура волокон бумаги (10 FPS Stop-Motion) -->
+        <div class="paper-texture-boil" aria-hidden="true" />
 
+        <!-- СЛОЙ 2: Газетный растр печати (Ben-Day dots) -->
+        <div class="breeze-dots" aria-hidden="true" />
+
+        <!-- Контент поверх живой бумаги -->
         <div class="relative z-10">
 
-          <!-- ВЕРХНЯЯ СТРОКА: Стикер и нумератор шагов -->
-          <div class="flex items-center justify-between border-b-2 border-black pb-4 mb-6">
-            <span class="spider-badge">
-              {{ store.item ? 'ORDER // PORTAL' : 'MISTRALY // PASS' }}
+          <!-- Шапка карточки: Бейдж и шаги 01 / 02 / 03 -->
+          <div class="flex items-center justify-between border-b-2 border-white/10 pb-4 mb-6">
+            <span class="comic-pill-badge">
+              {{ store.item ? 'MISTRALY // ЗАКАЗ' : 'MISTRALY // PASS' }}
             </span>
 
-            <!-- Комиксный степпер 01 / 02 / 03 -->
-            <div class="flex items-center gap-2 font-mono text-[11px] font-black">
+            <div class="flex items-center gap-1.5 font-mono text-[11px] font-black">
               <span
                 v-for="n in 3"
                 :key="n"
-                class="step-box"
-                :class="{ 'step-active': store.step >= n }"
+                class="step-badge"
+                :class="{ 'step-badge-active': store.step >= n }"
               >
                 0{{ n }}
               </span>
@@ -70,22 +71,22 @@ const hints: Record<string, string> = {
 
           <!-- ================= ШАГ 1: DISCORD ================= -->
           <div v-if="store.step === 1" class="flex flex-col items-center text-center py-2">
-            <div class="spider-icon-wrap mb-5">
-              <div class="spider-icon-bg bg-[#5865F2]">
+            <div class="comic-discord-icon mb-5">
+              <div class="w-16 h-16 bg-[#5865F2] border-2 border-white flex items-center justify-center">
                 <MessageCircle :size="32" class="text-white" stroke-width="2.5" />
               </div>
             </div>
 
-            <h2 class="spider-glitch-title text-2xl font-black uppercase tracking-tight mb-2" data-text="ВХОД В СИСТЕМУ">
+            <h2 class="comic-title text-2xl font-black uppercase tracking-tight text-white mb-2">
               Вход в систему
             </h2>
             <p class="text-xs text-zinc-400 mb-6 leading-relaxed max-w-xs font-mono">
-              // Идентификация вселенной: привяжите Discord для генерации вайтлиста и защиты аккаунта.
+              // Привязка Discord генерирует ваш профиль, открывает вайтлист и защищает аккаунт.
             </p>
 
             <button
               @click="startAuth"
-              class="spider-btn w-full py-3.5 px-6 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2.5 cursor-pointer bg-[#5865F2] text-white hover:bg-white hover:text-black mb-4"
+              class="comic-action-btn w-full py-3.5 px-6 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2.5 cursor-pointer bg-[#5865F2] text-white hover:bg-white hover:text-black mb-4"
             >
               <MessageCircle :size="18" stroke-width="2.5" />
               Войти через Discord
@@ -93,33 +94,33 @@ const hints: Record<string, string> = {
 
             <div class="flex items-center gap-2 text-[11px] font-mono text-zinc-500">
               <ShieldCheck :size="15" class="text-[#00E5FF] shrink-0" stroke-width="2.5" />
-              <span>Шифрование сессии без паролей</span>
+              <span>Безопасный шлюз без ввода пароля</span>
             </div>
           </div>
 
-          <!-- ================= ШАГ 2: ВВОД НИКНЕЙМА ================= -->
+          <!-- ================= ШАГ 2: НИКНЕЙМ ================= -->
           <div v-else-if="store.step === 2" class="flex flex-col">
             <button
               v-if="auth.isAuthenticated"
-              class="spider-back-btn inline-flex items-center gap-1 font-mono text-xs text-zinc-400 hover:text-[#00E5FF] mb-3 transition cursor-pointer self-start"
+              class="inline-flex items-center gap-1 font-mono text-xs text-zinc-400 hover:text-[#00E5FF] mb-3 transition cursor-pointer self-start"
               @click="store.step = 1"
             >
               <ChevronLeft :size="16" stroke-width="3" /> НАЗАД
             </button>
 
-            <h2 class="spider-glitch-title text-2xl font-black uppercase tracking-tight mb-1" data-text="ИГРОВОЙ ТЕГ">
-              Игровой тег
+            <h2 class="comic-title text-2xl font-black uppercase tracking-tight text-white mb-1">
+              Игровой никнейм
             </h2>
             <p class="text-xs text-zinc-400 mb-5 font-mono">
-              // Укажите ник в Minecraft (3–16 символов).
+              // Введите ник в Minecraft (от 3 до 16 символов, только латиница).
             </p>
 
             <div class="relative mb-3">
               <input
                 v-model="store.nickname"
                 maxlength="16"
-                placeholder="NICKNAME_IN_GAME"
-                class="spider-input w-full px-4 py-3 bg-[#050608] border-2 border-white text-white text-sm font-mono placeholder:text-zinc-600 outline-none transition"
+                placeholder="Твой никнейм в игре..."
+                class="comic-input w-full px-4 py-3 bg-[#08090C] border-2 border-white text-white text-sm font-mono placeholder:text-zinc-600 outline-none transition"
                 @input="store.error = ''"
               />
             </div>
@@ -131,30 +132,29 @@ const hints: Record<string, string> = {
             <button
               :disabled="!store.isNicknameValid || store.checking"
               @click="store.checkNickname"
-              class="spider-btn w-full py-3.5 px-6 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer bg-[#00E5FF] text-black hover:bg-white disabled:opacity-50 mt-2"
+              class="comic-action-btn w-full py-3.5 px-6 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer bg-[#00E5FF] text-black hover:bg-white disabled:opacity-50 mt-2"
             >
-              {{ store.checking ? 'СКАНИРУЕМ БАЗУ…' : 'ПОДТВЕРДИТЬ ТЕГ →' }}
+              {{ store.checking ? 'ПРОВЕРЯЕМ БАЗУ…' : 'ПРОДОЛЖИТЬ →' }}
             </button>
           </div>
 
           <!-- ================= ШАГ 3: ЧЕК И ОПЛАТА ================= -->
           <div v-else-if="store.step === 3" class="flex flex-col">
             <button
-              class="spider-back-btn inline-flex items-center gap-1 font-mono text-xs text-zinc-400 hover:text-[#00E5FF] mb-3 transition cursor-pointer self-start"
+              class="inline-flex items-center gap-1 font-mono text-xs text-zinc-400 hover:text-[#00E5FF] mb-3 transition cursor-pointer self-start"
               @click="store.step = 2"
             >
               <ChevronLeft :size="16" stroke-width="3" /> СМЕНИТЬ НИК
             </button>
 
-            <h2 class="spider-glitch-title text-2xl font-black uppercase tracking-tight mb-1" data-text="КВИТАНЦИЯ">
-              Квитанция
+            <h2 class="comic-title text-2xl font-black uppercase tracking-tight text-white mb-1">
+              Проверка заказа
             </h2>
             <p class="text-xs text-zinc-400 mb-4 font-mono">
-              // Финализация ордера перед перемещением:
+              // Подтвердите реквизиты перед переходом к шлюзу:
             </p>
 
-            <!-- Стикер-квитанция с резким контуром -->
-            <div class="spider-receipt bg-[#050608] border-2 border-dashed border-[#00E5FF]/60 p-4 mb-4 space-y-2.5 font-mono text-xs">
+            <div class="comic-receipt bg-[#08090C] border-2 border-dashed border-[#00E5FF]/60 p-4 mb-4 space-y-2.5 font-mono text-xs">
               <div class="flex justify-between">
                 <span class="text-zinc-500">ИГРОК:</span>
                 <strong class="text-white">{{ store.nickname || auth.user?.username }}</strong>
@@ -164,7 +164,7 @@ const hints: Record<string, string> = {
                 <strong class="text-white">{{ auth.user?.username || auth.discord?.discord_username }}</strong>
               </div>
               <div class="flex justify-between">
-                <span class="text-zinc-500">ПАКЕТ:</span>
+                <span class="text-zinc-500">ПОЗИЦИЯ:</span>
                 <strong class="text-[#00E5FF]">
                   {{ store.item ? store.item.name : 'Mistraly Pass' }}
                   <span v-if="store.item && store.quantity > 1"> × {{ store.quantity }}</span>
@@ -172,8 +172,8 @@ const hints: Record<string, string> = {
               </div>
 
               <div class="border-t-2 border-white/10 pt-2.5 flex justify-between items-center text-sm">
-                <span class="font-black text-white uppercase tracking-wider text-xs">ИТОГО К ОПЛАТЕ:</span>
-                <strong class="text-xl font-black text-[#FF0055] spider-price">
+                <span class="font-black text-white uppercase tracking-wider text-xs">ИТОГО:</span>
+                <strong class="text-xl font-black text-[#FF0055]">
                   {{ store.total || store.priceLabel }}
                 </strong>
               </div>
@@ -190,11 +190,11 @@ const hints: Record<string, string> = {
             <button
               :disabled="store.submitting"
               @click="store.confirmOrder"
-              class="spider-btn w-full py-4 px-6 font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer bg-[#00E5FF] text-black hover:bg-[#FF0055] hover:text-white disabled:opacity-60"
+              class="comic-action-btn w-full py-4 px-6 font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer bg-[#00E5FF] text-black hover:bg-[#FF0055] hover:text-white disabled:opacity-60"
             >
               {{
                 store.submitting
-                  ? 'ТРАНСФЕР…'
+                  ? 'ОФОРМЛЯЕМ…'
                   : store.isFreeMode
                     ? 'ПОЛУЧИТЬ'
                     : 'ОПЛАТИТЬ →'
@@ -204,24 +204,23 @@ const hints: Record<string, string> = {
 
           <!-- ================= ШАГ 4: УСПЕХ ================= -->
           <div v-else class="flex flex-col items-center text-center py-4">
-            <div class="spider-success-badge mb-4">
+            <div class="w-16 h-16 bg-[#00E5FF] border-2 border-white flex items-center justify-center mb-4 rotate-[-3deg] shadow-[4px_4px_0px_#000]">
               <Check :size="36" class="text-black" stroke-width="3" />
             </div>
 
             <span class="font-black text-xs uppercase tracking-wider text-[#00E5FF] mb-1 font-mono">
               {{ store.isFreeMode ? '[ СТАТУС: ПОЛУЧЕНО ]' : '[ СТАТУС: ОПЛАЧЕНО ]' }}
             </span>
-            <h2 class="spider-glitch-title text-2xl font-black uppercase tracking-tight mb-2" data-text="ДОСТУП ОТКРЫТ">
+            <h2 class="comic-title text-2xl font-black uppercase tracking-tight text-white mb-2">
               Доступ открыт!
             </h2>
             <p class="text-xs text-zinc-300 mb-6 font-mono max-w-xs leading-relaxed">
-              {{ store.result?.item }} для {{ store.nickname || auth.user?.username || 'вашего аккаунта' }}.
-              {{ store.result?.delivery ? 'Предмет ждёт выдачи — зайдите на сервер.' : 'Доступ открыт, подключайтесь.' }}
+              // Пропуск активирован для {{ store.nickname || auth.user?.username }}. Запускайте Breeze Launcher и взлетайте.
             </p>
 
             <button
               @click="store.close"
-              class="spider-btn px-10 py-3.5 font-black text-xs uppercase tracking-wider cursor-pointer bg-white text-black hover:bg-[#FF0055] hover:text-white"
+              class="comic-action-btn px-10 py-3.5 font-black text-xs uppercase tracking-wider cursor-pointer bg-white text-black hover:bg-[#FF0055] hover:text-white"
             >
               ЗАКРЫТЬ ОКНО
             </button>
@@ -235,48 +234,111 @@ const hints: Record<string, string> = {
 </template>
 
 <style scoped>
-/* Двойная комиксная тень на все модальное окно (Hard ink drop) */
-.spider-modal-frame {
+/* Двойная комиксная тень на все окно */
+.comic-modal-frame {
   box-shadow: 10px 10px 0px #000, 10px 10px 0px 2px #00E5FF;
   transform: rotate(-0.5deg);
 }
 
-/* Ben-Day Dots (Газетный растр Майлза Моралеса) */
-.benday-dots {
+/* ============================================================
+   АНИМИРОВАННАЯ ТЕКСТУРА БУМАГИ (Spider-Verse Paper Boil)
+   ============================================================ */
+.paper-texture-boil {
+  position: absolute;
+  inset: -60px; /* Вылет, чтобы не было видно краев при сдвигах */
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.22;
+  mix-blend-mode: overlay;
+
+  /* Процедурный шум волокон крафтовой бумаги (Data URI SVG) */
+  background-image:
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.12), transparent 75%),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='paperNoise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23paperNoise)' opacity='0.8'/%3E%3C/svg%3E");
+  background-size: auto, 180px 180px;
+
+  /* Дискретная покадровая смена положений бумаги (10 FPS) */
+  animation: paperBoilMotion 0.8s steps(1) infinite;
+}
+
+@keyframes paperBoilMotion {
+  0% {
+    transform: translate(0px, 0px) scale(1) rotate(0deg);
+    background-position: 0 0, 0 0;
+  }
+  12% {
+    transform: translate(-4px, 3px) scale(1.02) rotate(0.4deg);
+    background-position: 30px -20px, 50px 20px;
+  }
+  25% {
+    transform: translate(3px, -3px) scale(0.99) rotate(-0.5deg);
+    background-position: -50px 30px, -30px 60px;
+  }
+  37% {
+    transform: translate(-3px, -2px) scale(1.01) rotate(0.3deg);
+    background-position: 20px 50px, 40px -30px;
+  }
+  50% {
+    transform: translate(4px, 2px) scale(0.98) rotate(-0.3deg);
+    background-position: -40px -20px, -60px -20px;
+  }
+  62% {
+    transform: translate(-2px, 4px) scale(1.02) rotate(0.5deg);
+    background-position: 60px 20px, 30px 40px;
+  }
+  75% {
+    transform: translate(3px, -1px) scale(1) rotate(-0.4deg);
+    background-position: -20px -50px, 20px -60px;
+  }
+  87% {
+    transform: translate(-1px, -3px) scale(1.01) rotate(0.2deg);
+    background-position: 40px -40px, -40px 30px;
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1) rotate(0deg);
+    background-position: 0 0, 0 0;
+  }
+}
+
+/* Вибрация контура самой карточки (Рубленые края вырезанного листа) */
+.comic-paper-card {
+  animation: cardEdgeJitter 1.2s steps(4) infinite;
+}
+
+@keyframes cardEdgeJitter {
+  0%, 100% {
+    clip-path: polygon(0% 0.8%, 100% 0%, 99.3% 99.4%, 0.7% 100%);
+  }
+  25% {
+    clip-path: polygon(0.5% 0%, 99.5% 0.7%, 100% 100%, 0% 99.2%);
+  }
+  50% {
+    clip-path: polygon(0% 0.6%, 100% 0.2%, 99% 99.7%, 0.4% 100%);
+  }
+  75% {
+    clip-path: polygon(0.7% 0.2%, 99.3% 0%, 100% 99.2%, 0% 99.8%);
+  }
+}
+
+/* Ben-Day Dots Точечный растр */
+.breeze-dots {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  opacity: 0.12;
+  opacity: 0.08;
   background-image: radial-gradient(#00E5FF 1.5px, transparent 1.5px);
   background-size: 8px 8px;
   z-index: 1;
 }
 
-/* Тонкие диагональные полосы скорости (Speed Lines) */
-.speed-lines {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.04;
-  background: repeating-linear-gradient(
-    -45deg,
-    #FFFFFF,
-    #FFFFFF 2px,
-    transparent 2px,
-    transparent 10px
-  );
-  z-index: 1;
-}
-
-/* RGB Glitch Заголовки (Spider-Verse Chromatic Aberration) */
-.spider-glitch-title {
-  color: #FFFFFF;
+/* Заголовки с эффектом хроматической аберрации */
+.comic-title {
   text-shadow: -2px 0px 0px #00E5FF, 2px 0px 0px #FF0055;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
 }
 
-/* Стикер верхнего бейджа */
-.spider-badge {
+/* Верхний стикер */
+.comic-pill-badge {
   font-family: monospace;
   font-weight: 900;
   font-size: 11px;
@@ -288,108 +350,67 @@ const hints: Record<string, string> = {
   border: 1px solid #FFF;
 }
 
-/* Кубики шагов 01, 02, 03 */
-.step-box {
+/* Шаги 01, 02, 03 */
+.step-badge {
   padding: 2px 6px;
   border: 1.5px solid rgba(255, 255, 255, 0.2);
   color: #71717A;
   background: #000;
 }
 
-.step-active {
+.step-badge-active {
   background: #00E5FF;
   color: #000;
   border-color: #00E5FF;
   box-shadow: 2px 2px 0px #000;
 }
 
-/* Иконка Discord в комиксном оформлении */
-.spider-icon-wrap {
+/* Иконка Discord */
+.comic-discord-icon {
   transform: rotate(-3deg);
-}
-.spider-icon-bg {
-  width: 64px;
-  height: 64px;
-  border: 2px solid #FFF;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 5px 5px 0px #000, 5px 5px 0px 1px #00E5FF;
-}
-
-/* Подложка: лёгкий циановый отсвет по краю — «портал», а не просто затемнение */
-.spider-overlay {
-  box-shadow: inset 0 0 120px 20px rgba(0, 229, 255, 0.06);
-}
-
-/* Кнопка «Назад» */
-.spider-back-btn {
-  font-weight: 700;
-  letter-spacing: 0.04em;
-}
-.spider-back-btn:hover {
-  transform: translateX(-2px);
+  filter: drop-shadow(4px 4px 0px #000);
 }
 
 /* Кнопка закрытия */
-.spider-close-btn {
+.comic-close-btn {
   border: 2px solid #000;
   box-shadow: 3px 3px 0px #FFF;
   transform: rotate(4deg);
 }
-.spider-close-btn:hover {
+.comic-close-btn:hover {
   transform: scale(1.1) rotate(0deg);
 }
 
-/* Поле ввода ника */
-.spider-input {
-  box-shadow: 4px 4px 0px #000, 4px 4px 0px 1px rgba(255, 255, 255, 0.2);
+/* Поле ввода */
+.comic-input {
+  box-shadow: 4px 4px 0px #000;
 }
-.spider-input:focus {
+.comic-input:focus {
   border-color: #00E5FF;
   box-shadow: 4px 4px 0px #000, 4px 4px 0px 2px #00E5FF;
 }
 
-/* ФИРМЕННЫЕ КНОПКИ В СТИЛЕ SPIDER-VERSE */
-.spider-btn {
+/* Кнопки действия (Покадровый отклик без мыла) */
+.comic-action-btn {
   border: 2px solid #000;
   box-shadow: 5px 5px 0px #000, 5px 5px 0px 2px #FFF;
   transform: rotate(-1deg);
-  transition: transform 0.15s cubic-bezier(0.2, 0.9, 0.3, 1.3),
-              box-shadow 0.15s ease,
-              background-color 0.15s ease,
-              color 0.15s ease;
+  transition: none; /* Убираем плавность */
 }
 
-.spider-btn:hover:not(:disabled) {
-  transform: scale(1.03) rotate(0.5deg);
+.comic-action-btn:hover:not(:disabled) {
+  transform: scale(1.03) rotate(0.8deg);
   box-shadow: 7px 7px 0px #000, 7px 7px 0px 2px #00E5FF;
+  background-color: #FFFFFF !important;
+  color: #000000 !important;
 }
 
-.spider-btn:active:not(:disabled) {
-  transform: scale(0.97) rotate(-1deg);
+.comic-action-btn:active:not(:disabled) {
+  transform: scale(0.97) translate(2px, 2px) rotate(-1deg);
   box-shadow: 2px 2px 0px #000;
 }
 
-/* Квитанция */
-.spider-receipt {
+.comic-receipt {
   box-shadow: inset 2px 2px 0px rgba(0, 0, 0, 0.5), 4px 4px 0px #000;
-}
-
-.spider-price {
-  text-shadow: 2px 2px 0px #000;
-}
-
-/* Бейдж успешного завершения */
-.spider-success-badge {
-  width: 64px;
-  height: 64px;
-  background: #00E5FF;
-  border: 2px solid #FFF;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 5px 5px 0px #000;
-  transform: rotate(-4deg);
 }
 </style>
