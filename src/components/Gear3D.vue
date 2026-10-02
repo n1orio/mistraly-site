@@ -44,6 +44,11 @@ const props = withDefaults(defineProps<{
    * Сдвиг ��ёрной 2D-тени вниз-вправо, в CSS-пикселях. 0 — тени нет.
    */
   shadowOffset?: number
+  /**
+   * Насколько силуэт тени крупнее шестерни: 1 — по контуру, больше —
+   * обрамляет зубья.
+   */
+  shadowScale?: number
   /** непрозрачность тени, 1 — сплошной чёрный */
   shadowOpacity?: number
 }>(), {
@@ -54,7 +59,8 @@ const props = withDefaults(defineProps<{
   fieldOfView: '26deg',
   dim: 0.55,
   exposure: 1.1,
-  shadowOffset: 14,
+  shadowOffset: 0.1,
+  shadowScale: 1.07,
   shadowOpacity: 1
 })
 
@@ -87,6 +93,7 @@ async function init() {
     cameraOrbit: props.cameraOrbit,
     fieldOfView: props.fieldOfView,
     shadowOffset: props.shadowOffset,
+    shadowScale: props.shadowScale,
     shadowOpacity: props.shadowOpacity
   }, spinState)
   if (!alive) {

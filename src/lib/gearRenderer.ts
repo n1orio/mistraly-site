@@ -102,6 +102,11 @@ export interface GearRendererOptions {
    * размера канваса и от DPR.
    */
   shadowOffset: number
+  /**
+   * Насколько силуэт тени крупнее самой шестерни. 1 — ровно по контуру,
+   * 1.04 — тень обрамляет зубья. Масштаб от центра модели.
+   */
+  shadowScale: number
   /** непрозрачность тени, 1 — сплошной чёрный */
   shadowOpacity: number
 }
@@ -233,6 +238,8 @@ export async function createGearRenderer(
     rtt: RenderTargetTexture
     quad: Mesh
     cam: ArcRotateCamera
+    /** узел клона: его крутим и масштабируем вместе с шестернёй */
+    pivot: TransformNode
   } | null = null
 
   if (opts.shadowOffset > 0) {
@@ -247,6 +254,7 @@ export async function createGearRenderer(
     if (shadowSrc) {
       const shadowPivot = new TransformNode('gearShadow', scene)
       shadowPivot.addChild(shadowSrc)
+      shadowPivot.scaling.setAll(opts.shadowScale)
       const shadowMeshes = shadowPivot.getChildMeshes() as Mesh[]
       for (const m of shadowMeshes) {
         m.material = shadowMat
@@ -314,7 +322,7 @@ export async function createGearRenderer(
         // поэтому квад гарантированно окажется под ней.
         pivot.getChildMeshes().forEach((m) => { m.renderingGroupId = 1 })
 
-        shadow = { rtt, quad, cam: shadowCam }
+        shadow = { rtt, quad, cam: shadowCam, pivot: shadowPivot }
         layoutShadow()
       }
     }
@@ -393,9 +401,19 @@ export async function createGearRenderer(
     if (spinState.spin && spinState.speed > 0) {
       pivot.rotation.y += (Math.PI * 2 * dt) / spinState.speed
     }
-    // Силуэт перерисовываем каждый кадр: шестерня крутится, значит и тень.
-    // Один draw call — слиянием 43 мешей выше.
-    if (shadow) shadow.rtt.render()
+    if (shadow) {
+      /*
+       * Клон обязан крутиться ВМЕСТЕ с шестернёй, иначе силуэт в RTT
+       * останется замороженным, пока зубья едут мимо. Раньше здесь была
+       * отдельная строка, и я потерял её при переписывании цикла на
+       * offscreen-тень — тень стояла на месте.
+       *
+       * Заодно силуэт чуть крупнее самой шестерни (shadowScale): тень
+       * должна обрамлять её, а не совпадать по контуру.
+       */
+      shadow.pivot.rotation.y = pivot.rotation.y
+      shadow.rtt.render()
+    }
     scene.render()
   }
   raf = requestAnimationFrame(loop)
