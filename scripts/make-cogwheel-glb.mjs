@@ -133,27 +133,20 @@ function collectMaterials() {
   return { mats, get }
 }
 
-const AXIS_NAME = 'Axis'
-
 function buildElement(el, matsApi) {
-  const [fx0, fy0, fz0] = el.from
-  const [tx0, ty0, tz0] = el.to
-  let fx = fx0, fy = fy0, fz = fz0
-  const tx = tx0, ty = ty0, tz = tz0
-  // Ось в модели высокая (0..16 по Y); в игре из блока торчит только верхушка.
-  // Подрезаем низ, оставляя сверху 5 единиц, и пересчитываем UV боковых граней.
-  let uvShift = 0
-  if (el.name === AXIS_NAME) {
-    // Сколько единиц оси оставляем сверху. Низ должен упереться в верх
-    // корпуса (GearCaseOuter идёт до Y=10), иначе между ними будет дыра.
-    const KEEP = 6
-    // Режем низ. Знак именно (ty - KEEP) - fy: при fy=0, ty=16 это 10.
-    // Обратная формула (fy - (ty - KEEP)) даёт max(0, -10) = 0 — обрезка
-    // не срабатывала никогда, и ось торчала во всю высоту блока.
-    const cut = Math.max(0, (ty - KEEP) - fy)
-    fy += cut
-    uvShift = cut
-  }
+  const [fx, fy, fz] = el.from
+  const [tx, ty, tz] = el.to
+
+  // Ось НЕ подрезаем. В оригинальной модели create:block/cogwheel
+  // Axis = from[6,0,6] to[10,16,10], то есть сквозная колонна на всю
+  // высоту блока: вал торчит и сверху, и снизу. Раньше здесь стояла
+  // обрезка до KEEP=6 единиц сверху («в игре из блока торчит только
+  // верхушка») — из-за неё снизу вала не было вообще, и с нижней
+  // стороны шестерня выглядела глухой.
+  //
+  // Дыры при этом не возникает: ось (x/z 6..10) целиком проходит внутри
+  // GearCaseOuter (x/z 4..12, y 6..10), то есть в местах пересечения
+  // оба элемента solid и перекрывают друг друга.
   const w = tx - fx
   const h = ty - fy
   const d = tz - fz
@@ -167,16 +160,7 @@ function buildElement(el, matsApi) {
     if (face?.uv) {
       // в модели ссылки на текстуры с решёткой: "#0", "#1_2", "#3"
       const texKey = String(face.texture).replace(/^#/, '')
-      // сдвиг UV при обрезке оси по Y (боковые грани теряют нижнюю часть)
-      let uv = face.uv
-      if (uvShift > 0 && key !== 'up' && key !== 'down') {
-        // Отрезали низ элемента — в текстуре тоже убираем нижние строки,
-        // поэтому v2 (нижняя граница окна) уменьшается на величину среза.
-        // Раньше тут стояло вычитание из v1, из-за чего окно уезжало вверх
-        // и грань брала текстуру выше по атласу, чем должна.
-        uv = [uv[0], uv[1], uv[2], Math.max(uv[1], uv[3] - uvShift)]
-      }
-      applyFaceUV(geo, i, uv, face.rotation ?? 0)
+      applyFaceUV(geo, i, face.uv, face.rotation ?? 0)
       perFace[i] = matsApi.get(face.texture, shade)
     } else {
       // грани без UV в модели нет — прячем её в точку, чтобы не тянуть лишний пиксель текстуры

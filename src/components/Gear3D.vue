@@ -44,7 +44,7 @@ const props = withDefaults(defineProps<{
   size: 1100,
   speed: 20,
   spin: true,
-  cameraOrbit: '225deg 20deg 130%',
+  cameraOrbit: '225deg 160deg 130%',
   fieldOfView: '26deg',
   dim: 0.55,
   exposure: 1.1
