@@ -20,12 +20,23 @@ import { Color3, Color4 } from '@babylonjs/core/Maths/math.color'
 import { Texture } from '@babylonjs/core/Materials/Textures/texture'
 import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial'
 import { TransformNode } from '@babylonjs/core/Meshes/transformNode'
+import { Mesh } from '@babylonjs/core/Meshes/mesh'
 import { LoadAssetContainerAsync } from '@babylonjs/core/Loading/sceneLoader'
 import '@babylonjs/core/Materials/PBR/pbrMaterial'
 // регистрирует glTF2-лоадер в SceneLoader, которым грузим cogwheel.glb
 import '@babylonjs/loaders/glTF/2.0'
 
 const MODEL_URL = '/models/create/cogwheel.glb'
+
+/**
+ * Сколько ждём готовности шейдеров перед стартом цикла.
+ *
+ * Не «навсегда»: если материал так и не соберётся, мы всё равно начинаем
+ * рендерить, иначе страница остаётся совсем пустой. Запас нужен на
+ * компиляцию ~3 шейдеров; при нормальном GPU укладывается за десятки
+ * миллисекунд, то есть статичного кадра пользователь не видит.
+ */
+const READY_TIMEOUT_MS = 1200
 
 /**
  * Прогрев движка и модели начинается до монтирования компонента.
@@ -211,20 +222,55 @@ export async function createGearRenderer(
     if (shadowSrc) {
       shadowPivot = new TransformNode('gearShadow', scene)
       shadowPivot.addChild(shadowSrc)
-      shadowPivot.getChildMeshes().forEach((m) => {
+      const shadowMeshes = shadowPivot.getChildMeshes() as Mesh[]
+      for (const m of shadowMeshes) {
         m.material = shadowMat
         m.isPickable = false
         m.receiveShadows = false
-      })
+      }
+      /*
+       * Сливаем 43 меша тени в ОДИН. Материал у них общий, поэтому
+       * MergeMesches не теряет ничего, а draw call'ов становится 1
+       * вместо 43. Без этого клон удваивал и так не самый лёгкий
+       * по числу вызовов список мешей.
+       */
+      if (shadowMeshes.length > 1) {
+        const merged = Mesh.MergeMeshes(shadowMeshes, true, true, undefined, false, false)
+        if (merged) {
+          merged.name = 'gearShadowMesh'
+          merged.material = shadowMat
+          merged.isPickable = false
+          merged.receiveShadows = false
+          merged.parent = shadowPivot
+        }
+      }
     }
   }
 
-  // Ждём готовности текстур и компиляции шейдеров ДО запуска цикла.
-  // Иначе первый же кадр рисуется на полуготовых материалах, а компиляция
-  // 40+ материалов намертво блокирует главный поток: шестерня на экране
-  // есть, но секунды-две не двигается. Так мы показываем её уже готовой
-  // и сразу вращающейся.
-  await scene.whenReadyAsync()
+  /*
+   * Ждём готовности текстур и компиляции шейдеров, но НЕ НАВСЕГДА.
+   *
+   * Раньше здесь стоял голый await whenReadyAsync(), и это было миной:
+   * если хоть один материал не доходит до готовности (шейдер не
+   * собрался на конкретном GPU, текстура не декодировалась), промис
+   * не резолвится — цикл рендера не стартует — и на странице не
+   * отрисовывается вообще ничего. Отсюда было «модели нет».
+   *
+   * Поэтому гоняем с таймаутом: успели — стартуем без статичного кадра,
+   * не успели — стартуем всё равно, Babylon сам дорисует готовые меши.
+   */
+  await Promise.race([
+    scene.whenReadyAsync(),
+    new Promise((resolve) => setTimeout(resolve, READY_TIMEOUT_MS))
+  ])
+
+  /*
+   * Материалы здесь намеренно НЕ заморачиваем (material.freeze() и
+   * scene.blockMaterialDirtyMechanism). Выигрыш копеечный — материалов
+   * всего 9, — а риск тот же, что и выше: если текстура придёт позже,
+   * замороженный материал навсегда останется неготовым и на экране снова
+   * не будет ничего.
+   */
 
   const camRight = new Vector3()
   const camUp = new Vector3()
