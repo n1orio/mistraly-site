@@ -10,6 +10,11 @@ interface NicknameCheck {
   own: boolean
 }
 
+interface NicknameLink {
+  nickname: string
+  minecraft_uuid: string | null
+}
+
 export interface ShopItem {
   id: string
   name: string
@@ -64,7 +69,48 @@ export const usePurchaseStore = defineStore('purchase', () => {
   const isNicknameValid = computed(() => /^[A-Za-z0-9_]{3,16}$/.test(nickname.value))
   const total = computed(() => (item.value?.price ?? 0) * quantity.value)
 
+  /**
+   * Ник нужен не для всего подряд. Бэкенд (routes/shop.rs) требует привязанный
+   * ник только там, где товар физически доставляется на сервер, — это item и
+   * unban: без ника некуда выдать предмет. Проходка и валюта меняют записи в
+   * users (has_pass / pass_expires_at / balance) и ни о ком не зависят, поэтому
+   * спрашивать ник там — лишний шаг с вводом данных, которые нигде не нужны.
+   */
+  const needsNickname = computed(() => {
+    if (!item.value) return false
+    return item.value.item_type === 'item' || item.value.item_type === 'unban'
+  })
+
+  /** Ник уже привязан к аккаунту и бэкенд его знает. */
+  const hasLinkedNickname = computed(() => !!nickname.value)
+
   const PRICE_LABEL = '350 ₽'
+
+  /**
+   * Подставить привязанный ник и выбрать стартовый шаг.
+   *
+   * Раньше авторизованного пользователя всегда отправляли на шаг ввода ника,
+   * хотя ник уже лежит в базе — приходилось вводить его заново при каждой
+   * покупке. Теперь спрашиваем у бэкенда /user/nickname: если он есть,
+   * подставляем и идём сразу к подтверждению. Шаг ввода показывается только
+   * там, где ник действительно нужен (needsNickname) и ещё не привязан.
+   */
+  async function resolveNickname(): Promise<void> {
+    if (!auth.isAuthenticated) {
+      nickname.value = ''
+      step.value = 1
+      return
+    }
+    try {
+      const link = await unwrap<NicknameLink | null>(api.get('/user/nickname'))
+      nickname.value = link?.nickname ?? ''
+    } catch {
+      // Не смогли узнать ник — не блокируем покупку: для проходки он не нужен,
+      // а для товара шаг ввода всё равно покажется и ник спросят.
+      nickname.value = ''
+    }
+    step.value = needsNickname.value && !nickname.value ? 2 : 3
+  }
 
   /** Открыть модалку для конкретного товара из витрины. */
   function showItem(shopItem: ShopItem, qty = 1) {
@@ -74,25 +120,29 @@ export const usePurchaseStore = defineStore('purchase', () => {
     error.value = ''
     result.value = null
     orderDone.value = false
-    // Пользователь без сессии начинает с шага входа; с сессией — с ника,
-    // но если ник уже привязан, сразу к подтверждению.
-    step.value = auth.isAuthenticated ? 2 : 1
+    void resolveNickname()
   }
 
-  /** Открыть модалку без товара — покупка проходки. */
+  /** Открыть модалку без товара — покупка проходки. Ник не нужен. */
   function showPass() {
-    showItem(null as unknown as ShopItem, 1)
+    open.value = true
     item.value = null
+    quantity.value = 1
+    error.value = ''
+    result.value = null
+    orderDone.value = false
+    void resolveNickname()
   }
 
   function close() {
     open.value = false
   }
 
+  /** После входа через Discord: подтягиваем ник и выбираем следующий шаг. */
   function setDiscord(name: string) {
-    step.value = 2
     error.value = ''
     void name
+    void resolveNickname()
   }
 
   /**
@@ -169,8 +219,9 @@ export const usePurchaseStore = defineStore('purchase', () => {
   }
 
   function reset() {
-    step.value = auth.isAuthenticated ? 2 : 1
-    nickname.value = ''
+    // После закрытия модалки ник не забываем: он уже привязан к аккаунту,
+    // и следующая покупка должна сразу открываться на подтверждении.
+    void resolveNickname()
     error.value = ''
     orderDone.value = false
     result.value = null
@@ -191,6 +242,8 @@ export const usePurchaseStore = defineStore('purchase', () => {
     quantity,
     total,
     isNicknameValid,
+    needsNickname,
+    hasLinkedNickname,
     priceLabel: PRICE_LABEL,
     showItem,
     showPass,

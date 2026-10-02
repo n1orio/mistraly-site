@@ -133,7 +133,7 @@ const hints: Record<string, string> = {
               Игровой никнейм
             </h2>
             <p class="text-xs text-zinc-400 mb-5 leading-relaxed">
-              Укажите ник (от 3 до 16 символов). Покупки и проходка привязываются к нему в базе сервера.
+              Укажите ник (от 3 до 16 символов). Он привязывается к аккаунту один раз — в следующий раз мы спросим сами.
             </p>
 
             <div class="relative mb-3">
@@ -165,11 +165,14 @@ const hints: Record<string, string> = {
 
           <!-- ================= ШАГ 3: ЧЕК И ПОДТВЕРЖДЕНИЕ ================= -->
           <div v-else-if="store.step === 3" class="flex flex-col">
+            <!-- Шаг ввода ника доступен и по кнопке: привязанный ник бывает нужно
+                 исправить — например, если сменили ник на сервере. -->
             <button
               class="inline-flex items-center gap-1 font-mono text-xs text-zinc-500 hover:text-white mb-3 transition cursor-pointer self-start"
               @click="store.step = 2"
             >
-              <ChevronLeft :size="14" /> Изменить ник
+              <ChevronLeft :size="14" />
+              {{ store.nickname ? 'Изменить ник' : 'Привязать ник' }}
             </button>
 
             <h2 class="font-heading font-black text-2xl text-white tracking-tight uppercase mb-1">
@@ -187,7 +190,7 @@ const hints: Record<string, string> = {
             <div class="receipt-box bg-black/45 border border-dashed border-white/15 p-4 mb-4 space-y-2.5 font-mono text-xs">
               <div class="flex justify-between">
                 <span class="text-zinc-500">Получатель:</span>
-                <strong class="text-white">{{ store.nickname }}</strong>
+                <strong class="text-white">{{ store.nickname || auth.user?.username || 'Привязан к аккаунту' }}</strong>
               </div>
               <div class="flex justify-between">
                 <span class="text-zinc-500">Discord:</span>
@@ -251,7 +254,7 @@ const hints: Record<string, string> = {
               Заказ выполнен!
             </h2>
             <p class="text-xs text-zinc-400 mb-2">
-              {{ store.result?.item }} для игрока <strong class="text-white">{{ store.nickname }}</strong>
+              {{ store.result?.item }} для игрока <strong class="text-white">{{ store.nickname || auth.user?.username || 'вашего аккаунта' }}</strong>
             </p>
             <p class="text-[11px] font-mono text-zinc-500 mb-6 max-w-xs leading-relaxed">
               {{
