@@ -28,6 +28,34 @@ import '@babylonjs/loaders/glTF/2.0'
 const MODEL_URL = '/models/create/cogwheel.glb'
 
 /**
+ * Прогрев движка и модели начинается до монтирования компонента.
+ *
+ * Шестерня — фоновый декор, но её не видно первые пару секунд после
+ * перезагрузки: браузер сначала качает мегабайтный чанк Babylon, потом
+ * парсит GLB, потом компилирует шейдеры. Если всё это стартует из
+ * onMounted, страница успевает отрисоваться без шестерни, и та появляется
+ * заметно позже. Поэтому импорт и запрос модели поднимаем заранее — из
+ * main.ts навигация уже идёт параллельно.
+ *
+ * Промис один на всё приложение: повторные import() того же модуля
+ * возвращают тот же результат, второй запрос модели не пойдёт.
+ */
+let preloadPromise: Promise<unknown> | null = null
+
+export function preloadGear(): Promise<unknown> {
+  if (!preloadPromise) {
+    preloadPromise = (async () => {
+      const mod = await import('./gearRenderer')
+      // Модель тянем отдельным запросом и держим в кэше браузера:
+      // LoadAssetContainerAsync переиспользует его из HTTP-кэша.
+      await fetch(MODEL_URL, { cache: 'force-cache' }).catch(() => undefined)
+      return mod
+    })()
+  }
+  return preloadPromise
+}
+
+/**
  * Опции вращения живут по ссылке: рендер-цикл читает их каждый кадр, поэтому
  * смена speed/spin на стороне Vue подхватывается без пересоздания движка.
  */
@@ -145,6 +173,13 @@ export async function createGearRenderer(
   // пересчёта мировых матриц — иначе сцена пуста и r падает в дефолт 8.
   pivot.computeWorldMatrix(true)
   applyCamera(scene, camera, opts.cameraOrbit, opts.fieldOfView)
+
+  // Ждём готовности текстур и компиляции шейдеров ДО запуска цикла.
+  // Иначе первый же кадр рисуется на полуготовых материалах, а компиляция
+  // 40+ материалов намертво блокирует главный поток: шестерня на экране
+  // есть, но секунды-две не двигается. Так мы показываем её уже готовой
+  // и сразу вращающейся.
+  await scene.whenReadyAsync()
 
   let raf = 0
   let last = performance.now()

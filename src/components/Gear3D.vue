@@ -61,6 +61,8 @@ async function init() {
   const host = wrap.value
   alive = true
 
+  // preloadGear() уже начат в main.ts, поэтому здесь импорт мгновенный —
+  // к моменту монтирования чанк и модель обычно уже в памяти.
   const { createGearRenderer } = await import('../lib/gearRenderer')
   if (!alive || !canvas.value) return
   renderer = await createGearRenderer(canvas.value, {

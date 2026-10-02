@@ -67,4 +67,11 @@ setUnauthorizedHandler(() => auth.clear())
 const { initTheme } = useTheme()
 initTheme()
 
+// Прогреваем движок и модель шестерни сразу, не дожидаясь монтирования
+// HomeView. Пока качается мегабайтный чанк Babylon, роутер и компоненты
+// главной успевают отрисоваться; без этого первые пару секунд после
+// перезагрузки фоновая шестерня ещё не готова. import() не блокирует
+// mount — он только стартует загрузку.
+void import('./lib/gearRenderer').then((m) => m.preloadGear())
+
 createApp(App).use(pinia).use(router).mount('#app')
