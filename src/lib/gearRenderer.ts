@@ -21,6 +21,8 @@ import { Texture } from '@babylonjs/core/Materials/Textures/texture'
 import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial'
 import { TransformNode } from '@babylonjs/core/Meshes/transformNode'
 import { Mesh } from '@babylonjs/core/Meshes/mesh'
+import { MeshBuilder } from '@babylonjs/core/Meshes/meshBuilder'
+import { RenderTargetTexture } from '@babylonjs/core/Materials/Textures/renderTargetTexture'
 import { LoadAssetContainerAsync } from '@babylonjs/core/Loading/sceneLoader'
 import '@babylonjs/core/Materials/PBR/pbrMaterial'
 // регистрирует glTF2-лоадер в SceneLoader, которым грузим cogwheel.glb
@@ -37,6 +39,16 @@ const MODEL_URL = '/models/create/cogwheel.glb'
  * миллисекунд, то есть статичного кадра пользователь не видит.
  */
 const READY_TIMEOUT_MS = 1200
+
+/**
+ * Бит слоя, в котором лежит клон шестерни для тени.
+ *
+ * Рендерим мы его не в кадр, а в offscreen-текстуру, поэтому основной
+ * камере этот слой видеть не надо: у камеры по умолчанию layerMask
+ * 0x0FFFFFFF, а бит 0x20000000 в него не входит, и клон отсекается сам.
+ * Так в кадре остаётся 43 меша шестерни плюс один квад, а не 86.
+ */
+const SHADOW_LAYER = 0x20000000
 
 /**
  * Прогрев движка и модели начинается до монтирования компонента.
@@ -85,8 +97,9 @@ export interface GearRendererOptions {
   /** поле зрения камеры, градусы */
   fieldOfView: string
   /**
-   * Сдвиг чёрной копии-тени вниз-вправо, в единицах модели (модель 16 юнитов
-   * на весь кадр). 0 — тени нет.
+   * Сдвиг плоской 2D-тени вниз-вправо, в CSS-пикселях. 0 — тени нет.
+   * Переводится в единицы сцены по высоте квада, поэтому не зависит от
+   * размера канваса и от DPR.
    */
   shadowOffset: number
   /** непрозрачность тени, 1 — сплошной чёрный */
@@ -192,57 +205,117 @@ export async function createGearRenderer(
   pivot.computeWorldMatrix(true)
   applyCamera(scene, camera, opts.cameraOrbit, opts.fieldOfView)
 
-  /**
-   * Тень: чёрная копия шестерн��, сдвинутая вниз-вправо.
+  /*
+   * Тень — плоский 2D-силуэт ПОЗАДИ шестерни.
    *
-   * Копия нужна именно чёрной и без текстур — иначе получится вторая
-   * шестерня, а не тень. Материал unlit с чёрным emissive: освещение не
-   * участвует, цвет ровно (0,0,0) на всех гранях.
+   * Как это собрано:
+   *  1) копия модели (клон) красится в сплошной чёрный unlit и рендерится
+   *     в offscreen-текстуру (RTT) камерой, повторяющей основную. В RTT
+   *     попадает ровно тот силуэт, который видит зритель;
+   *  2) эта текстура натягивается на ПЛОСКИЙ квад, который является
+   *     ребёнком камеры, то есть живёт в координатах экрана. Сдвиг квада
+   *     по X/Y — это и есть сдвиг тени, ровно в пикселях.
    *
-   * Сдвиг задаём в плоскости экрана (по векторам камеры), а не в мире:
-   * при постоянном мировом смещении тень уезжала бы вокруг шестерни
-   * вместе с её вращением. Плюс толкаем копию чуть дальше от камеры,
-   * чтобы работал обычный depth test и шестерня её перекрывала — без
-   * отдельного renderingGroupId.
+   * Почему не «просто сдвинутый 3D-клон»: клон — объёмный, и его силуэт
+   * меняется от ракурса, а тень должна быть плоской наклейкой. Плюс
+   * объёмный клон в основной сцене ещё и перекрывался шестернёй по
+   * глубине неравномерно.
+   *
+   * Про чёткость: RTT создаётся в размер буфера канваса и с NEAREST,
+   * поэтому край тени остаётся пиксельным, без размытия. Половинного
+   * разрешения здесь быть не должно.
+   *
+   * Клон остаётся (он и даёт силуэт), но в основной рендер больше не
+   * попадает: ему выставлен слой SHADOW_LAYER, которого нет у камеры.
+   * Так в кадре остаётся 43 меша шестерни + 1 квад, а не 86.
    */
-  let shadowPivot: TransformNode | null = null
+  let shadow: {
+    rtt: RenderTargetTexture
+    quad: Mesh
+    cam: ArcRotateCamera
+  } | null = null
+
   if (opts.shadowOffset > 0) {
     const shadowMat = new StandardMaterial('gearShadow', scene)
     shadowMat.disableLighting = true
     shadowMat.emissiveColor = Color3.Black()
     shadowMat.diffuseColor = Color3.Black()
     shadowMat.specularColor = Color3.Black()
-    if (opts.shadowOpacity < 1) {
-      shadowMat.alpha = opts.shadowOpacity
-    }
 
-    // clone без рекурсии по детям не нужен — нам нужна полная копия.
-    // Геометрия при этом шэрится с оригиналом, память не дублируется.
+    // Клон: геометрия шэрится с оригиналом, память не дублируется.
     const shadowSrc = src.clone('gearShadowRoot', null) as TransformNode | null
     if (shadowSrc) {
-      shadowPivot = new TransformNode('gearShadow', scene)
+      const shadowPivot = new TransformNode('gearShadow', scene)
       shadowPivot.addChild(shadowSrc)
       const shadowMeshes = shadowPivot.getChildMeshes() as Mesh[]
       for (const m of shadowMeshes) {
         m.material = shadowMat
         m.isPickable = false
         m.receiveShadows = false
+        m.layerMask = SHADOW_LAYER
       }
-      /*
-       * Сливаем 43 меша тени в ОДИН. Материал у них общий, поэтому
-       * MergeMesches не теряет ничего, а draw call'ов становится 1
-       * вместо 43. Без этого клон удваивал и так не самый лёгкий
-       * по числу вызовов список мешей.
-       */
+      // 43 меша в один: в RTT это один draw call вместо сорока трёх.
+      let silhouette: Mesh | null = shadowMeshes[0] ?? null
       if (shadowMeshes.length > 1) {
         const merged = Mesh.MergeMeshes(shadowMeshes, true, true, undefined, false, false)
         if (merged) {
           merged.name = 'gearShadowMesh'
           merged.material = shadowMat
           merged.isPickable = false
-          merged.receiveShadows = false
+          merged.layerMask = SHADOW_LAYER
           merged.parent = shadowPivot
+          silhouette = merged
         }
+      }
+      if (silhouette) {
+        // Камера для RTT: та же ориентация, что у основной, но видит
+        // ТОЛЬКО слой тени. У основной камеры в layerMask этого бита
+        // нет, поэтому клон в кадр не попадает.
+        const shadowCam = new ArcRotateCamera('shadowCam', 0, 0, 10, Vector3.Zero(), scene)
+        shadowCam.layerMask = SHADOW_LAYER
+        shadowCam.minZ = camera.minZ
+        shadowCam.maxZ = camera.maxZ
+
+        const rtt = new RenderTargetTexture(
+          'gearShadowRTT',
+          { width: 1, height: 1 },
+          scene,
+          { generateMipMaps: false, samplingMode: Texture.NEAREST_SAMPLINGMODE }
+        )
+        rtt.clearColor = new Color4(0, 0, 0, 0)
+        rtt.renderList = [silhouette]
+        rtt.activeCamera = shadowCam
+
+        // Плоский квад-подложка. Он ребёнок камеры, поэтому его локальные
+        // X/Y — это буквально пиксели экрана.
+        const quad = MeshBuilder.CreatePlane('gearShadowQuad', { size: 1 }, scene)
+        const quadMat = new StandardMaterial('gearShadowQuadMat', scene)
+        quadMat.disableLighting = true
+        // Цвет задаём чёрным САМИМ материалом, а не картинкой в RTT.
+        // Наблюдалось: emissiveTexture у квада не биндился, Babylon
+        // подставлял белый, и тень выходила светло-серой вместо чёрной
+        // (255 * прозрачность 0.55 * маска ≈ 102 — ровно то, что было).
+        // С чёрным emissive результат одинаково чёрный, даже если
+        // текстура не отдаст цвет. Форму даёт opacityTexture.
+        quadMat.emissiveColor = Color3.Black()
+        quadMat.diffuseColor = Color3.Black()
+        quadMat.ambientColor = Color3.Black()
+        quadMat.specularColor = Color3.Black()
+        quadMat.emissiveTexture = rtt
+        quadMat.opacityTexture = rtt
+        quadMat.backFaceCulling = false
+        if (opts.shadowOpacity < 1) quadMat.alpha = opts.shadowOpacity
+        quad.material = quadMat
+        quad.parent = camera
+        quad.isPickable = false
+        quad.alwaysSelectAsActiveMesh = true
+        quad.renderingGroupId = 0
+        // Шестерня — в группу 1. Babylon чистит глубину между группами,
+        // поэтому квад гарантированно окажется под ней.
+        pivot.getChildMeshes().forEach((m) => { m.renderingGroupId = 1 })
+
+        shadow = { rtt, quad, cam: shadowCam }
+        layoutShadow()
       }
     }
   }
@@ -272,9 +345,41 @@ export async function createGearRenderer(
    * не будет ничего.
    */
 
-  const camRight = new Vector3()
-  const camUp = new Vector3()
-  const camFwd = new Vector3()
+  /**
+   * Раскладывает квад тени по экрану: размер под фрустум и сдвиг в пикселях.
+   *
+   * RTT отрендерен основной камерой, поэтому картинка в нём — ровно то,
+   * что видит зритель. Чтобы натянуть её 1:1, квад должен быть ровно по
+   * размеру фрустума на своём расстоянии, а его UV 0..1 — на весь RTT.
+   */
+  function layoutShadow() {
+    if (!shadow) return
+    const { rtt, quad, cam: shadowCam } = shadow
+    // RTT по размеру буфера канваса: иначе тень мылится.
+    const bw = engine.getRenderWidth()
+    const bh = engine.getRenderHeight()
+    if (rtt.getSize().width !== bw || rtt.getSize().height !== bh) {
+      rtt.resize({ width: bw, height: bh })
+    }
+    // Камера RTT повторяет основную (та же самая картинка силуэта).
+    shadowCam.alpha = camera.alpha
+    shadowCam.beta = camera.beta
+    shadowCam.radius = camera.radius
+    shadowCam.fov = camera.fov
+    shadowCam.setTarget(Vector3.Zero())
+
+    // Квад — ребёнок камеры, поэтому Z отсчитывается вперёд по её оси.
+    const d = camera.radius * 2
+    const h = 2 * d * Math.tan(camera.fov / 2)
+    const aspect = engine.getAspectRatio(camera)
+    quad.scaling.set(h * aspect, h, 1)
+    quad.position.set(0, 0, d)
+    // Сдвиг в пикселях CSS -> в единицы сцены.
+    const cssH = canvas.clientHeight || engine.getRenderHeight()
+    const perPx = h / cssH
+    quad.position.x += opts.shadowOffset * perPx
+    quad.position.y -= opts.shadowOffset * perPx
+  }
 
   let raf = 0
   let last = performance.now()
@@ -286,36 +391,25 @@ export async function createGearRenderer(
     const dt = Math.min((now - last) / 1000, 0.1)
     last = now
     if (spinState.spin && spinState.speed > 0) {
-      const step = (Math.PI * 2 * dt) / spinState.speed
-      pivot.rotation.y += step
-      if (shadowPivot) shadowPivot.rotation.y = pivot.rotation.y
+      pivot.rotation.y += (Math.PI * 2 * dt) / spinState.speed
     }
-    if (shadowPivot) {
-      /*
-       * Берём оси прямо из мировой матрицы камеры, а не через
-       * Vector3.Cross. Babylon — система ЛЕВАЯ, и кросс-продукт в ней
-       * даёт противоположный «правый» вектор: тень уезжала влево вместо
-       * вправо. В матрице локальные оси лежат так:
-       *   m[0..2] = X (вправо), m[4..6] = Y (вверх), m[8..10] = Z (вперёд).
-       */
-      const m = camera.getWorldMatrix().m
-      camRight.set(m[0], m[1], m[2])
-      camUp.set(m[4], m[5], m[6])
-      camFwd.set(m[8], m[9], m[10])
-      const d = opts.shadowOffset
-      // вправо, вниз и чуть вглубь — чтобы работал depth test
-      shadowPivot.position.copyFrom(camRight).scaleInPlace(d)
-      shadowPivot.position.addInPlace(camUp.scale(-d))
-      shadowPivot.position.addInPlace(camFwd.scale(d * 0.35))
-    }
+    // Силуэт перерисовываем каждый кадр: шестерня крутится, значит и тень.
+    // Один draw call — слиянием 43 мешей выше.
+    if (shadow) shadow.rtt.render()
     scene.render()
   }
   raf = requestAnimationFrame(loop)
 
   return {
-    setCamera: (orbit, fov) => applyCamera(scene, camera, orbit, fov),
+    setCamera: (orbit, fov) => {
+      applyCamera(scene, camera, orbit, fov)
+      layoutShadow()
+    },
     setExposure: (v) => { scene.imageProcessingConfiguration.exposure = v },
-    resize: () => engine.resize(),
+    resize: () => {
+      engine.resize()
+      layoutShadow()
+    },
     dispose: () => {
       cancelAnimationFrame(raf)
       engine.dispose()

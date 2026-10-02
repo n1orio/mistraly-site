@@ -41,8 +41,7 @@ const props = withDefaults(defineProps<{
   /** экспозиция рендера */
   exposure?: number
   /**
-   * Сдвиг чёрной копии-тени вниз-вправо в единицах модели (шестерня — 16
-   * юнитов). 0 — тени нет.
+   * Сдвиг ��ёрной 2D-тени вниз-вправо, в CSS-пикселях. 0 — тени нет.
    */
   shadowOffset?: number
   /** непрозрачность тени, 1 — сплошной чёрный */
@@ -55,7 +54,7 @@ const props = withDefaults(defineProps<{
   fieldOfView: '26deg',
   dim: 0.55,
   exposure: 1.1,
-  shadowOffset: 0.42,
+  shadowOffset: 14,
   shadowOpacity: 1
 })
 
