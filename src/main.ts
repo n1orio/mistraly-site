@@ -18,6 +18,15 @@ const routes: RouteRecordRaw[] = [
   },
   { path: '/shop', name: 'Shop', component: () => import('./views/ShopView.vue') },
   {
+    path: '/admin',
+    name: 'Admin',
+    component: () => import('./views/AdminView.vue'),
+    // requiresAuth гардит вход, requiresAdmin — роль. Роль проверяет и
+    // бэкенд, но гард нужен, чтобы не грузить админ-таблицы тем, кому
+    // они всё равно вернут 403.
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
     path: '/profile',
     name: 'Profile',
     component: () => import('./views/SiteProfileView.vue'),
@@ -54,6 +63,11 @@ router.beforeEach(async (to) => {
 
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
     return { path: '/auth/discord', query: { redirect: to.fullPath } }
+  }
+  // Не админа отправляем на главную, а не показываем пустую админку:
+  // роль всё равно проверяется бэкендом, но лишний экран не нужен.
+  if (to.meta.requiresAdmin && !auth.isAdmin) {
+    return { path: '/' }
   }
   return true
 })
