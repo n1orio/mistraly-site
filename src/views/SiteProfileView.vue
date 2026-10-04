@@ -149,7 +149,7 @@ function deliveryLabel(status: string): { text: string; cls: string } {
           <div style="--card-fill:#161926;--card-border:#2D334D;--btn-shadow:#181B38" class="relative skew-card p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <span class="text-xs font-bold uppercase tracking-widest text-[#60A5FA] block mb-1">
-                Личный терминал Mistraly
+                Личный профиль
               </span>
               <h1 class="deadlock-heading text-3xl sm:text-4xl text-[#EFEBD9] tracking-wide drop-shadow-[2px_2px_0px_rgba(0,0,0,0.7)]">
                 {{ user?.username || auth.discord?.discord_username || 'Игрок' }}
@@ -200,7 +200,7 @@ function deliveryLabel(status: string): { text: string; cls: string } {
                 {{
                   pass?.expires_at
                     ? `Действует до: ${new Date(pass.expires_at).toLocaleDateString('ru-RU')}`
-                    : 'Бессрочный доступ на все воздушные маршруты Mistraly.'
+                    : 'Бессрочный доступ на Mistraly.'
                 }}
               </p>
 
@@ -275,15 +275,15 @@ function deliveryLabel(status: string): { text: string; cls: string } {
                     <span class="text-xs font-mono font-bold text-white block">
                       {{ skinFile ? skinFile.name : 'ВЫБРАТЬ .PNG ФАЙЛ' }}
                     </span>
-                    <span class="text-[10px] font-mono text-zinc-400 mt-1">До 1 МБ (64x64 или 64x32)</span>
+                    <span class="text-[10px] font-mono text-zinc-400 mt-1">До 1 МБ </span>
                     <input type="file" accept="image/png" class="hidden" @change="onFileSelect" />
                   </label>
 
                   <div class="flex items-center gap-3 font-mono text-xs text-white">
                     <span>Формат:</span>
                     <select v-model="variant" class="bg-black/60 border border-white/20 px-3 py-1.5 text-xs text-white outline-none">
-                      <option value="default">Classic 64×32</option>
-                      <option value="slim">Slim 64×64</option>
+                      <option value="default">Classic</option>
+                      <option value="slim">Slim</option>
                     </select>
                   </div>
 
@@ -334,7 +334,7 @@ function deliveryLabel(status: string): { text: string; cls: string } {
                 История покупок
               </h3>
               <p class="text-xs text-[#C7D2FE] leading-relaxed mb-6 font-mono">
-                // Предметы начисляются автоматически через модпак Create при подключении к серверу.
+                // Предметы начисляются автоматически при подключении к серверу.
               </p>
 
               <div v-if="!purchases.length" class="text-xs font-mono text-zinc-400 py-4 text-center border border-dashed border-white/10 bg-black/20">
