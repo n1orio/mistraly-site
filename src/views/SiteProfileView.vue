@@ -5,13 +5,11 @@ import {
   Download,
   LogOut,
   Upload,
-  User,
   ShieldCheck,
   Check,
-  Compass,
-  FileText,
+  Package,
   Sparkles,
-  ArrowRight
+  ExternalLink
 } from 'lucide-vue-next'
 import { usePurchaseStore } from '../stores/purchase'
 import { useAuthStore } from '../stores/auth'
@@ -32,7 +30,6 @@ const skinFile = ref<File | null>(null)
 const variant = ref<'default' | 'slim'>('default')
 const statusMsg = ref('')
 const isUploading = ref(false)
-const dragActive = ref(false)
 
 const hasPass = computed(() => !!pass.value?.has_pass && !pass.value?.expired)
 
@@ -95,14 +92,6 @@ function onFileSelect(e: Event) {
   if (target.files?.[0]) skinFile.value = target.files[0]
 }
 
-function onDrop(e: DragEvent) {
-  dragActive.value = false
-  if (e.dataTransfer?.files?.[0]) {
-    const f = e.dataTransfer.files[0]
-    if (f.type === 'image/png') skinFile.value = f
-  }
-}
-
 async function uploadSkin() {
   if (!skinFile.value) return
   statusMsg.value = ''
@@ -140,101 +129,73 @@ const skinPreviewUrl = computed(() =>
     : undefined
 )
 
-function deliveryInfo(status: string): { label: string; stampCls: string } {
+function statusBadge(status: string) {
   switch (status) {
     case 'pending':
-      return { label: 'В ПУТИ // ОЖИДАНИЕ', stampCls: 'stamp-yellow' }
+      return { text: 'Ожидает входа', cls: 'text-[#FFCC00] border-[#FFCC00]/30 bg-[#FFCC00]/10' }
     case 'failed':
-      return { label: 'ОШИБКА ДОСТАВКИ', stampCls: 'stamp-red' }
+      return { text: 'Ошибка', cls: 'text-rose-400 border-rose-500/30 bg-rose-500/10' }
     default:
-      return { label: 'ВЫДАНО В ТРЮМ', stampCls: 'stamp-green' }
+      return { text: 'Выдано', cls: 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10' }
   }
 }
 </script>
 
 <template>
-  <main class="w-full flex-1 flex flex-col items-center page-bg bg-[var(--bg-page)] text-[var(--text-main)] px-4 pt-28 pb-20 select-none relative overflow-hidden">
+  <main class="w-full flex-1 flex flex-col items-center page-bg bg-[var(--bg-page)] text-[var(--text-main)] px-4 pt-24 pb-16 sm:pt-28 select-none">
+    <div class="w-full max-w-5xl">
 
-    <!-- Центральная пунктирная навигационная ось дирижабля (как на лендинге) -->
-    <div class="absolute inset-y-0 left-1/2 -translate-x-1/2 w-0.5 border-r-2 border-dashed border-[#4D4B33] pointer-events-none opacity-20"></div>
-
-    <div class="w-full max-w-5xl relative z-10">
-
-      <!-- ================= ШАПКА: БОРТОВОЙ ЖУРНАЛ / СТАТУС ПИЛОТА ================= -->
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-        <div>
-          <div class="flex items-center gap-2 mb-1.5">
-            <span class="inline-block bg-[#0099FF] text-black font-heading font-black text-xs uppercase px-2 py-0.5 tracking-wider rotate-[-1.5deg] shadow-[3px_3px_0px_rgba(0,0,0,0.6)]">
-              MISTRALY // FLIGHT DECK
-            </span>
-            <span class="text-xs font-mono text-zinc-500">// СЕРВЕРНЫЙ ПРОФИЛЬ</span>
-          </div>
-          <h1 class="font-heading font-black text-3xl sm:text-5xl text-white tracking-tight uppercase">
-            Каюта <span class="word-hl">пилота</span>
+      <!-- ================= ВЕРХНЯЯ СТРОКА ПРОФИЛЯ ================= -->
+      <div class="flex items-center justify-between border-b border-white/10 pb-5 mb-8">
+        <div class="flex items-center gap-3">
+          <span
+            class="font-heading font-black text-xs uppercase px-2 py-0.5 text-black"
+            style="background-color: #0099FF; transform: rotate(-1.5deg);"
+          >
+            ПРОФИЛЬ
+          </span>
+          <h1 class="font-heading font-black text-2xl sm:text-3xl text-white tracking-tight uppercase">
+            {{ user?.username || auth.discord?.discord_username || 'Игрок' }}
           </h1>
+          <span v-if="user?.role === 'admin'" class="text-[10px] font-mono px-2 py-0.5 bg-rose-500/20 text-rose-400 border border-rose-500/30 font-bold uppercase">
+            Admin
+          </span>
         </div>
 
         <button
           @click="logout"
-          class="font-mono text-xs uppercase tracking-wider text-zinc-400 hover:text-white flex items-center gap-2 py-2 px-3 border border-white/10 hover:border-white/30 bg-black/40 transition cursor-pointer"
+          class="font-mono text-xs text-zinc-400 hover:text-white flex items-center gap-1.5 transition cursor-pointer py-1.5 px-3 border border-white/10 hover:border-white/30 bg-white/[0.02]"
         >
-          <LogOut :size="13" /> Завершить сеанс
+          <LogOut :size="13" />
+          <span>Выйти</span>
         </button>
       </div>
 
-      <!-- ================= ОСНОВНАЯ СЕТКА ================= -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-10">
+      <!-- ================= ДВУХКОЛОНОЧНЫЙ БЛОК ================= -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-        <!-- ================= ЛЕВАЯ КОЛОНКА: ПОЛЁТНЫЙ ПАСПОРТ (ID CARD) ================= -->
-        <div class="lg:col-span-5 relative group">
-
-          <!-- Выносная печать-шеврон слева вверху (как в секции модов) -->
-          <div class="popout-badge pointer-events-none">
-            <div class="w-16 h-16 rounded-xl bg-[#1e2333] border-2 border-[#0099FF]/40 text-[#0099FF] flex items-center justify-center badge-shadow rotate-[-4deg] group-hover:rotate-0 group-hover:scale-105 transition-all">
-              <Compass :size="30" />
-            </div>
-          </div>
-
-          <!-- Наклонный стикер статуса справа вверху -->
-          <div class="absolute -top-3.5 right-4 z-20 pointer-events-none">
-            <div
-              :class="hasPass ? 'bg-[#4ADE80] text-[#0d2310]' : 'bg-[#E05929] text-white'"
-              class="font-heading font-black text-xs uppercase tracking-wider px-3 py-1 shadow-[4px_4px_0px_rgba(0,0,0,0.7)] rotate-[2deg]"
-            >
-              {{ hasPass ? 'ДОПУЩЕН К ПОЛЁТУ' : 'ТРЕБУЕТСЯ ВИЗА' }}
-            </div>
-          </div>
-
-          <!-- Само удостоверение пилота -->
+        <!-- ЛЕВАЯ КОЛОНКА (5/12): 3D Стенд скина + Модификатор -->
+        <div class="lg:col-span-5 flex flex-col">
           <div
-            class="flight-pass-card bg-gradient-to-b from-[#18191d] to-[#121316] p-6 pt-9 border border-white/10 relative overflow-hidden"
-            style="clip-path: polygon(0% 1.8%, 100% 0%, 98.8% 98.8%, 1.2% 100%);"
+            class="skin-podium p-5 relative overflow-hidden"
+            style="clip-path: polygon(0% 1.5%, 100% 0%, 98.5% 98.5%, 1.5% 100%);"
           >
-            <div class="comic-dots-pattern" aria-hidden="true" />
+            <!-- Фоновые риски стенда -->
+            <div class="podium-grid-lines" aria-hidden="true"></div>
 
             <div class="relative z-10">
-
-              <!-- Заголовок паспорта -->
-              <div class="pl-14 mb-4">
-                <span class="text-[10px] font-mono uppercase text-zinc-500 tracking-widest block">
-                  PILOT IDENTIFICATION CARD
+              <!-- Заголовок стенда -->
+              <div class="flex justify-between items-center mb-2">
+                <span class="font-heading font-black text-[10px] uppercase tracking-wider text-zinc-400">
+                  // 3D СКИН ИГРОКА
                 </span>
-                <h2 class="font-heading font-black text-2xl text-white tracking-tight uppercase leading-none">
-                  {{ user?.username || auth.discord?.discord_username || 'Неизвестный' }}
-                </h2>
+                <span class="text-[10px] font-mono text-zinc-500">
+                  Вращайте мышью
+                </span>
               </div>
 
-              <!-- 3D ГОЛОГРАММА / ФОТОГРАФИЯ В ПАСПОРТЕ -->
-              <div class="relative w-full aspect-[4/3] bg-black/60 border border-white/15 my-4 flex items-center justify-center overflow-hidden pilot-photo-frame">
-                <div class="absolute top-2 left-2 z-10 flex items-center gap-1 font-mono text-[9px] text-[#0099FF] bg-black/70 px-2 py-0.5 border border-white/10">
-                  <span class="w-1.5 h-1.5 rounded-full bg-[#0099FF] animate-pulse"></span>
-                  LIVE 3D
-                </div>
-
-                <div class="absolute bottom-2 right-2 z-10 font-mono text-[9px] text-zinc-500 bg-black/70 px-2 py-0.5">
-                  ТЯНИТЕ ДЛЯ ВРАЩЕНИЯ
-                </div>
-
+              <!-- Сам 3D персонаж -->
+              <div class="w-full h-[320px] flex items-center justify-center relative">
                 <SkinViewer3D
                   :skin-url="skinPreviewUrl"
                   :variant="user?.skin_variant"
@@ -242,203 +203,167 @@ function deliveryInfo(status: string): { label: string; stampCls: string } {
                 />
               </div>
 
-              <!-- БЛОК ДАННЫХ ПИЛОТА (Табличка) -->
-              <div class="space-y-2 font-mono text-xs mb-6 bg-black/40 p-3.5 border border-dashed border-white/15">
-                <div class="flex justify-between items-center border-b border-white/10 pb-1.5">
-                  <span class="text-zinc-500">Позывной Minecraft:</span>
-                  <strong class="text-white font-bold">{{ linkedNickname?.nickname || 'Не привязан' }}</strong>
-                </div>
-                <div class="flex justify-between items-center border-b border-white/10 pb-1.5">
-                  <span class="text-zinc-500">Discord ID:</span>
-                  <strong class="text-[#60A5FA] font-bold flex items-center gap-1">
-                    <ShieldCheck :size="13" />
-                    {{ auth.discord?.discord_username || 'Привязан' }}
-                  </strong>
-                </div>
-                <div class="flex justify-between items-center">
-                  <span class="text-zinc-500">Mistraly Pass:</span>
-                  <strong :class="hasPass ? 'text-[#4ADE80]' : 'text-[#E05929]'" class="font-bold">
-                    {{ hasPass ? 'Бессрочный допуск' : 'Не оформлен' }}
-                  </strong>
-                </div>
-              </div>
+              <!-- Панель управления скином -->
+              <div class="pt-4 border-t border-white/10 space-y-3 font-mono text-xs">
+                <!-- Кнопка выбора файла -->
+                <div class="flex gap-2">
+                  <label class="flex-1 bg-black/50 border border-white/15 hover:border-[#0099FF] px-3 py-2 flex items-center justify-between cursor-pointer transition">
+                    <span class="truncate text-zinc-300 text-xs">
+                      {{ skinFile ? skinFile.name : 'Выбрать PNG...' }}
+                    </span>
+                    <Upload :size="14" class="text-[#0099FF] shrink-0 ml-2" />
+                    <input type="file" accept="image/png" class="hidden" @change="onFileSelect" />
+                  </label>
 
-              <!-- ГЛАВНАЯ КНОПКА ДЕЙСТВИЯ -->
-              <div class="comic-btn-wrap w-full">
-                <button
-                  v-if="!hasPass"
-                  @click="buyPass"
-                  class="comic-btn w-full py-3.5 px-6 font-heading font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer"
-                  :style="{ '--btn-bg': '#E05929', '--btn-color': '#FFFFFF' }"
-                >
-                  Оформить проходку &rarr;
-                </button>
-                <a
-                  v-else
-                  href="/#launcher"
-                  class="comic-btn w-full py-3.5 px-6 font-heading font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer text-decoration-none"
-                  :style="{ '--btn-bg': '#4ADE80', '--btn-color': '#112211' }"
-                >
-                  <Download :size="16" /> Скачать Mistraly Launcher
-                </a>
-              </div>
-
-            </div>
-          </div>
-        </div>
-
-        <!-- ================= ПРАВАЯ КОЛОНКА: ГАРДЕРОБ И МАНИФЕСТ ================= -->
-        <div class="lg:col-span-7 flex flex-col gap-8">
-
-          <!-- БЛОК 1: МОДИФИКАЦИЯ ЭКИПИРОВКИ (Скин) -->
-          <div class="relative group">
-            <!-- Стикер заголовка -->
-            <div class="absolute -top-3 left-4 z-20 pointer-events-none">
-              <span class="bg-[#FFCC00] text-black font-heading font-black text-[11px] uppercase tracking-wider px-2.5 py-1 rotate-[-2deg] shadow-[3px_3px_0px_rgba(0,0,0,0.6)]">
-                МАСТЕРСКАЯ // ГАРДЕРОБ
-              </span>
-            </div>
-
-            <div
-              class="panel-card bg-gradient-to-b from-[#18191d] to-[#121316] p-6 sm:p-7 pt-8 border border-white/10 relative overflow-hidden"
-              style="clip-path: polygon(0.4% 0%, 100% 1.2%, 99.2% 100%, 0% 98.8%);"
-            >
-              <div class="comic-dots-pattern" aria-hidden="true" />
-
-              <div class="relative z-10">
-                <div class="mb-4">
-                  <h3 class="font-heading font-black text-xl text-white tracking-tight uppercase mb-1">
-                    Смена формы пилота
-                  </h3>
-                  <p class="text-xs font-mono text-zinc-400">
-                    // Перетащите .PNG файл скина или выберите с устройства. Изменения мгновенно применяются на сервере.
-                  </p>
-                </div>
-
-                <!-- Drag & Drop Зона -->
-                <div
-                  class="border-2 border-dashed p-6 text-center transition cursor-pointer relative bg-black/40 mb-4 group/drop"
-                  :class="dragActive ? 'border-[#0099FF] bg-[#0099FF]/10' : 'border-white/20 hover:border-white/40'"
-                  @dragover.prevent="dragActive = true"
-                  @dragleave.prevent="dragActive = false"
-                  @drop.prevent="onDrop"
-                >
-                  <input type="file" accept="image/png" class="absolute inset-0 opacity-0 cursor-pointer" @change="onFileSelect" />
-                  <Upload :size="28" class="mx-auto mb-2 text-[#FFCC00] group-hover/drop:scale-110 transition" />
-                  <p class="font-mono text-xs font-bold text-white mb-1">
-                    {{ skinFile ? skinFile.name : 'ПЕРЕТАЩИТЕ .PNG СКИЙН ИЛИ НАЖМИТЕ ДЛЯ ВЫБОРА' }}
-                  </p>
-                  <p class="font-mono text-[10px] text-zinc-500">
-                    Поддерживаются 64×64 (современный) и 64×32 (классический) • до 1 МБ
-                  </p>
-                </div>
-
-                <!-- Переключатель формата и кнопка сохранения -->
-                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-2">
-                  <div class="flex items-center gap-2 font-mono text-xs bg-black/60 p-1.5 border border-white/10 w-fit">
-                    <span class="text-zinc-500 px-2">Формат рук:</span>
+                  <!-- Переключатель Classic / Slim -->
+                  <div class="flex bg-black/50 border border-white/15 p-0.5 shrink-0">
                     <button
                       type="button"
                       @click="variant = 'default'"
-                      class="px-3 py-1 font-bold transition cursor-pointer"
-                      :class="variant === 'default' ? 'bg-[#0099FF] text-black' : 'text-zinc-400 hover:text-white'"
+                      class="px-2 py-1 text-[11px] font-bold transition cursor-pointer"
+                      :class="variant === 'default' ? 'bg-white text-black' : 'text-zinc-500 hover:text-white'"
                     >
-                      Classic (4px)
+                      Classic
                     </button>
                     <button
                       type="button"
                       @click="variant = 'slim'"
-                      class="px-3 py-1 font-bold transition cursor-pointer"
-                      :class="variant === 'slim' ? 'bg-[#0099FF] text-black' : 'text-zinc-400 hover:text-white'"
+                      class="px-2 py-1 text-[11px] font-bold transition cursor-pointer"
+                      :class="variant === 'slim' ? 'bg-white text-black' : 'text-zinc-500 hover:text-white'"
                     >
-                      Slim (3px)
-                    </button>
-                  </div>
-
-                  <div class="comic-btn-wrap">
-                    <button
-                      :disabled="!skinFile || isUploading"
-                      @click="uploadSkin"
-                      class="comic-btn py-2.5 px-6 font-heading font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer disabled:opacity-30"
-                      :style="{ '--btn-bg': '#FFCC00', '--btn-color': '#111214' }"
-                    >
-                      <Check :size="14" />
-                      {{ isUploading ? 'Загружаем…' : 'Утвердить форму' }}
+                      Slim
                     </button>
                   </div>
                 </div>
 
-                <p v-if="statusMsg" class="font-mono text-xs text-[#4ADE80] mt-3">
-                  ✔ {{ statusMsg }}
+                <!-- Кнопка сохранения скина -->
+                <div class="comic-btn-wrap w-full">
+                  <button
+                    :disabled="!skinFile || isUploading"
+                    @click="uploadSkin"
+                    class="comic-btn w-full py-2.5 px-4 font-heading font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer disabled:opacity-30"
+                    :style="{ '--btn-bg': '#0099FF', '--btn-color': '#FFFFFF' }"
+                  >
+                    <Check :size="14" />
+                    {{ isUploading ? 'Загружаем…' : 'Применить скин' }}
+                  </button>
+                </div>
+
+                <p v-if="statusMsg" class="text-xs font-mono text-emerald-400 text-center">
+                  {{ statusMsg }}
                 </p>
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- БЛОК 2: ГРУЗОВОЙ МАНИФЕСТ (Журнал заказов) -->
-          <div class="relative group">
-            <div class="absolute -top-3 left-4 z-20 pointer-events-none">
-              <span class="bg-[#0099FF] text-black font-heading font-black text-[11px] uppercase tracking-wider px-2.5 py-1 rotate-[1.5deg] shadow-[3px_3px_0px_rgba(0,0,0,0.6)]">
-                МАНИФЕСТ // ГРУЗОВОЙ ОТСЕК
+        <!-- ПРАВАЯ КОЛОНКА (7/12): Доступ + Заказы -->
+        <div class="lg:col-span-7 flex flex-col gap-6">
+
+          <!-- 1. КАРТОЧКА ДОСТУПА НА СЕРВЕР -->
+          <div
+            class="access-card p-6 sm:p-7 relative overflow-hidden"
+            style="clip-path: polygon(0% 0%, 100% 1.5%, 99% 100%, 0.8% 98.5%);"
+          >
+            <div class="flex items-center justify-between mb-4 border-b border-white/10 pb-3">
+              <div>
+                <span class="font-heading font-black text-[10px] uppercase tracking-wider text-zinc-500 block">
+                  СТАТУС АККАУНТА
+                </span>
+                <h2 class="font-heading font-black text-2xl text-white tracking-tight uppercase">
+                  Доступ на сервер
+                </h2>
+              </div>
+
+              <!-- Бейдж статуса -->
+              <span
+                class="font-heading font-black text-xs uppercase px-2.5 py-1 tracking-wider text-black"
+                :style="{
+                  backgroundColor: hasPass ? '#22C55E' : '#FFCC00',
+                  transform: 'rotate(-2deg)'
+                }"
+              >
+                {{ hasPass ? 'ПРОХОДКА АКТИВНА' : 'НЕТ ПРОХОДКИ' }}
               </span>
             </div>
 
-            <div
-              class="panel-card bg-gradient-to-b from-[#18191d] to-[#121316] p-6 sm:p-7 pt-8 border border-white/10 relative overflow-hidden"
-              style="clip-path: polygon(0% 1%, 100% 0%, 99.2% 99%, 0.8% 100%);"
-            >
-              <div class="comic-dots-pattern" aria-hidden="true" />
+            <!-- Данные привязки -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono text-xs mb-6">
+              <div class="p-3 bg-black/45 border border-white/10">
+                <span class="text-zinc-500 text-[11px] block mb-1">Никнейм в игре:</span>
+                <strong class="text-white text-sm font-bold">{{ linkedNickname?.nickname || 'Не привязан' }}</strong>
+              </div>
+              <div class="p-3 bg-black/45 border border-white/10">
+                <span class="text-zinc-500 text-[11px] block mb-1">Discord:</span>
+                <strong class="text-white text-sm font-bold flex items-center gap-1.5">
+                  <ShieldCheck :size="14" class="text-[#0099FF]" />
+                  {{ auth.discord?.discord_username || 'Привязан' }}
+                </strong>
+              </div>
+            </div>
 
-              <div class="relative z-10">
-                <div class="flex items-center justify-between mb-4 border-b border-white/10 pb-3">
-                  <div>
-                    <h3 class="font-heading font-black text-xl text-white tracking-tight uppercase">
-                      История грузов и услуг
-                    </h3>
-                    <p class="text-xs font-mono text-zinc-500">
-                      // Предметы и услуги, прикрепленные к вашей учётной записи
-                    </p>
-                  </div>
-                  <FileText :size="20" class="text-zinc-600 hidden sm:block" />
+            <!-- Главное действие -->
+            <div class="comic-btn-wrap w-full">
+              <a
+                v-if="hasPass"
+                href="/#launcher"
+                class="comic-btn w-full py-3.5 px-6 font-heading font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer text-decoration-none"
+                :style="{ '--btn-bg': '#22C55E', '--btn-color': '#101113' }"
+              >
+                <Download :size="16" />
+                Скачать Mistraly Launcher
+              </a>
+
+              <button
+                v-else
+                @click="buyPass"
+                class="comic-btn w-full py-3.5 px-6 font-heading font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer"
+                :style="{ '--btn-bg': '#FFCC00', '--btn-color': '#101113' }"
+              >
+                Купить Mistraly Pass →
+              </button>
+            </div>
+          </div>
+
+          <!-- 2. ИСТОРИЯ ЗАКАЗОВ (Квитанция) -->
+          <div
+            class="receipt-card p-6 relative overflow-hidden"
+            style="clip-path: polygon(0.6% 0%, 99.4% 1.2%, 100% 100%, 0% 98.8%);"
+          >
+            <div class="flex items-center justify-between mb-4 border-b border-white/10 pb-3">
+              <span class="font-heading font-black text-xs uppercase tracking-wider text-white">
+                Журнал покупок
+              </span>
+              <router-link
+                to="/shop"
+                class="font-mono text-xs text-[#0099FF] hover:underline flex items-center gap-1"
+              >
+                Магазин <ExternalLink :size="12" />
+              </router-link>
+            </div>
+
+            <div v-if="!purchases.length" class="text-center py-6 border border-dashed border-white/10 bg-black/30 font-mono text-xs text-zinc-500">
+              Покупок пока не зарегистрировано.
+            </div>
+
+            <div v-else class="space-y-2 font-mono text-xs">
+              <div
+                v-for="p in purchases"
+                :key="p.id"
+                class="flex items-center justify-between p-2.5 bg-black/40 border border-white/10"
+              >
+                <div>
+                  <strong class="text-white block font-bold">{{ p.item_name }}</strong>
+                  <span class="text-zinc-500 text-[10px]">
+                    {{ new Date(p.created_at.replace(' ', 'T') + 'Z').toLocaleDateString('ru-RU') }}
+                  </span>
                 </div>
-
-                <!-- Пустое состояние -->
-                <div v-if="!purchases.length" class="text-center py-8 border border-dashed border-white/10 bg-black/30 font-mono text-xs text-zinc-500">
-                  <p class="mb-1 text-zinc-400 font-bold">Трюм пуст</p>
-                  <p class="text-[11px] mb-4">В бортовом журнале пока нет зарегистрированных доставок.</p>
-                  <router-link
-                    to="/shop"
-                    class="inline-flex items-center gap-1.5 text-[#0099FF] hover:underline uppercase text-[11px] font-bold"
-                  >
-                    Перейти в судовой магазин &rarr;
-                  </router-link>
-                </div>
-
-                <!-- Список заказов в виде товарной ведомости -->
-                <div v-else class="space-y-2.5 font-mono text-xs">
-                  <div
-                    v-for="p in purchases"
-                    :key="p.id"
-                    class="manifest-row p-3 bg-black/40 border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2"
-                  >
-                    <div class="flex items-center gap-3">
-                      <span class="w-1.5 h-1.5 bg-[#0099FF] rotate-45"></span>
-                      <div>
-                        <strong class="text-white block font-bold text-sm tracking-tight font-heading uppercase">
-                          {{ p.item_name }}
-                        </strong>
-                        <span class="text-zinc-500 text-[10px]">
-                          РЕЙС ОТ {{ new Date(p.created_at.replace(' ', 'T') + 'Z').toLocaleDateString('ru-RU') }}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div :class="deliveryInfo(p.status).stampCls" class="stamp">
-                      {{ deliveryInfo(p.status).label }}
-                    </div>
-                  </div>
-                </div>
-
+                <span
+                  class="px-2 py-0.5 text-[10px] font-bold border"
+                  :class="statusBadge(p.status).cls"
+                >
+                  {{ statusBadge(p.status).text }}
+                </span>
               </div>
             </div>
           </div>
@@ -452,110 +377,44 @@ function deliveryInfo(status: string): { label: string; stampCls: string } {
 </template>
 
 <style scoped>
-/* =========================================================
-   ВЫДЕЛЕНИЕ СЛОВА В ЗАГОЛОВКЕ (как «Сервер» на лендинге)
-   ========================================================= */
-.word-hl {
-  display: inline-block;
-  color: #181611;
-  background: #0099FF;
-  font-weight: 900;
-  padding: 0 0.28em;
-  margin: 0 0.04em;
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
-  transform: rotate(-1.5deg);
-  user-select: none;
+/* Стенд 3D скина с жесткой тенью и фоновой сеткой */
+.skin-podium {
+  background: linear-gradient(180deg, #18191c 0%, #111214 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  filter: drop-shadow(8px 8px 0px rgba(0, 0, 0, 0.6));
 }
 
-/* =========================================================
-   ПОЛЁТНЫЙ ПАСПОРТ & ПАНЕЛИ
-   ========================================================= */
-.flight-pass-card,
-.panel-card {
-  filter: drop-shadow(10px 10px 0px rgba(0, 0, 0, 0.6));
-  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
-              filter 0.25s ease;
-}
-
-.group:hover .flight-pass-card,
-.group:hover .panel-card {
-  transform: translateY(-3px);
-  filter: drop-shadow(14px 14px 0px rgba(0, 0, 0, 0.75));
-}
-
-/* Выносной круглый значок-шеврон */
-.popout-badge {
-  position: absolute;
-  top: -18px;
-  left: -12px;
-  z-index: 30;
-}
-
-.badge-shadow {
-  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.7);
-}
-
-/* Рамка под 3D персонажа */
-.pilot-photo-frame {
-  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
-}
-
-/* Точечный растр Ben-Day */
-.comic-dots-pattern {
+.podium-grid-lines {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  opacity: 0.05;
-  background-image: radial-gradient(#0099FF 1.5px, transparent 1.5px);
-  background-size: 8px 8px;
-  background-position: 0 0;
-  z-index: 1;
+  opacity: 0.15;
+  background-size: 24px 24px;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
 }
 
-/* Штампы статусов в накладной */
-.stamp {
-  font-family: 'Russo One', 'Fira Sans Condensed', sans-serif;
-  font-size: 10px;
-  padding: 3px 8px;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  transform: rotate(-1.5deg);
-  border-width: 1px;
-  border-style: solid;
-}
-
-.stamp-green {
-  background: rgba(74, 222, 128, 0.12);
-  color: #4ADE80;
-  border-color: rgba(74, 222, 128, 0.4);
-}
-
-.stamp-yellow {
-  background: rgba(255, 204, 0, 0.12);
-  color: #FFCC00;
-  border-color: rgba(255, 204, 0, 0.4);
-}
-
-.stamp-red {
-  background: rgba(244, 63, 94, 0.12);
-  color: #FB7185;
-  border-color: rgba(244, 63, 94, 0.4);
+/* Карточки правой части */
+.access-card,
+.receipt-card {
+  background: linear-gradient(180deg, #18191c 0%, #121316 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  filter: drop-shadow(6px 6px 0px rgba(0, 0, 0, 0.55));
 }
 
 /* =========================================================
-   ФИРМЕННЫЕ КНОПКИ:
-   Трапециевидный скос, жесткая тень, ховер с отбеливанием
+   ФИРМЕННЫЕ КНОПКИ САЙТА
    ========================================================= */
 .comic-btn-wrap {
   position: relative;
-  display: inline-flex;
-  filter: drop-shadow(6px 6px 0px rgba(0, 0, 0, 0.7));
+  display: flex;
+  filter: drop-shadow(5px 5px 0px rgba(0, 0, 0, 0.7));
   transition: filter 0.22s ease;
 }
 
 .comic-btn-wrap:hover {
-  filter: drop-shadow(8px 8px 0px rgba(0, 0, 0, 0.9));
+  filter: drop-shadow(7px 7px 0px rgba(0, 0, 0, 0.85));
 }
 
 .comic-btn {
