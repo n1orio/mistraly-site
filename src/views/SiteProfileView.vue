@@ -1,7 +1,16 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import SkinViewer3D from '../components/SkinViewer3D.vue'
-import { AlertTriangle, Download, LogOut, ShieldCheck, Upload } from 'lucide-vue-next'
+import {
+  Download,
+  LogOut,
+  Upload,
+  User,
+  ShieldCheck,
+  CheckCircle2,
+  AlertCircle,
+  PackageCheck
+} from 'lucide-vue-next'
 import { usePurchaseStore } from '../stores/purchase'
 import { useAuthStore } from '../stores/auth'
 import { api, unwrap, errorMessage } from '../api/client'
@@ -20,6 +29,7 @@ const purchases = ref<
 const skinFile = ref<File | null>(null)
 const variant = ref('default')
 const statusMsg = ref('')
+const isUploading = ref(false)
 
 const hasPass = computed(() => !!pass.value?.has_pass && !pass.value?.expired)
 
@@ -78,22 +88,24 @@ function onFileSelect(e: Event) {
 async function uploadSkin() {
   if (!skinFile.value) return
   statusMsg.value = ''
-  const base64 = await new Promise<string>((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(String(reader.result).split(',')[1])
-    reader.onerror = reject
-    reader.readAsDataURL(skinFile.value as File)
-  })
+  isUploading.value = true
   try {
+    const base64 = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(String(reader.result).split(',')[1])
+      reader.onerror = reject
+      reader.readAsDataURL(skinFile.value as File)
+    })
     await unwrap(api.put('/user/skin', { skin_data: base64, variant: variant.value }))
     statusMsg.value = 'Скин успешно обновлён!'
     skinFile.value = null
   } catch (e) {
     statusMsg.value = errorMessage(e, 'Ошибка при загрузке скина.')
+  } finally {
+    isUploading.value = false
   }
 }
 
-/** Формат скина сменили — обновляем профиль, чтобы подпись не откатилась. */
 function onVariantChanged(v: 'default' | 'slim') {
   if (auth.user) auth.user.skin_variant = v
 }
@@ -109,253 +121,311 @@ const skinPreviewUrl = computed(() =>
     : undefined
 )
 
-function deliveryLabel(status: string): { text: string; cls: string } {
+function deliveryLabel(status: string): { text: string; badgeCls: string } {
   switch (status) {
     case 'pending':
-      return { text: 'Будет выдано при входе', cls: 'text-[#F6C442]' }
+      return { text: 'Ожидает входа', badgeCls: 'bg-[#FFCC00]/15 text-[#FFCC00] border-[#FFCC00]/30' }
     case 'failed':
-      return { text: 'Ошибка — напишите в тикеты', cls: 'text-[#FF4A4A]' }
+      return { text: 'Ошибка (тикет)', badgeCls: 'bg-rose-500/15 text-rose-400 border-rose-500/30' }
     default:
-      return { text: 'Выдано на сервере', cls: 'text-[#4ADE80]' }
+      return { text: 'Выдано', badgeCls: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30' }
   }
 }
 </script>
 
 <template>
-  <main class="w-full flex-1 flex flex-col items-center justify-start py-20 px-4 relative overflow-hidden page-bg select-none">
-
-    <!-- Фоновая пунктирная линия по центру как на лендинге -->
-    <div class="absolute inset-y-0 left-1/2 -translate-x-1/2 w-0.5 border-r-2 border-dashed border-[#4D4B33] pointer-events-none opacity-25"></div>
-
-    <div class="w-full max-w-5xl relative z-10">
+  <main class="w-full flex-1 flex flex-col items-center justify-start page-bg text-[var(--text-main)] px-4 pt-28 pb-16 sm:pt-32 sm:pb-20 select-none">
+    <div class="w-full max-w-5xl">
 
       <!-- ================= ШАПКА КАБИНЕТА ================= -->
-      <div class="relative mb-14 group">
-        <div class="relative card-shift-l">
+      <div class="card-outer mb-8 group">
+        <div
+          class="card-box p-6 sm:p-7 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-5 relative overflow-hidden"
+          style="clip-path: polygon(0% 1.8%, 100% 0%, 99.2% 98.2%, 0.6% 100%); --accent: #0099FF;"
+        >
+          <div class="comic-dots-pattern" aria-hidden="true" />
 
-          <!-- Стикер шапки -->
-          <div class="stage-sticker-wrap absolute -top-8 left-3 z-30 select-none">
-            <div class="text-[15px] font-black tracking-[0.04em] uppercase text-[#EFEBD9] leading-none mb-1 pl-1">
-              АККАУНТ
+          <div class="relative z-10 flex items-center gap-4">
+            <!-- Аватарка / иконка пилота -->
+            <div
+              class="w-14 h-14 bg-black/60 border border-white/15 flex items-center justify-center text-[#0099FF] shrink-0"
+              style="clip-path: polygon(0% 8%, 100% 0%, 92% 100%, 0% 92%);"
+            >
+              <User :size="28" />
             </div>
-            <div class="bg-[#5865F2] text-white px-2.5 py-1 shadow-[3px_4px_0px_#1E2465] transform -rotate-2">
-              <div class="text-[17px] font-black tracking-[-0.01em] uppercase text-[#181611] leading-tight">
-                {{ user?.role === 'admin' ? 'АДМИНИСТРАТОР' : 'ПИЛОТ' }}
-              </div>
-            </div>
-          </div>
 
-          <!-- Наклонная плашка пользователя -->
-          <div style="--card-fill:#161926;--card-border:#2D334D;--btn-shadow:#181B38" class="relative skew-card p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <span class="text-xs font-bold uppercase tracking-widest text-[#60A5FA] block mb-1">
-                Личный профиль
-              </span>
-              <h1 class="deadlock-heading text-3xl sm:text-4xl text-[#EFEBD9] tracking-wide drop-shadow-[2px_2px_0px_rgba(0,0,0,0.7)]">
+              <div class="flex items-center gap-2 mb-1">
+                <span
+                  class="font-heading font-black text-[10px] tracking-wider uppercase px-2 py-0.5 text-black"
+                  :style="{ backgroundColor: user?.role === 'admin' ? '#FF4444' : '#0099FF', transform: 'rotate(-1.5deg)' }"
+                >
+                  {{ user?.role === 'admin' ? 'АДМИНИСТРАТОР' : 'ПИЛОТ MISTRALY' }}
+                </span>
+                <span v-if="linkedNickname?.nickname" class="text-[11px] font-mono text-zinc-400">
+                  ID: <span class="text-white font-bold">{{ linkedNickname.nickname }}</span>
+                </span>
+              </div>
+
+              <h1 class="font-heading font-black text-2xl sm:text-3xl text-white tracking-tight uppercase">
                 {{ user?.username || auth.discord?.discord_username || 'Игрок' }}
               </h1>
             </div>
-
-            <span class="skew-wrap">
-              <button
-                @click="logout"
-                style="--btn-bg:#FF4A4A; --btn-color:#FFFFFF; --btn-shadow:#501111"
-                class="skew-btn px-4 py-2 font-black text-xs uppercase tracking-widest cursor-pointer flex items-center gap-1.5"
-              >
-                <LogOut :size="13" /> Выйти
-              </button>
-            </span>
           </div>
 
+          <div class="relative z-10 flex items-center gap-3 w-full sm:w-auto justify-end border-t sm:border-t-0 border-white/10 pt-3 sm:pt-0">
+            <div class="comic-btn-wrap">
+              <button
+                @click="logout"
+                class="comic-btn px-4 py-2 font-heading font-black text-xs uppercase tracking-wider flex items-center gap-1.5 cursor-pointer"
+                :style="{ '--btn-bg': '#24262b', '--btn-color': '#FFFFFF' }"
+              >
+                <LogOut :size="13" />
+                Выйти
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- ================= ДВЕ КОЛОНКИ С КАРТОЧКАМИ ================= -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
+      <!-- ================= ОСНОВНАЯ СЕТКА ================= -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
 
-        <!-- ЛЕВАЯ КОЛОНКА (Статус проходки и инфо) -->
-        <div class="lg:col-span-1 flex flex-col gap-10">
+        <!-- ЛЕВАЯ КОЛОНКА (Статус проходки + Связка профиля) -->
+        <div class="lg:col-span-1 flex flex-col gap-6">
 
-          <!-- КАРТОЧКА: ПРОХОДКА (Шаг 1 стиля) -->
-          <div class="relative w-full group">
-            <div class="stage-sticker-wrap absolute -top-7 left-3 z-30 select-none">
-              <div class="text-[14px] font-black tracking-[0.04em] uppercase text-[#EFEBD9] leading-none mb-1 pl-1">
-                СТАТУС
+          <!-- КАРТОЧКА: ПРОХОДКА (СТАТУС ДОСТУПА) -->
+          <div class="card-outer group">
+            <div
+              class="card-box p-6 relative overflow-hidden flex flex-col justify-between"
+              :style="{
+                clipPath: 'polygon(0% 1.5%, 100% 0%, 98.8% 98.5%, 1.2% 100%)',
+                '--accent': hasPass ? '#4ADE80' : '#FFCC00'
+              }"
+            >
+              <div class="comic-dots-pattern" aria-hidden="true" />
+
+              <div class="relative z-10">
+                <div class="flex items-center justify-between mb-4">
+                  <span
+                    class="font-heading font-black text-[10px] uppercase tracking-wider px-2 py-0.5 text-black"
+                    :style="{
+                      backgroundColor: hasPass ? '#4ADE80' : '#FFCC00',
+                      transform: 'rotate(-1.5deg)'
+                    }"
+                  >
+                    {{ hasPass ? 'ДОСТУП ОТКРЫТ' : 'ТРЕБУЕТСЯ БИЛЕТ' }}
+                  </span>
+
+                  <span class="text-[11px] font-mono font-bold" :class="hasPass ? 'text-[#4ADE80]' : 'text-zinc-500'">
+                    {{ hasPass ? 'АКТИВЕН' : 'ЗАКРЫТ' }}
+                  </span>
+                </div>
+
+                <h2 class="font-heading font-black text-xl text-white tracking-tight uppercase mb-2">
+                  {{ hasPass ? 'Mistraly Pass' : 'Проходка отсутствует' }}
+                </h2>
+
+                <p class="text-xs text-zinc-400 font-mono leading-relaxed mb-6">
+                  {{
+                    pass?.expires_at
+                      ? `Истекает: ${new Date(pass.expires_at).toLocaleDateString('ru-RU')}`
+                      : hasPass
+                        ? 'Бессрочный пропуск на сервер и в закрытый чат.'
+                        : 'Для подключения к серверу и загрузки модпака нужен пропуск.'
+                  }}
+                </p>
               </div>
-              <div :class="hasPass ? 'bg-[#84CC16]' : 'bg-[#E05929]'" class="px-2.5 py-1 shadow-[3px_4px_0px_#14130E] transform -rotate-2">
-                <div class="text-[16px] font-black tracking-[-0.01em] uppercase text-[#181611] leading-tight">
-                  {{ hasPass ? 'АКТИВЕН' : 'ЗАКРЫТО' }}
+
+              <div class="relative z-10 pt-2 border-t border-white/10">
+                <div class="comic-btn-wrap w-full">
+                  <button
+                    v-if="!hasPass"
+                    @click="buyPass"
+                    class="comic-btn w-full py-3 px-4 font-heading font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer"
+                    :style="{ '--btn-bg': '#FFCC00', '--btn-color': '#101113' }"
+                  >
+                    Купить пропуск →
+                  </button>
+                  <a
+                    v-else
+                    href="/#launcher"
+                    class="comic-btn w-full py-3 px-4 font-heading font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer text-decoration-none"
+                    :style="{ '--btn-bg': '#4ADE80', '--btn-color': '#101113' }"
+                  >
+                    <Download :size="14" />
+                    Скачать лаунчер
+                  </a>
                 </div>
               </div>
             </div>
-
-            <div style="--card-fill:#19221E;--card-border:#2D3F37;--btn-shadow:#0C1512" class="relative skew-card p-6 pt-9">
-              <span class="text-sm font-bold text-[#D1FAE5] tracking-tight block mb-1">
-                Доступ на сервер
-              </span>
-              <h3 class="text-2xl text-[#4ADE80] tracking-wide mb-3 drop-shadow-[1px_2px_0px_rgba(0,0,0,0.55)]">
-                {{ hasPass ? 'Проходка активна' : 'Проходка отсутствует' }}
-              </h3>
-              <p class="text-xs text-[#D1FAE5] leading-relaxed mb-6 font-mono">
-                {{
-                  pass?.expires_at
-                    ? `Действует до: ${new Date(pass.expires_at).toLocaleDateString('ru-RU')}`
-                    : 'Бессрочный доступ на Mistraly.'
-                }}
-              </p>
-
-              <span class="skew-wrap w-full">
-                <button
-                  v-if="!hasPass"
-                  @click="buyPass"
-                  style="--btn-bg:#F6C442; --btn-color:#1C1B0D; --btn-shadow:#2A2912"
-                  class="skew-btn w-full py-3 font-black text-xs uppercase tracking-widest cursor-pointer text-center"
-                >
-                  Купить проходку &rarr;
-                </button>
-                <a
-                  v-else
-                  href="/#launcher"
-                  style="--btn-bg:#4ADE80; --btn-color:#142306; --btn-shadow:#0C1512"
-                  class="skew-btn w-full py-3 font-black text-xs uppercase tracking-widest cursor-pointer text-center flex items-center justify-center gap-2 text-decoration-none"
-                >
-                  <Download :size="15" /> Скачать лаунчер
-                </a>
-              </span>
-            </div>
           </div>
 
-          <!-- КАРТОЧКА: ДАННЫЕ ПРОФИЛЯ -->
-          <div class="relative w-full group">
-            <div style="--card-fill:#161926;--card-border:#2D334D;--btn-shadow:#181B38" class="relative skew-card skew-card-flip p-6 space-y-4 font-mono text-xs text-[#C7D2FE]">
-              <div class="flex justify-between border-b border-white/10 pb-2.5">
-                <span class="text-zinc-400">Игровой ник:</span>
-                <strong class="text-white font-bold">{{ linkedNickname?.nickname || 'не привязан' }}</strong>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-zinc-400">Discord:</span>
-                <strong class="text-white font-bold">{{ auth.discord?.discord_username || 'привязан' }}</strong>
+          <!-- КАРТОЧКА: ДАННЫЕ СВЯЗКИ -->
+          <div class="card-outer group">
+            <div
+              class="card-box p-5 relative overflow-hidden"
+              style="clip-path: polygon(0.6% 0%, 99.4% 1.8%, 98.8% 100%, 0% 98.2%); --accent: #0099FF;"
+            >
+              <div class="comic-dots-pattern" aria-hidden="true" />
+
+              <div class="relative z-10 space-y-3 font-mono text-xs">
+                <span class="text-[10px] font-heading font-black uppercase tracking-wider text-zinc-500 block mb-2">
+                  // ПРИВЯЗАННЫЕ ДАННЫЕ
+                </span>
+
+                <div class="flex items-center justify-between p-2.5 bg-black/40 border border-white/10">
+                  <span class="text-zinc-500">Никнейм в игре:</span>
+                  <strong class="text-white font-bold">
+                    {{ linkedNickname?.nickname || 'Не привязан' }}
+                  </strong>
+                </div>
+
+                <div class="flex items-center justify-between p-2.5 bg-black/40 border border-white/10">
+                  <span class="text-zinc-500">Discord:</span>
+                  <strong class="text-white font-bold flex items-center gap-1.5">
+                    <ShieldCheck :size="13" class="text-[#0099FF]" />
+                    {{ auth.discord?.discord_username || 'Привязан' }}
+                  </strong>
+                </div>
               </div>
             </div>
           </div>
 
         </div>
 
-        <!-- ПРАВАЯ КОЛОНКА (Скин и Покупки) -->
-        <div class="lg:col-span-2 flex flex-col gap-10">
+        <!-- ПРАВАЯ КОЛОНКА (Скин + Журнал покупок) -->
+        <div class="lg:col-span-2 flex flex-col gap-6">
 
-          <!-- КАРТОЧКА: КАСТОМНЫЙ СКИН -->
-          <div class="relative w-full group">
-            <div class="stage-sticker-wrap absolute -top-7 right-4 z-30 select-none text-right">
-              <div class="text-[14px] font-black tracking-[0.04em] uppercase text-[#EFEBD9] leading-none mb-1 pr-1">
-                ГАРДЕРОБ
-              </div>
-              <div class="bg-[#F6C442] text-[#181611] px-2.5 py-1 shadow-[3px_4px_0px_#14130E] transform rotate-2">
-                <div class="text-[16px] font-black tracking-[-0.01em] uppercase text-[#181611] leading-tight">
-                  СКИН 3D
+          <!-- КАРТОЧКА: ГАРДЕРОБ / 3D СКИН -->
+          <div class="card-outer group">
+            <div
+              class="card-box p-6 sm:p-7 relative overflow-hidden"
+              style="clip-path: polygon(0% 1%, 100% 0%, 99.2% 99%, 0.8% 100%); --accent: #0099FF;"
+            >
+              <div class="comic-dots-pattern" aria-hidden="true" />
+
+              <div class="relative z-10">
+                <div class="flex items-center justify-between mb-4">
+                  <span
+                    class="font-heading font-black text-[10px] uppercase tracking-wider px-2 py-0.5 text-black"
+                    style="background-color: #0099FF; transform: rotate(-1.5deg);"
+                  >
+                    ГАРДЕРОБ // 3D
+                  </span>
+                  <span class="text-[11px] font-mono text-zinc-500">
+                    Classic & Slim (PNG)
+                  </span>
                 </div>
-              </div>
-            </div>
 
-            <div style="--card-fill:#383719;--card-border:#575427;--btn-shadow:#2A2912" class="relative skew-card skew-card-flip p-7 pt-9">
-              <span class="text-sm font-bold text-[#EFEBD9] tracking-tight block mb-1">
-                Внешний вид пилота
-              </span>
-              <h3 class="text-2xl text-[#F6C442] tracking-wide mb-2 drop-shadow-[1px_2px_0px_rgba(0,0,0,0.55)]">
-                Кастомизация скина
-              </h3>
-              <p class="text-xs text-[#EFEBD9] leading-relaxed mb-6 font-mono">
-                // Поддерживаются форматы Classic (64×32) и Slim (64×64). Файл мгновенно синхронизируется с сервером.
-              </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                  <!-- Загрузчик и параметры -->
+                  <div class="space-y-4">
+                    <h2 class="font-heading font-black text-xl text-white tracking-tight uppercase">
+                      Кастомизация скина
+                    </h2>
+                    <p class="text-xs text-zinc-400 font-mono leading-relaxed">
+                      Загрузите текстуру скина. Изменения синхронизируются с сервером при входе.
+                    </p>
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                <div class="space-y-4">
-                  <label class="w-full border-2 border-dashed border-[#F6C442]/40 hover:border-[#F6C442] bg-black/40 transition p-4 flex flex-col items-center justify-center cursor-pointer text-center group/upload">
-                    <Upload :size="24" class="text-[#F6C442] group-hover/upload:scale-110 transition mb-2" />
-                    <span class="text-xs font-mono font-bold text-white block">
-                      {{ skinFile ? skinFile.name : 'ВЫБРАТЬ .PNG ФАЙЛ' }}
-                    </span>
-                    <span class="text-[10px] font-mono text-zinc-400 mt-1">До 1 МБ </span>
-                    <input type="file" accept="image/png" class="hidden" @change="onFileSelect" />
-                  </label>
+                    <label class="w-full border border-dashed border-white/20 hover:border-[#0099FF] bg-black/40 p-4 flex flex-col items-center justify-center cursor-pointer text-center transition group/drop">
+                      <Upload :size="22" class="text-[#0099FF] group-hover/drop:scale-110 transition mb-2" />
+                      <span class="text-xs font-mono font-bold text-white block">
+                        {{ skinFile ? skinFile.name : 'ВЫБРАТЬ .PNG ФАЙЛ' }}
+                      </span>
+                      <span class="text-[10px] font-mono text-zinc-500 mt-1">До 1 МБ (64×64 или 64×32)</span>
+                      <input type="file" accept="image/png" class="hidden" @change="onFileSelect" />
+                    </label>
 
-                  <div class="flex items-center gap-3 font-mono text-xs text-white">
-                    <span>Формат:</span>
-                    <select v-model="variant" class="bg-black/60 border border-white/20 px-3 py-1.5 text-xs text-white outline-none">
-                      <option value="default">Classic</option>
-                      <option value="slim">Slim</option>
-                    </select>
+                    <div class="flex items-center justify-between bg-black/40 border border-white/10 px-3 py-2 font-mono text-xs">
+                      <span class="text-zinc-400">Формат модели:</span>
+                      <select
+                        v-model="variant"
+                        class="bg-transparent text-white font-bold outline-none cursor-pointer text-xs"
+                      >
+                        <option value="default" class="bg-[#151619] text-white">Classic (4px)</option>
+                        <option value="slim" class="bg-[#151619] text-white">Slim (3px)</option>
+                      </select>
+                    </div>
+
+                    <div class="comic-btn-wrap w-full">
+                      <button
+                        :disabled="!skinFile || isUploading"
+                        @click="uploadSkin"
+                        class="comic-btn w-full py-2.5 px-4 font-heading font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40"
+                        :style="{ '--btn-bg': '#0099FF', '--btn-color': '#FFFFFF' }"
+                      >
+                        {{ isUploading ? 'Загрузка…' : 'Применить скин' }}
+                      </button>
+                    </div>
+
+                    <p v-if="statusMsg" class="text-xs font-mono text-[#4ADE80] flex items-center gap-1.5 mt-2">
+                      <CheckCircle2 :size="14" /> {{ statusMsg }}
+                    </p>
                   </div>
 
-                  <span class="skew-wrap">
-                    <button
-                      :disabled="!skinFile"
-                      @click="uploadSkin"
-                      style="--btn-bg:#F6C442; --btn-color:#181611"
-                      class="skew-btn px-6 py-2.5 font-black text-xs uppercase tracking-widest cursor-pointer disabled:opacity-40"
-                    >
-                      Загрузить скин
-                    </button>
-                  </span>
-
-                  <p v-if="statusMsg" class="text-xs font-mono text-[#4ADE80] mt-1">{{ statusMsg }}</p>
-                </div>
-
-                <!-- 3D-модель скина с вращением мышью -->
-                <div class="flex justify-center items-center bg-black/40 p-4 border border-white/10 min-h-[220px]">
-                  <SkinViewer3D
-                    :skin-url="skinPreviewUrl"
-                    :variant="user?.skin_variant"
-                    :variant-changed="onVariantChanged"
-                  />
+                  <!-- 3D просмотрщик -->
+                  <div
+                    class="flex justify-center items-center bg-black/50 p-4 border border-white/10 min-h-[250px] relative overflow-hidden"
+                    style="clip-path: polygon(0% 2%, 100% 0%, 98% 98%, 2% 100%);"
+                  >
+                    <SkinViewer3D
+                      :skin-url="skinPreviewUrl"
+                      :variant="user?.skin_variant"
+                      :variant-changed="onVariantChanged"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- КАРТОЧКА: ИСТОРИЯ ПОКУПОК -->
-          <div class="relative w-full group">
-            <div class="stage-sticker-wrap absolute -top-7 left-3 z-30 select-none">
-              <div class="text-[14px] font-black tracking-[0.04em] uppercase text-[#EFEBD9] leading-none mb-1 pl-1">
-                ЖУРНАЛ
-              </div>
-              <div class="bg-[#5865F2] text-white px-2.5 py-1 shadow-[3px_4px_0px_#1E2465] transform -rotate-2">
-                <div class="text-[16px] font-black tracking-[-0.01em] uppercase text-[#181611] leading-tight">
-                  ЗАКАЗЫ
+          <!-- КАРТОЧКА: ЖУРНАЛ ПОКУПОК -->
+          <div class="card-outer group">
+            <div
+              class="card-box p-6 relative overflow-hidden"
+              style="clip-path: polygon(0.5% 0%, 100% 1.4%, 99% 100%, 0% 98.6%); --accent: #FFCC00;"
+            >
+              <div class="comic-dots-pattern" aria-hidden="true" />
+
+              <div class="relative z-10">
+                <div class="flex items-center justify-between mb-4">
+                  <span
+                    class="font-heading font-black text-[10px] uppercase tracking-wider px-2 py-0.5 text-black"
+                    style="background-color: #FFCC00; transform: rotate(-1.5deg);"
+                  >
+                    ЖУРНАЛ // ЗАКАЗЫ
+                  </span>
+                  <span class="text-[11px] font-mono text-zinc-500">
+                    Автоматическая выдача
+                  </span>
                 </div>
-              </div>
-            </div>
 
-            <div style="--card-fill:#161926;--card-border:#2D334D;--btn-shadow:#181B38" class="relative skew-card p-7 pt-9">
-              <span class="text-sm font-bold text-[#C7D2FE] tracking-tight block mb-1">
-                Транзакции и предметы
-              </span>
-              <h3 class="text-2xl text-[#60A5FA] tracking-wide mb-3 drop-shadow-[1px_2px_0px_rgba(0,0,0,0.55)]">
-                История покупок
-              </h3>
-              <p class="text-xs text-[#C7D2FE] leading-relaxed mb-6 font-mono">
-                // Предметы начисляются автоматически при подключении к серверу.
-              </p>
+                <div v-if="!purchases.length" class="text-xs font-mono text-zinc-500 py-6 text-center border border-dashed border-white/10 bg-black/30">
+                  <PackageCheck :size="24" class="mx-auto mb-2 opacity-40" />
+                  Заказов пока не зарегистрировано.
+                </div>
 
-              <div v-if="!purchases.length" class="text-xs font-mono text-zinc-400 py-4 text-center border border-dashed border-white/10 bg-black/20">
-                Заказов пока не зарегистрировано.
-              </div>
+                <div v-else class="space-y-2.5 font-mono text-xs">
+                  <div
+                    v-for="p in purchases"
+                    :key="p.id"
+                    class="flex items-center justify-between bg-black/40 border border-white/10 p-3 hover:border-white/20 transition"
+                  >
+                    <div>
+                      <strong class="text-white block font-bold text-xs">{{ p.item_name }}</strong>
+                      <span class="text-zinc-500 text-[10px]">
+                        {{ new Date(p.created_at.replace(' ', 'T') + 'Z').toLocaleDateString('ru-RU') }}
+                      </span>
+                    </div>
 
-              <div v-else class="space-y-3 font-mono text-xs">
-                <div
-                  v-for="p in purchases"
-                  :key="p.id"
-                  class="flex items-center justify-between bg-black/40 border border-white/10 p-3.5 transition hover:border-[#60A5FA]/60"
-                >
-                  <div>
-                    <strong class="text-white block font-bold text-sm">{{ p.item_name }}</strong>
-                    <span class="text-zinc-500 text-[11px]">
-                      {{ new Date(p.created_at.replace(' ', 'T') + 'Z').toLocaleDateString('ru-RU') }}
+                    <span
+                      class="px-2 py-0.5 border text-[10px] font-bold"
+                      :class="deliveryLabel(p.status).badgeCls"
+                    >
+                      {{ deliveryLabel(p.status).text }}
                     </span>
                   </div>
-                  <span class="font-bold text-xs" :class="deliveryLabel(p.status).cls">
-                    {{ deliveryLabel(p.status).text }}
-                  </span>
                 </div>
               </div>
             </div>
@@ -370,137 +440,73 @@ function deliveryLabel(status: string): { text: string; cls: string } {
 </template>
 
 <style scoped>
-/* Фирменный шрифт заголовков Deadlock / Comic */
-h1, h3, .deadlock-heading {
-  font-family: 'Russo One', 'Fira Sans Condensed', sans-serif;
-}
-
-/* Заголовок с ником игрока: класс используется в разметке, но стилей
-   для него не было — текст выводился обычным шрифтом вместо
-   фирменного заголовка сайта. */
-.deadlock-heading {
-  font-family: 'Russo One', 'Fira Sans Condensed', sans-serif;
-  font-weight: 400;
-}
-
 /* =========================================================
-   СКОШЕННЫЕ КАРТОЧКИ (Deadlock / Comic Polygons)
+   КАРТОЧКИ В СТИЛЕ САЙТА:
+   Жесткие тени, аккуратный градиент и полутоновый растр
    ========================================================= */
-.skew-card {
-  background: var(--card-border, #5C592C);
-  clip-path: polygon(0% 0%, 100% 8%, 100% 92%, 0% 100%);
-  transform: rotate(-1.2deg) skewX(4deg);
-  filter: drop-shadow(8px 10px 14px rgba(0, 0, 0, 0.6));
+.card-outer {
+  position: relative;
+  filter: drop-shadow(8px 8px 0px rgba(0, 0, 0, 0.5));
   transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
               filter 0.22s ease;
 }
 
-.skew-card::before {
-  content: '';
-  position: absolute;
-  inset: 4px;
-  background: var(--card-fill, #403F1E);
-  clip-path: inherit;
-  z-index: 0;
+.card-outer:hover {
+  transform: translate(-2px, -3px);
+  filter: drop-shadow(12px 12px 0px rgba(0, 0, 0, 0.7));
 }
 
-.skew-card > * {
-  position: relative;
+.card-box {
+  background: linear-gradient(180deg, #18191c 0%, #111214 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Растр Ben-Day dots */
+.comic-dots-pattern {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: radial-gradient(var(--accent, #0099FF) 1.5px, transparent 1.5px);
+  background-size: 9px 9px;
+  background-position: 0 0;
   z-index: 1;
 }
 
-.group:hover .skew-card {
-  transform: rotate(-1.2deg) skewX(4deg) translate(-2px, -3px);
-  filter: drop-shadow(12px 14px 18px rgba(0, 0, 0, 0.75));
-}
-
-.skew-card-flip {
-  clip-path: polygon(0% 8%, 100% 0%, 100% 100%, 0% 92%);
-  transform: rotate(-1.2deg) skewX(-4deg);
-}
-
-.group:hover .skew-card-flip {
-  transform: rotate(-1.2deg) skewX(-4deg) translate(2px, -3px);
-}
-
-/* Сдвиг плашки шапки */
-.card-shift-l {
-  translate: -15px 0;
-}
-@media (max-width: 767px) {
-  .card-shift-l { translate: 0 0; }
-}
-
 /* =========================================================
-   СТИКЕРЫ ЭТАПОВ И СТАТУСОВ
+   ФИРМЕННЫЕ КНОПКИ САЙТА:
+   Наклон, жесткая тень, при ховере растут и БЕЛЕЮТ
    ========================================================= */
-.stage-sticker-wrap {
-  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
-  transform-origin: bottom center;
-}
-
-.group:hover .stage-sticker-wrap {
-  transform: translateY(-4px) scale(1.06);
-}
-
-/* =========================================================
-   СКОШЕННЫЕ КНОПКИ С БЕЛЫМ ХОВЕРОМ
-   ========================================================= */
-.skew-wrap {
-  display: inline-block;
-  filter: drop-shadow(6px 6px 0 var(--btn-shadow, rgba(0, 0, 0, 0.7)));
-  transition: filter 0.2s ease;
-}
-
-.skew-wrap:hover {
-  filter: drop-shadow(8px 8px 0 var(--btn-shadow, rgba(0, 0, 0, 0.9)));
-}
-
-.skew-btn {
+.comic-btn-wrap {
   position: relative;
-  display: inline-block;
-  color: var(--btn-color, #FFFFFF);
-  transform-origin: center;
+  display: flex;
+  filter: drop-shadow(5px 5px 0px rgba(0, 0, 0, 0.7));
+  transition: filter 0.22s ease;
+}
+
+.comic-btn-wrap:hover {
+  filter: drop-shadow(7px 7px 0px rgba(0, 0, 0, 0.85));
+}
+
+.comic-btn {
+  background-color: var(--btn-bg);
+  color: var(--btn-color);
+  clip-path: polygon(0% 12%, 100% 0%, 100% 100%, 0% 88%);
+  transform: rotate(-1.2deg);
+  border: none;
+  user-select: none;
   transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+              background-color 0.2s ease,
               color 0.2s ease;
-  will-change: transform;
 }
 
-/*
- * Кнопка с иконкой: центрируем содержимое здесь, а не классом `flex`
- * в разметке. Tailwind-утилита попадала в итоговый CSS раньше этого
- * правила, и `display: inline-block` её перебивал — justify-center и
- * gap не применялись, иконка уезжала на левый край плашки.
- */
-.skew-btn:has(svg) {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  isolation: isolate;
-}
-
-.skew-btn::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: var(--btn-bg, #E05929);
-  clip-path: polygon(0% 0%, 100% 10%, 100% 90%, 0% 100%);
-  transform: rotate(-1.2deg) skewX(4deg);
-  transition: background-color 0.2s ease, transform 0.22s ease;
-}
-
-.skew-btn:hover {
-  transform: scale(1.06);
-  color: #0D0E10 !important;
-}
-
-.skew-btn:hover::before {
+.comic-btn:hover {
+  transform: scale(1.04) rotate(-1.2deg);
   background-color: #FFFFFF !important;
+  color: #0d0e10 !important;
 }
 
-.skew-btn:active {
-  transform: scale(0.97);
+.comic-btn:active {
+  transform: scale(0.96) rotate(-1.2deg);
 }
 </style>
