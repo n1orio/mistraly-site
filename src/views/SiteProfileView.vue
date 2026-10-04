@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import SkinPreview3D from '../components/SkinPreview3D.vue'
+import SkinViewer3D from '../components/SkinViewer3D.vue'
 import { AlertTriangle, Download, LogOut, ShieldCheck, Upload } from 'lucide-vue-next'
 import { usePurchaseStore } from '../stores/purchase'
 import { useAuthStore } from '../stores/auth'
@@ -300,9 +300,9 @@ function deliveryLabel(status: string): { text: string; cls: string } {
                   <p v-if="statusMsg" class="text-xs font-mono text-[#4ADE80] mt-1">{{ statusMsg }}</p>
                 </div>
 
-                <!-- 3D превью модельки -->
+                <!-- 3D-модель скина с вращением мышью -->
                 <div class="flex justify-center items-center bg-black/40 p-4 border border-white/10 min-h-[220px]">
-                  <SkinPreview3D :skin-url="skinPreviewUrl" />
+                  <SkinViewer3D :skin-url="skinPreviewUrl" />
                 </div>
               </div>
             </div>
@@ -459,6 +459,20 @@ h1, h3, .deadlock-heading {
   transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
               color 0.2s ease;
   will-change: transform;
+}
+
+/*
+ * Кнопка с иконкой: центрируем содержимое здесь, а не классом `flex`
+ * в разметке. Tailwind-утилита попадала в итоговый CSS раньше этого
+ * правила, и `display: inline-block` её перебивал — justify-center и
+ * gap не применялись, иконка уезжала на левый край плашки.
+ */
+.skew-btn:has(svg) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  isolation: isolate;
 }
 
 .skew-btn::before {
