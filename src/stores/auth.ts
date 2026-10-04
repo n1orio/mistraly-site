@@ -82,7 +82,16 @@ export const useAuthStore = defineStore('auth', () => {
     loading.value = true
     try {
       const data = await unwrap<AuthPayload>(
-        api.post('/auth/discord', { code, nonce: nonce || undefined })
+        api.post('/auth/discord', {
+          code,
+          nonce: nonce || undefined,
+          // origin обязателен: бэкенд обязан обменять код с тем же
+          // redirect_uri, что был в authorize-запросе, а authorize-запрос
+          // собирается из location.origin. На admin.mistraly.net это
+          // отдельный домен, и без origin обмен падал с
+          // «Failed to get Discord token».
+          origin: location.origin
+        })
       )
       persist(data)
       ready.value = true
