@@ -9,7 +9,7 @@
  * Библиотека подключается динамически: вместе со своим three она весит
  * больше мегабайта, а в профиле нужна только когда смотришь на скин.
  */
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type { SkinViewer } from 'skinview3d'
 
 const props = defineProps<{ skinUrl?: string }>()
@@ -19,6 +19,14 @@ const loading = ref(true)
 const failed = ref(false)
 /** Идёт ли сейчас анимация ходьбы. */
 const walking = ref(false)
+/**
+ * Тип модели: classic (обычные руки) или slim (тонкие, «Алекс»).
+ * Определяется по размеру текстуры — 64×64 это classic, 64×32 с
+ * вытянутыми слоями — slim, — но его можно переключить вручную,
+ * если определение ошиблось.
+ */
+const model = ref<'default' | 'slim'>('default')
+const isSlim = computed(() => model.value === 'slim')
 
 let viewer: SkinViewer | null = null
 let observer: ResizeObserver | null = null
@@ -44,9 +52,9 @@ async function boot() {
       // Непрозрачный тёмный фон: подложка карточки почти чёрная, и на
       // ней светлая модель читалась бы плохо.
       background: '#1A1811',
-      // auto-detect сам определяет обычные руки или slim по размеру
-      // текстуры — вручную это делать не нужно.
-      model: 'auto-detect',
+      // Только два формата, как и задумано игрой: classic (обычные
+      // руки) и slim (тонкие). Никаких legacy-64×32 и прочих.
+      model: model.value,
       zoom: 0.92,
       enableControls: true,
       animation: new WalkingAnimation()
@@ -67,18 +75,67 @@ async function boot() {
     viewer.controls.maxDistance = viewer.controls.maxDistance * 1.8
     viewer.controls.update()
 
+    // Скин мылился в кашу, потому что skinview3d прогоняет кадр через
+    // FXAA — сглаживание рассчитано на 3D, а пиксель-арт после него
+    // теряет чёткие границы кубов. Проход отключаем, границы рёбер
+    // и так рисуются точно.
+    if (viewer.fxaaPass) {
+      viewer.fxaaPass.enabled = false
+    }
+
+    applySkinSize()
+
     await applySkin()
     loading.value = false
 
-    observer = new ResizeObserver(() => {
-      const el = canvas.parentElement ?? canvas
-      viewer?.setSize(el.clientWidth || 240, el.clientHeight || 320)
-    })
+    observer = new ResizeObserver(() => applySkinSize())
     observer.observe(host)
   } catch {
     failed.value = true
     loading.value = false
   }
+}
+
+/**
+ * Ставит размер холста по контейнеру, в целых пикселях.
+ *
+ * skinview3d рисует в буфер своего размера, а CSS растягивает canvas
+ * до 100%. Если размеры дробные и разные (261×300 против 317×352),
+ * браузер интерполирует картинку — пиксели скина размываются. Поэтому
+ * задаём холсту ровно тот размер, который он занимает на экране.
+ */
+function applySkinSize() {
+  const canvas = canvasRef.value
+  if (!canvas || !viewer) return
+  const host = canvas.parentElement ?? canvas
+  const w = Math.max(1, Math.round(host.clientWidth))
+  const h = Math.max(1, Math.round(host.clientHeight))
+  canvas.style.width = `${w}px`
+  canvas.style.height = `${h}px`
+  viewer.setSize(w, h)
+}
+
+/**
+ * Угадывает формат по размеру текстуры.
+ *
+ * Классический скин 64×64; у slim-скина в правой половине головы
+ * третья «дымка» слоя, из-за чего старая развёртка 64×32 вытягивается
+ * в 64×64 с прозрачной полосой. Надёжнее смотреть на соотношение
+ * сторон: 1:2 — slim, 1:1 — classic.
+ */
+async function detectModel() {
+  const url = props.skinUrl
+  if (!url) return
+  const img = new Image()
+  img.crossOrigin = 'anonymous'
+  await new Promise<void>((resolve) => {
+    img.onload = () => {
+      model.value = img.height * 2 === img.width ? 'slim' : 'default'
+      resolve()
+    }
+    img.onerror = () => resolve()
+    img.src = url
+  })
 }
 
 function destroyViewer() {
@@ -91,10 +148,14 @@ function destroyViewer() {
 async function applySkin() {
   if (!viewer || !props.skinUrl) return
   try {
-    // loadSkin сам выбирает формат: 64×64 и старый 64×32, обычные
-    // руки и slim. loadSkin возвращает промис для удалённых картинок.
-    await viewer.loadSkin(props.skinUrl)
+    // Формат передаём явно, а не auto-detect: определение по размеру
+    // текстуры ошибается на скинах, где прозрачная полоса slim-развёртки
+    // не доходит до края.
+    await viewer.loadSkin(props.skinUrl, { model: model.value })
     failed.value = false
+    // Размер мог измениться вместе с текстурой — пересчитываем буфер,
+    // иначе картинка растягивается и мылится.
+    applySkinSize()
   } catch {
     failed.value = true
   }
@@ -108,12 +169,22 @@ function toggleWalk() {
   }
 }
 
+/** Переключение classic ⇄ slim. */
+function toggleModel() {
+  model.value = isSlim.value ? 'default' : 'slim'
+  if (!viewer || !props.skinUrl) return
+  void viewer.loadSkin(props.skinUrl, { model: model.value })
+}
+
 onMounted(async () => {
   if (!props.skinUrl) {
     failed.value = true
     loading.value = false
     return
   }
+  // Формат определяем ДО создания вьювера: иначе модель соберётся в
+  // classic, а потом придётся пересобирать её заново.
+  await detectModel()
   await boot()
 })
 
@@ -125,6 +196,10 @@ watch(
       failed.value = true
       return
     }
+    // Новый скин — заново угадываем формат. Без этого подставленная
+    // в шаблоне модель оставалась от прошлого скина, и до перезагрузки
+    // страницы картинка не появлялась.
+    await detectModel()
     if (viewer) await applySkin()
     else await boot()
   }
@@ -142,6 +217,9 @@ onBeforeUnmount(destroyViewer)
 
     <template v-else>
       <div class="skin3d-controls">
+        <button type="button" class="skin3d-btn" @click="toggleModel">
+          {{ isSlim ? 'SLIM' : 'CLASSIC' }}
+        </button>
         <button type="button" class="skin3d-btn" @click="toggleWalk">
           {{ walking ? 'Стоять' : 'Идти' }}
         </button>
@@ -170,10 +248,16 @@ onBeforeUnmount(destroyViewer)
   cursor: grabbing;
 }
 
+/*
+ * Размер холста задаётся из JS (applySkinSize) — нам нужны ЦЕЛЫЕ
+ * пиксели, совпадающие с буфером WebGL. Поэтому здесь нет width:100%:
+ * растягивание до дробного размера контейнера заставляло браузер
+ * интерполировать кадр, и пиксель-арт мылился.
+ */
 .skin3d-canvas {
   display: block;
-  width: 100%;
-  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 .skin3d-note,
@@ -201,6 +285,8 @@ onBeforeUnmount(destroyViewer)
   position: absolute;
   top: 8px;
   right: 8px;
+  display: flex;
+  gap: 6px;
 }
 
 .skin3d-btn {
