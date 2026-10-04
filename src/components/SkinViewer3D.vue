@@ -53,7 +53,15 @@ async function boot() {
       // ней светлая модель читалась бы плохо.
       background: '#1A1811',
       // Только два формата, как и задумано игрой: classic (обычные
-      // руки) и slim (тонкие). Никаких legacy-64×32 и прочих.
+      // руки) и slim (тонкие).
+      //
+      // Автоопределение НЕ используем. skinview3d выводит slim так:
+      // если хоть один пиксель в области правой руки прозрачный, скин
+      // считается тонким. У скинов с незаполненными или
+      // полупрозрачными областями это даёт ложное срабатывание — модель
+      // собирается как slim, хотя нарисована под classic, и на экране
+      // получается белая каша. Поэтому по умолчанию classic, а slim
+      // выбирается кнопкой вручную и запоминается.
       model: model.value,
       zoom: 0.92,
       enableControls: true,
@@ -116,26 +124,34 @@ function applySkinSize() {
 }
 
 /**
- * Угадывает формат по размеру текстуры.
+ * Ключ ручного выбора формата в localStorage.
  *
- * Классический скин 64×64; у slim-скина в правой половине головы
- * третья «дымка» слоя, из-за чего старая развёртка 64×32 вытягивается
- * в 64×64 с прозрачной полосой. Надёжнее смотреть на соотношение
- * сторон: 1:2 — slim, 1:1 — classic.
+ * Выбор надо помнить: определение по умолчанию (auto-detect в
+ * skinview3d) каждый раз заново угадывает тип по пикселям, и после
+ * перезагрузки страницы человек возвращался к classic, хотя сам
+ * переключал на slim.
  */
-async function detectModel() {
-  const url = props.skinUrl
-  if (!url) return
-  const img = new Image()
-  img.crossOrigin = 'anonymous'
-  await new Promise<void>((resolve) => {
-    img.onload = () => {
-      model.value = img.height * 2 === img.width ? 'slim' : 'default'
-      resolve()
+const MODEL_KEY = 'mistraly_skin_model'
+
+function restoreModelChoice(): boolean {
+  try {
+    const saved = localStorage.getItem(MODEL_KEY)
+    if (saved === 'default' || saved === 'slim') {
+      model.value = saved
+      return true
     }
-    img.onerror = () => resolve()
-    img.src = url
-  })
+  } catch {
+    // localStorage может быть недоступен — тогда просто автоопределение.
+  }
+  return false
+}
+
+function rememberModelChoice(value: 'default' | 'slim') {
+  try {
+    localStorage.setItem(MODEL_KEY, value)
+  } catch {
+    // Не смогли сохранить — выбор не переживёт перезагрузку, но не падает.
+  }
 }
 
 function destroyViewer() {
@@ -187,9 +203,6 @@ async function applySkin() {
   if (!viewer || !props.skinUrl) return
   const url = props.skinUrl
   try {
-    // Формат передаём явно, а не auto-detect: определение по размеру
-    // текстуры ошибается на скинах, где прозрачная полоса slim-развёртки
-    // не доходит до края.
     await viewer.loadSkin(url, { model: model.value })
     failed.value = false
     // Размер мог измениться вместе с текстурой — пересчитываем буфер,
@@ -210,9 +223,11 @@ function toggleWalk() {
   }
 }
 
-/** Переключение classic ⇄ slim. */
+/** Переключение classic ⇄ slim. Выбор запоминается и переживает
+ *  перезагрузку страницы. */
 function toggleModel() {
   model.value = isSlim.value ? 'default' : 'slim'
+  rememberModelChoice(model.value)
   if (!viewer || !props.skinUrl) return
   void viewer.loadSkin(props.skinUrl, { model: model.value })
 }
@@ -223,9 +238,10 @@ onMounted(async () => {
     loading.value = false
     return
   }
-  // Формат определяем ДО создания вьювера: иначе модель соберётся в
-  // classic, а потом придётся пересобирать её заново.
-  await detectModel()
+  // Ручной выбор из прошлой сессии имеет приоритет над автоопределением:
+  // иначе после перезагрузки страницы формат снова угадывался заново
+  // и человек возвращался к classic, который он сам менял на slim.
+  restoreModelChoice()
   await boot()
 })
 
@@ -237,10 +253,12 @@ watch(
       failed.value = true
       return
     }
-    // Новый скин — заново угадываем формат. Без этого подставленная
-    // в шаблоне модель оставалась от прошлого скина, и до перезагрузки
-    // страницы картинка не появлялась.
-    await detectModel()
+    // Формат сохраняется: он относится к аккаунту, а не к конкретной
+    // картинке. Но если сохранён slim, а новый скин нарисован под
+    // classic, показывать кашу бессмысленно — возвращаемся к classic.
+    if (await textureLooksBroken(url)) {
+      model.value = 'default'
+    }
     if (viewer) await applySkin()
     else await boot()
   }
