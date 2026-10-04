@@ -39,6 +39,12 @@ const routes: RouteRecordRaw[] = [
     meta: { public: true }
   },
   { path: '/shop', name: 'Shop', component: () => import('./views/ShopView.vue') },
+  {
+    path: '/admin-denied',
+    name: 'AdminDenied',
+    component: () => import('./views/AdminDeniedView.vue'),
+    meta: { public: true }
+  },
   // На основном домене админка живёт по явному пути. На admin.mistraly.net
   // она уже отдаётся корнем, и второй маршрут был бы дублем.
   ...(isAdminHost
@@ -89,10 +95,11 @@ router.beforeEach(async (to) => {
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
     return { path: '/auth/discord', query: { redirect: to.fullPath } }
   }
-  // Не админа отправляем на главную, а не показываем пустую админку:
-  // роль всё равно проверяется бэкендом, но лишний экран не нужен.
+  // Не админа отправляем на страницу отказа, а не на корень: на
+  // admin.mistraly.net корень — это сама админка, и редирект туда же
+  // зациклил бы гард.
   if (to.meta.requiresAdmin && !auth.isAdmin) {
-    return { path: '/' }
+    return { path: '/admin-denied' }
   }
   return true
 })

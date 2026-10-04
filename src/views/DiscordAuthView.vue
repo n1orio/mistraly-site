@@ -35,6 +35,9 @@ const redirectAfter = computed(() => (route.query.redirect as string) || '')
 const destination = computed(() => {
   if (launcherNonce.value) return ''
   if (redirectAfter.value) return redirectAfter.value
+  // На admin.mistraly.net после входа нужен корень — там админка.
+  // Без этого DiscordAuthView всегда возвращал бы в /profile.
+  if (location.hostname === 'admin.mistraly.net') return '/'
   if (isPurchase.value) return '/?purchase=1'
   return '/profile'
 })
