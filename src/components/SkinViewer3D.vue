@@ -11,8 +11,21 @@
  */
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type { SkinViewer } from 'skinview3d'
+import { api } from '../api/client'
+import { useAuthStore } from '../stores/auth'
 
-const props = defineProps<{ skinUrl?: string }>()
+const props = defineProps<{
+  skinUrl?: string
+  /**
+   * Формат скина из профиля (users.skin_variant). Приходит с сервера,
+   * поэтому переживает перезагрузку страницы.
+   */
+  variant?: string
+  /** Выбор формата нужно сохранить на сервере. */
+  variantChanged?: (v: 'default' | 'slim') => void
+}>()
+
+const auth = useAuthStore()
 
 const canvasRef = ref<HTMLCanvasElement>()
 const loading = ref(true)
@@ -21,9 +34,11 @@ const failed = ref(false)
 const walking = ref(false)
 /**
  * Тип модели: classic (обычные руки) или slim (тонкие, «Алекс»).
- * Определяется по размеру текстуры — 64×64 это classic, 64×32 с
- * вытянутыми слоями — slim, — но его можно переключить вручную,
- * если определение ошиблось.
+ *
+ * Приходит с сервера (users.skin_variant) — поэтому переживает
+ * перезагрузку страницы и работает на любом устройстве. В localStorage
+ * выбор не клали сознательно: он слетел при первом же перезаходе, а
+ * место для такого — база.
  */
 const model = ref<'default' | 'slim'>('default')
 const isSlim = computed(() => model.value === 'slim')
@@ -83,20 +98,13 @@ async function boot() {
     viewer.controls.maxDistance = viewer.controls.maxDistance * 1.8
     viewer.controls.update()
 
-    // Скин мылился в кашу, потому что skinview3d прогоняет кадр через
-    // FXAA — сглаживание рассчитано на 3D, а пиксель-арт после него
-    // теряет чёткие границы кубов. Проход отключаем, границы рёбер
-    // и так рисуются точно.
-    if (viewer.fxaaPass) {
-      viewer.fxaaPass.enabled = false
-    }
-
-    applySkinSize()
-
     await applySkin()
     loading.value = false
 
-    observer = new ResizeObserver(() => applySkinSize())
+    observer = new ResizeObserver(() => {
+      const el = canvas.parentElement ?? canvas
+      viewer?.setSize(el.clientWidth || 240, el.clientHeight || 320)
+    })
     observer.observe(host)
   } catch {
     failed.value = true
@@ -105,52 +113,17 @@ async function boot() {
 }
 
 /**
- * Ставит размер холста по контейнеру, в целых пикселях.
- *
- * skinview3d рисует в буфер своего размера, а CSS растягивает canvas
- * до 100%. Если размеры дробные и разные (261×300 против 317×352),
- * браузер интерполирует картинку — пиксели скина размываются. Поэтому
- * задаём холсту ровно тот размер, который он занимает на экране.
+ * Формат хранится на сервере, в users.skin_variant: при выборе кнопкой
+ * отправляем PUT /user/skin-variant, при входе берём из /user/profile.
+ * Раньше выбор клали в localStorage — он слетал при перезагрузке, и
+ * человек возвращался к classic, хотя сам переключал на slim.
  */
-function applySkinSize() {
-  const canvas = canvasRef.value
-  if (!canvas || !viewer) return
-  const host = canvas.parentElement ?? canvas
-  const w = Math.max(1, Math.round(host.clientWidth))
-  const h = Math.max(1, Math.round(host.clientHeight))
-  canvas.style.width = `${w}px`
-  canvas.style.height = `${h}px`
-  viewer.setSize(w, h)
-}
-
-/**
- * Ключ ручного выбора формата в localStorage.
- *
- * Выбор надо помнить: определение по умолчанию (auto-detect в
- * skinview3d) каждый раз заново угадывает тип по пикселям, и после
- * перезагрузки страницы человек возвращался к classic, хотя сам
- * переключал на slim.
- */
-const MODEL_KEY = 'mistraly_skin_model'
-
-function restoreModelChoice(): boolean {
+async function saveModelChoice(value: 'default' | 'slim') {
   try {
-    const saved = localStorage.getItem(MODEL_KEY)
-    if (saved === 'default' || saved === 'slim') {
-      model.value = saved
-      return true
-    }
+    await api.put('/user/skin-variant', { variant: value })
   } catch {
-    // localStorage может быть недоступен — тогда просто автоопределение.
-  }
-  return false
-}
-
-function rememberModelChoice(value: 'default' | 'slim') {
-  try {
-    localStorage.setItem(MODEL_KEY, value)
-  } catch {
-    // Не смогли сохранить — выбор не переживёт перезагрузку, но не падает.
+    // Не сохранилось — на экране всё равно верный формат, просто
+    // в следующий раз вернётся тот, что в базе.
   }
 }
 
@@ -205,9 +178,6 @@ async function applySkin() {
   try {
     await viewer.loadSkin(url, { model: model.value })
     failed.value = false
-    // Размер мог измениться вместе с текстурой — пересчитываем буфер,
-    // иначе картинка растягивается и мылится.
-    applySkinSize()
     // Если развёртка пустая, модель-«белый куб» не показываем.
     if (await textureLooksBroken(url)) failed.value = true
   } catch {
@@ -227,21 +197,25 @@ function toggleWalk() {
  *  перезагрузку страницы. */
 function toggleModel() {
   model.value = isSlim.value ? 'default' : 'slim'
-  rememberModelChoice(model.value)
+  props.variantChanged?.(model.value)
+  void saveModelChoice(model.value)
   if (!viewer || !props.skinUrl) return
   void viewer.loadSkin(props.skinUrl, { model: model.value })
 }
 
+/** Подтягивает формат из профиля (skin_variant) — источник истины. */
+function syncVariantFromProfile() {
+  const v = props.variant || auth.user?.skin_variant
+  if (v === 'slim' || v === 'default') model.value = v
+}
+
 onMounted(async () => {
+  syncVariantFromProfile()
   if (!props.skinUrl) {
     failed.value = true
     loading.value = false
     return
   }
-  // Ручной выбор из прошлой сессии имеет приоритет над автоопределением:
-  // иначе после перезагрузки страницы формат снова угадывался заново
-  // и человек возвращался к classic, который он сам менял на slim.
-  restoreModelChoice()
   await boot()
 })
 
@@ -261,6 +235,17 @@ watch(
     }
     if (viewer) await applySkin()
     else await boot()
+  }
+)
+
+// Формат мог прийти позже — из профиля, который догружается асинхронно.
+watch(
+  () => props.variant,
+  async (v) => {
+    if (v !== 'slim' && v !== 'default') return
+    if (v === model.value) return
+    model.value = v
+    if (viewer && props.skinUrl) await viewer.loadSkin(props.skinUrl, { model: v })
   }
 )
 
@@ -307,16 +292,10 @@ onBeforeUnmount(destroyViewer)
   cursor: grabbing;
 }
 
-/*
- * Размер холста задаётся из JS (applySkinSize) — нам нужны ЦЕЛЫЕ
- * пиксели, совпадающие с буфером WebGL. Поэтому здесь нет width:100%:
- * растягивание до дробного размера контейнера заставляло браузер
- * интерполировать кадр, и пиксель-арт мылился.
- */
 .skin3d-canvas {
   display: block;
-  max-width: 100%;
-  max-height: 100%;
+  width: 100%;
+  height: 100%;
 }
 
 .skin3d-note,

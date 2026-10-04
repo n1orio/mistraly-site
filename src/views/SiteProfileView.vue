@@ -93,6 +93,11 @@ async function uploadSkin() {
   }
 }
 
+/** Формат скина сменили — обновляем профиль, чтобы подпись не откатилась. */
+function onVariantChanged(v: 'default' | 'slim') {
+  if (auth.user) auth.user.skin_variant = v
+}
+
 async function logout() {
   await auth.logout()
   window.location.assign('/')
@@ -298,7 +303,11 @@ function deliveryLabel(status: string): { text: string; cls: string } {
 
                 <!-- 3D-модель скина с вращением мышью -->
                 <div class="flex justify-center items-center bg-black/40 p-4 border border-white/10 min-h-[220px]">
-                  <SkinViewer3D :skin-url="skinPreviewUrl" />
+                  <SkinViewer3D
+                    :skin-url="skinPreviewUrl"
+                    :variant="user?.skin_variant"
+                    :variant-changed="onVariantChanged"
+                  />
                 </div>
               </div>
             </div>
