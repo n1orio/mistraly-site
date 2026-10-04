@@ -5,6 +5,12 @@ import Navbar from './components/Navbar.vue'
 import FireFooter from './components/FireFooter.vue'
 
 const route = useRoute()
+
+/**
+ * На admin.mistraly.net показывать навигацию магазина и огненный футер
+ * главной не нужно: там корень отдаёт админку, а не витрину.
+ */
+const isAdminHost = location.hostname === 'admin.mistraly.net'
 </script>
 
 <template>
@@ -12,7 +18,7 @@ const route = useRoute()
     <!-- Фоновый скролл -->
     <div class="deadlock-scroll-bg" aria-hidden="true" />
 
-    <Navbar />
+    <Navbar v-if="!isAdminHost" />
 
     <main class="relative z-[1] w-full flex-1">
       <router-view />
@@ -21,11 +27,11 @@ const route = useRoute()
     <PurchaseModal />
 
     <!-- Огненный футер ТОЛЬКО на главной странице -->
-    <FireFooter v-if="route.path === '/'" />
+    <FireFooter v-if="route.path === '/' && !isAdminHost" />
 
     <!-- Обычный строгий темный футер на остальных страницах -->
     <footer
-      v-else
+      v-else-if="!isAdminHost"
       class="relative z-[1] w-full max-w-6xl px-4 py-8 mt-auto border-t border-[var(--border-color)] flex flex-col sm:flex-row items-center justify-between text-xs text-[var(--text-muted)] gap-4"
     >
       <div>© Mistraly • Minecraft 1.21.1</div>

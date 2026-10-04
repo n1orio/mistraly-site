@@ -7,8 +7,30 @@ import { useTheme } from './composables/useTheme'
 import { setUnauthorizedHandler } from './api/client'
 import { useAuthStore } from './stores/auth'
 
+/**
+ * На admin.mistraly.net корень — это сама админка, а не витрина магазина.
+ *
+ * Определяем по имени хоста, а не по Caddy-редиректу: редирект меняет
+ * только запрос на сервере, в адресной строке браузера всё равно остаётся
+ * «/», и vue-router отрендерил бы главную страницу сайта.
+ */
+const ADMIN_HOSTS = ['admin.mistraly.net']
+const isAdminHost = ADMIN_HOSTS.includes(location.hostname)
+
+const adminRoute: RouteRecordRaw = {
+  path: '/',
+  name: 'Admin',
+  component: () => import('./views/AdminView.vue'),
+  // requiresAuth гардит вход, requiresAdmin — роль. Роль проверяет и
+  // бэкенд, но гард нужен, чтобы не грузить админ-таблицы тем, кому
+  // они всё равно вернут 403.
+  meta: { requiresAuth: true, requiresAdmin: true }
+}
+
 const routes: RouteRecordRaw[] = [
-  { path: '/', name: 'Home', component: () => import('./views/HomeView.vue') },
+  isAdminHost
+    ? adminRoute
+    : { path: '/', name: 'Home', component: () => import('./views/HomeView.vue') },
   {
     path: '/auth/discord',
     name: 'DiscordAuth',
@@ -17,15 +39,18 @@ const routes: RouteRecordRaw[] = [
     meta: { public: true }
   },
   { path: '/shop', name: 'Shop', component: () => import('./views/ShopView.vue') },
-  {
-    path: '/admin',
-    name: 'Admin',
-    component: () => import('./views/AdminView.vue'),
-    // requiresAuth гардит вход, requiresAdmin — роль. Роль проверяет и
-    // бэкенд, но гард нужен, чтобы не грузить админ-таблицы тем, кому
-    // они всё равно вернут 403.
-    meta: { requiresAuth: true, requiresAdmin: true }
-  },
+  // На основном домене админка живёт по явному пути. На admin.mistraly.net
+  // она уже отдаётся корнем, и второй маршрут был бы дублем.
+  ...(isAdminHost
+    ? []
+    : [
+        {
+          path: '/admin',
+          name: 'Admin',
+          component: () => import('./views/AdminView.vue'),
+          meta: { requiresAuth: true, requiresAdmin: true }
+        } as RouteRecordRaw
+      ]),
   {
     path: '/profile',
     name: 'Profile',
