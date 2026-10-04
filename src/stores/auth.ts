@@ -9,7 +9,6 @@ export interface AuthUser {
   email?: string | null
   has_pass?: boolean
   pass_expires_at?: string | null
-  balance?: number
   skin_variant?: string
 }
 
@@ -117,7 +116,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  /** Синхронизация профиля (баланс, проходка) после покупок. */
+  /** Синхронизация профиля (проходка) после покупок. */
   async function refreshProfile(): Promise<void> {
     try {
       const profile = await unwrap<AuthUser>(api.get('/user/profile'))

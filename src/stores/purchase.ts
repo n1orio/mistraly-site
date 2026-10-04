@@ -55,25 +55,18 @@ export const usePurchaseStore = defineStore('purchase', () => {
   const error = ref('')
   const orderDone = ref(false)
   const result = ref<PurchaseResult | null>(null)
-  /**
-   * Режим без приёма оплаты. Пока платёжный провайдер не подключён,
-   * бэкенд отдаёт free: true — тогда интерфейс не обещает оплату,
-   * а пишет «получено».
-   */
-  const isFreeMode = ref(false)
 
   /** Товар, если покупка инициирована из /shop, иначе null (проходка). */
   const item = ref<ShopItem | null>(null)
   const quantity = ref(1)
 
   const isNicknameValid = computed(() => /^[A-Za-z0-9_]{3,16}$/.test(nickname.value))
-  const total = computed(() => (item.value?.price ?? 0) * quantity.value)
 
   /**
    * Ник нужен не для всего подряд. Бэкенд (routes/shop.rs) требует привязанный
    * ник только там, где товар физически доставляется на сервер, — это item и
-   * unban: без ника некуда выдать предмет. Проходка и валюта меняют записи в
-   * users (has_pass / pass_expires_at / balance) и ни о ком не зависят, поэтому
+   * unban: без ника некуда выдать предмет. Проходка меняет записи в
+   * users (has_pass / pass_expires_at) и ни о ком не зависит, поэтому
    * спрашивать ник там — лишний шаг с вводом данных, которые нигде не нужны.
    */
   const needsNickname = computed(() => {
@@ -94,8 +87,6 @@ export const usePurchaseStore = defineStore('purchase', () => {
     if (!expires) return true
     return new Date(expires).getTime() > Date.now()
   })
-
-  const PRICE_LABEL = '350 ₽'
 
   /**
    * Подставить привязанный ник и выбрать стартовый шаг.
@@ -234,7 +225,6 @@ export const usePurchaseStore = defineStore('purchase', () => {
       }
       orderDone.value = true
       step.value = 4
-      isFreeMode.value = !!result.value?.free
       await auth.refreshProfile()
       return true
     } catch (e) {
@@ -252,7 +242,6 @@ export const usePurchaseStore = defineStore('purchase', () => {
     error.value = ''
     orderDone.value = false
     result.value = null
-    isFreeMode.value = false
   }
 
   return {
@@ -261,18 +250,15 @@ export const usePurchaseStore = defineStore('purchase', () => {
     nickname,
     checking,
     submitting,
-    isFreeMode,
     error,
     orderDone,
     result,
     item,
     quantity,
-    total,
     isNicknameValid,
     needsNickname,
     hasLinkedNickname,
     hasActivePass,
-    priceLabel: PRICE_LABEL,
     showItem,
     showPass,
     close,

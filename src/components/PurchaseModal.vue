@@ -180,11 +180,7 @@ Code
           Проверка заказа
         </h2>
         <p class="text-xs text-zinc-400 mb-5">
-          {{
-            store.isFreeMode
-              ? 'Подтвердите данные — выдача произойдёт сразу:'
-              : 'Подтвердите данные перед переходом к оплате:'
-          }}
+          Подтвердите данные — покупка оформится сразу.
         </p>
 
         <!-- Квитанция заказа с пунктирной рамкой -->
@@ -205,13 +201,7 @@ Code
             </strong>
           </div>
 
-          <div class="border-t border-white/10 pt-2.5 flex justify-between items-center text-sm">
-            <span class="font-heading font-black text-white uppercase tracking-wider text-xs">ИТОГО:</span>
-            <strong class="font-heading font-black text-xl text-[#0099FF]">
-              {{ store.total || store.priceLabel }}
-            </strong>
           </div>
-        </div>
 
         <p v-if="hints[store.item?.item_type || 'pass']" class="text-[11px] font-mono text-zinc-500 mb-4 leading-relaxed">
           // {{ hints[store.item?.item_type || 'pass'] }}
@@ -228,13 +218,7 @@ Code
             class="comic-btn w-full py-3.5 px-6 font-heading font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
             :style="{ '--btn-bg': '#0099FF', '--btn-color': '#FFFFFF' }"
           >
-            {{
-              store.submitting
-                ? 'Оформляем…'
-                : store.isFreeMode
-                  ? 'Получить'
-                  : 'Перейти к оплате'
-            }}
+            {{ store.submitting ? 'Оформляем…' : 'Купить' }}
           </button>
         </div>
       </div>
@@ -249,7 +233,7 @@ Code
         </div>
 
         <span class="font-heading font-black text-xs uppercase tracking-wider text-emerald-400 mb-1">
-          {{ store.isFreeMode ? 'ПОЛУЧЕНО' : 'УСПЕШНО ОПЛАЧЕНО' }}
+          ПОЛУЧЕНО
         </span>
         <h2 class="font-heading font-black text-2xl text-white tracking-tight uppercase mb-2">
           Заказ выполнен!

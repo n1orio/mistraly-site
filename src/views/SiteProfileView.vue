@@ -227,13 +227,9 @@ function deliveryLabel(status: string): { text: string; cls: string } {
                 <span class="text-zinc-400">Игровой ник:</span>
                 <strong class="text-white font-bold">{{ linkedNickname?.nickname || 'не привязан' }}</strong>
               </div>
-              <div class="flex justify-between border-b border-white/10 pb-2.5">
+              <div class="flex justify-between items-center">
                 <span class="text-zinc-400">Discord:</span>
                 <strong class="text-white font-bold">{{ auth.discord?.discord_username || 'привязан' }}</strong>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-zinc-400">Баланс монет:</span>
-                <strong class="text-xl font-black text-[#60A5FA] deadlock-heading">{{ user?.balance ?? 0 }}</strong>
               </div>
             </div>
           </div>

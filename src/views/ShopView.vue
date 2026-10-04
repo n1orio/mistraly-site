@@ -174,17 +174,9 @@ function handlePassClick() {
               </p>
             </div>
 
-            <!-- Нижний блок: цена и покупка -->
+            <!-- Нижний блок: количество и кнопка покупки -->
             <div class="relative z-10 pt-4 border-t border-white/[0.08]">
-              <div class="flex items-center justify-between mb-4">
-                <div class="flex items-baseline gap-1.5">
-                  <span class="font-heading font-black text-2xl text-white tracking-tight">
-                    {{ item.price * (qty[item.id] || 1) }}₽
-                  </span>
-                  <span v-if="item.maxQty > 1 && (qty[item.id] || 1) > 1" class="text-[11px] text-zinc-500 font-mono">
-                    ({{ item.price }}₽/шт)
-                  </span>
-                </div>
+              <div class="flex items-center justify-end mb-4">
 
                 <!-- Счетчик количества -->
                 <div v-if="item.maxQty > 1" class="flex items-center gap-1 bg-[#101113] p-1 border border-white/10">
