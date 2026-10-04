@@ -145,17 +145,58 @@ function destroyViewer() {
   viewer = null
 }
 
+/**
+ * Проверяет, что текстура текстура пригодна для показа.
+ *
+ * Пока skinview3d грузит картинку, он рисует модель материалом по
+ * умолчанию — белым. Если текстура не пришла (битый PNG, 404, CORS),
+ * белый куб так и остаётся, и выглядит как «белый скин». Проверяем
+ * непрозрачность заранее и в этом случае прячем модель.
+ */
+async function textureLooksBroken(url: string): Promise<boolean> {
+  try {
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const i = new Image()
+      i.crossOrigin = 'anonymous'
+      i.onload = () => resolve(i)
+      i.onerror = () => reject(new Error('skin image failed to load'))
+      i.src = url
+    })
+    if (!img.naturalWidth) return true
+
+    const size = Math.min(64, img.naturalWidth)
+    const c = document.createElement('canvas')
+    c.width = size
+    c.height = size
+    const ctx = c.getContext('2d')
+    if (!ctx) return false
+    ctx.drawImage(img, 0, 0, size, size)
+    const data = ctx.getImageData(0, 0, size, size).data
+    let opaque = 0
+    for (let i = 3; i < data.length; i += 4) if (data[i] > 200) opaque++
+    // У настоящего скина непрозрачна вся развёртка; пустая текстура —
+    // это 0%. Порог снизу, а не наоборот: скин может быть неполным,
+    // но это всё равно лучше белого куба.
+    return opaque < size * size * 0.05
+  } catch {
+    return true
+  }
+}
+
 async function applySkin() {
   if (!viewer || !props.skinUrl) return
+  const url = props.skinUrl
   try {
     // Формат передаём явно, а не auto-detect: определение по размеру
     // текстуры ошибается на скинах, где прозрачная полоса slim-развёртки
     // не доходит до края.
-    await viewer.loadSkin(props.skinUrl, { model: model.value })
+    await viewer.loadSkin(url, { model: model.value })
     failed.value = false
     // Размер мог измениться вместе с текстурой — пересчитываем буфер,
     // иначе картинка растягивается и мылится.
     applySkinSize()
+    // Если развёртка пустая, модель-«белый куб» не показываем.
+    if (await textureLooksBroken(url)) failed.value = true
   } catch {
     failed.value = true
   }
