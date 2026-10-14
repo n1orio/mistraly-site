@@ -26,17 +26,44 @@ export interface ShopItem {
   mc_item: string | null
   mc_amount: number
   created_at: string
+  /** Цена в рублях. null, если цена в копейках не задана — товар бесплатный. */
+  amount: number | null
+  currency: string
+  /** Цена в копейках — источник истины для оплаты. */
+  price_kopecks: number | null
+  /** Принимает ли сервер оплату прямо сейчас. */
+  payments_enabled: boolean
+}
+
+/** Товар бесплатен: за него не выставляется счёт. */
+export function isFree(item: Pick<ShopItem, 'price_kopecks' | 'payments_enabled'>): boolean {
+  return !item.payments_enabled || !item.price_kopecks || item.price_kopecks <= 0
 }
 
 interface PurchaseResult {
-  message: string
+  message?: string
   item: string
-  item_type: string
-  purchase_id: string
+  item_type?: string
+  purchase_id?: string
   delivery_id: string | null
-  delivery: boolean
+  delivery?: boolean
   /** Бэкенд работает в режиме без приёма оплаты (FREE_PURCHASES). */
-  free: boolean
+  free?: boolean
+  /** Нужен переход на платёжную страницу Lava. */
+  requires_payment?: boolean
+  order_id?: string
+  invoice_id?: string
+  pay_url?: string
+  amount?: number
+  status?: string
+}
+
+/** Статус заказа: бэкенд отдаёт его после оплаты. */
+interface OrderStatus {
+  order_id: string
+  status: 'created' | 'success' | 'fail' | 'expired' | 'refund' | string
+  item: string
+  invoice_id: string | null
 }
 
 /**
@@ -48,13 +75,17 @@ export const usePurchaseStore = defineStore('purchase', () => {
   const auth = useAuthStore()
 
   const open = ref(false)
-  const step = ref<1 | 2 | 3 | 4>(1)
+  /** 1 — вход, 2 — ник, 3 — подтверждение, 4 — готово, 5 — оплата Lava. */
+  const step = ref<1 | 2 | 3 | 4 | 5>(1)
   const nickname = ref('')
   const checking = ref(false)
   const submitting = ref(false)
   const error = ref('')
   const orderDone = ref(false)
   const result = ref<PurchaseResult | null>(null)
+  /** Заказ Lava и ссылка на оплату — нужны для шага оплаты. */
+  const orderId = ref('')
+  const payUrl = ref('')
 
   /** Товар, если покупка инициирована из /shop, иначе null (проходка). */
   const item = ref<ShopItem | null>(null)
@@ -122,6 +153,9 @@ export const usePurchaseStore = defineStore('purchase', () => {
     error.value = ''
     result.value = null
     orderDone.value = false
+    // Витрина нужна для цены проходки, даже если открыт обычный товар:
+    // пользователь может вернуться к покупке проходки из этого окна.
+    void loadShopItems()
     void resolveNickname()
   }
 
@@ -142,11 +176,9 @@ export const usePurchaseStore = defineStore('purchase', () => {
     error.value = ''
     result.value = null
     orderDone.value = false
+    // Цена проходки живёт на витрине — без неё чек показал бы «0 ₽».
+    void loadShopItems()
     void resolveNickname()
-  }
-
-  function close() {
-    open.value = false
   }
 
   /** После входа через Discord: подтягиваем ник и выбираем следующий шаг. */
@@ -192,16 +224,54 @@ export const usePurchaseStore = defineStore('purchase', () => {
     }
   }
 
-  /** Собственно покупка. Для item/unban backend создаёт запись выдачи. */
+  /**
+ * Товары витрины. Нужны модалке для двух вещей: найти проходку, чтобы
+ * показать её цену, и проверить, что цена вообще задана.
+ */
+const shopItems = ref<ShopItem[]>([])
+
+/** Единственный товар с item_type = 'pass' — так выдаётся проходка. */
+const passItem = computed(
+  () => shopItems.value.find((i) => i.item_type === 'pass') ?? null
+)
+
+/**
+ * Загрузить витрину в кэш стора. Товар, купленный с витрины, приходит
+ * готовым объектом, а проходка — нет: её id и цену знает только бэкенд,
+ * поэтому без этой загрузки модалка показала бы проходку как «0 ₽».
+ */
+async function loadShopItems(force = false): Promise<void> {
+  if (!force && shopItems.value.length > 0) return
+  try {
+    shopItems.value = await unwrap<ShopItem[]>(api.get('/shop/items'))
+  } catch {
+    // Не смогли узнать витрину — покупку не блокируем: цену всё равно
+    // считает бэкенд, и он же её вернёт в ответе.
+    shopItems.value = []
+  }
+}
+
+/** Собственно покупка. Для item/unban backend создаёт запись выдачи. */
   async function confirmOrder(): Promise<boolean> {
     submitting.value = true
     error.value = ''
     try {
       const target = item.value
-      if (!target) {
+      // Витрина нужна в обоих случаях: для проходки — чтобы найти её id
+      // и цену, для товара — чтобы знать, задана ли цена вообще.
+      await loadShopItems()
+
+      // Проходка и товары идут одним запросом; item_type определяется на бэке.
+      if (target) {
+        result.value = await unwrap<PurchaseResult>(
+          api.post('/shop/purchase', {
+            item_id: target.id,
+            quantity: quantity.value
+          })
+        )
+      } else {
         // Проходка покупается по первому item_type = 'pass' из бэкенда.
-        const items = await unwrap<ShopItem[]>(api.get('/shop/items'))
-        const pass = items.find((i) => i.item_type === 'pass')
+        const pass = passItem.value
         if (!pass) {
           error.value = 'Проходка сейчас недоступна'
           return false
@@ -216,13 +286,17 @@ export const usePurchaseStore = defineStore('purchase', () => {
         result.value = await unwrap<PurchaseResult>(
           api.post('/shop/purchase', { item_id: pass.id })
         )
-      } else {
-        for (let i = 0; i < quantity.value; i++) {
-          result.value = await unwrap<PurchaseResult>(
-            api.post('/shop/purchase', { item_id: target.id })
-          )
-        }
       }
+
+      // Бэкенд выставил счёт в Lava: денег ещё нет, товар не выдан.
+      // Показываем шаг оплаты и ждём вебхук, а не радостно сообщаем об успехе.
+      if (result.value.requires_payment) {
+        orderId.value = result.value.order_id ?? ''
+        payUrl.value = result.value.pay_url ?? ''
+        step.value = 5
+        return true
+      }
+
       orderDone.value = true
       step.value = 4
       await auth.refreshProfile()
@@ -235,6 +309,55 @@ export const usePurchaseStore = defineStore('purchase', () => {
     }
   }
 
+  /** Открыть платёжную страницу Lava в новой вкладке. */
+  function redirectToPayment(): void {
+    if (payUrl.value) {
+      window.open(payUrl.value, '_blank', 'noopener,noreferrer')
+    }
+  }
+
+  /**
+   * Спросить у бэкенда статус заказа. Один раз — для кнопки «Я оплатил».
+   * Бэкенд отвечает по своей БД, а не ходит в Lava: товар выдаёт только
+   * подписанный вебхук, поэтому мгновенного «success» здесь быть не может.
+   */
+  async function checkPayment(): Promise<boolean> {
+    if (!orderId.value) return false
+    submitting.value = true
+    error.value = ''
+    try {
+      const status = await unwrap<OrderStatus>(
+        api.get(`/shop/orders/${encodeURIComponent(orderId.value)}`)
+      )
+      if (status.status === 'success') {
+        orderDone.value = true
+        step.value = 4
+        await auth.refreshProfile()
+        return true
+      }
+      if (status.status === 'expired' || status.status === 'fail') {
+        error.value =
+          status.status === 'expired'
+            ? 'Срок оплаты истёк. Создайте новый заказ.'
+            : 'Платёж не прошёл. Попробуйте ещё раз.'
+        step.value = 3
+        return false
+      }
+      // created — деньги ещё в пути: это нормальное состояние, не ошибка.
+      error.value = 'Оплата ещё не получена. Если вы уже заплатили, подождите минуту и попробуйте снова.'
+      return false
+    } catch (e) {
+      error.value = errorMessage(e, 'Не удалось проверить статус платежа')
+      return false
+    } finally {
+      submitting.value = false
+    }
+  }
+
+  function close() {
+    open.value = false
+  }
+
   function reset() {
     // После закрытия модалки ник не забываем: он уже привязан к аккаунту,
     // и следующая покупка должна сразу открываться на подтверждении.
@@ -242,6 +365,8 @@ export const usePurchaseStore = defineStore('purchase', () => {
     error.value = ''
     orderDone.value = false
     result.value = null
+    orderId.value = ''
+    payUrl.value = ''
   }
 
   return {
@@ -253,6 +378,9 @@ export const usePurchaseStore = defineStore('purchase', () => {
     error,
     orderDone,
     result,
+    orderId,
+    payUrl,
+    passItem,
     item,
     quantity,
     isNicknameValid,
@@ -265,6 +393,8 @@ export const usePurchaseStore = defineStore('purchase', () => {
     setDiscord,
     checkNickname,
     confirmOrder,
+    redirectToPayment,
+    checkPayment,
     reset
   }
 })

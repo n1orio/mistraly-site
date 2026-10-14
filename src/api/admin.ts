@@ -30,6 +30,76 @@ export interface ShopItem {
   mc_item?: string | null
   mc_amount?: number | null
   price?: number | null
+  /** Цена в копейках — то, что реально списывается. */
+  price_kopecks?: number | null
+}
+
+/** Сводка по оплатам за окно. Суммы — в рублях, если не сказано иное. */
+export interface PaymentSummary {
+  revenue: number
+  revenue_kopecks: number
+  total_orders: number
+  paid_orders: number
+  pending_orders: number
+  failed_orders: number
+  expired_orders: number
+  refund_orders: number
+  /** Выручка / число оплаченных заказов, в рублях. */
+  avg_check: number
+  /** success / все заказы окна, доля от 0 до 1. */
+  conversion: number
+  /** Выставлено счетов, но не оплачено: created + fail + expired. */
+  lost: number
+  lost_kopecks: number
+}
+
+export interface DailyRow {
+  day: string
+  orders: number
+  paid_orders: number
+  revenue_kopecks: number
+}
+
+export interface GroupRow {
+  /** by_status; для by_item в этом поле лежит item_name. */
+  status: string
+  count: number
+  amount_kopecks: number
+}
+
+export interface PaymentStats {
+  payments_enabled: boolean
+  free_purchases_mode: boolean
+  summary: PaymentSummary
+  daily: DailyRow[]
+  by_status: GroupRow[]
+  by_item: GroupRow[]
+}
+
+export interface LavaOrder {
+  id: string
+  user: string
+  item_name: string
+  amount_kopecks: number
+  status: string
+  invoice_id: string | null
+  error_message: string | null
+  created_at: string
+}
+
+export interface LavaHook {
+  id: number
+  invoice_id: string | null
+  order_id: string | null
+  status: string | null
+  signature_valid: boolean
+  error: string | null
+  created_at: string
+}
+
+export interface OrdersFeed {
+  orders: LavaOrder[]
+  webhooks: LavaHook[]
 }
 
 export interface AuditEntry {
@@ -102,4 +172,33 @@ export function revokeItem(
     delivery_id: deliveryId,
     reason: reason || null
   }))
+}
+
+/**
+ * Статистика оплат за окно в днях. Без days бэкенд считает по умолчанию,
+ * но «всё время» на бэкенде — это 3650 дней, поэтому для постоянного
+ * показа на странице передаём большой срок явно.
+ */
+export function paymentStats(days = 30): Promise<PaymentStats> {
+  return unwrap<PaymentStats>(api.get('/admin/stats/payments', { params: { days } }))
+}
+
+/** Последние заказы и сырые вебхуки Lava — для разбора инцидентов. */
+export function ordersFeed(days = 30, limit = 50): Promise<OrdersFeed> {
+  return unwrap<OrdersFeed>(
+    api.get('/admin/stats/orders', { params: { days, limit } })
+  )
+}
+
+/**
+ * Задать цену товара в рублях.
+ *
+ * Отправляем рубли, а не копейки: в форме человек вводит «350», и если бы
+ * он вводил копейки, цена 350 копеек (= 3,50 ₽) выглядела бы как
+ * «350 ₽» в ожидании и «3,50 ₽» по факту. Бэкенд сам умножает на 100.
+ */
+export function setItemPrice(itemId: string, rub: number): Promise<ShopItem> {
+  return unwrap<ShopItem>(
+    api.put(`/admin/shop/items/${encodeURIComponent(itemId)}/price`, { price_rub: rub })
+  )
 }

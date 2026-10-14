@@ -77,6 +77,23 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.removeItem('breeze_token')
   }
 
+  /**
+   * Передать лаунчеру токен по уже имеющейся сессии сайта.
+   *
+   * Без этого лаунчер открывал /auth/discord?nonce=… и заставлял игрока
+   * снова жать «Войти через Discord», хотя cookie была жива и аккаунт
+   * тот же. Теперь OAuth нужен только тем, кто на сайт ещё не входил.
+   */
+  async function launcherHandoff(nonce: string): Promise<boolean> {
+    loading.value = true
+    try {
+      await unwrap(api.post('/auth/launcher/handoff', { nonce }))
+      return true
+    } finally {
+      loading.value = false
+    }
+  }
+
   /** Обмен Discord-кода на сессию. Вызывается из DiscordAuthView. */
   async function loginWithDiscord(code: string, nonce?: string): Promise<AuthUser> {
     loading.value = true
@@ -153,6 +170,7 @@ export const useAuthStore = defineStore('auth', () => {
     loading,
     isAuthenticated,
     isAdmin,
+    launcherHandoff,
     loginWithDiscord,
     restore,
     refreshProfile,

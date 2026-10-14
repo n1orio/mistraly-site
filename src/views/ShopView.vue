@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, markRaw } from 'vue'
 import { ShoppingBag, Gavel, Key, Globe } from 'lucide-vue-next'
-import { usePurchaseStore } from '../stores/purchase'
+import { usePurchaseStore, isFree } from '../stores/purchase'
 import { api, unwrap, errorMessage } from '../api/client'
 import type { ShopItem } from '../stores/purchase'
 
@@ -59,12 +59,15 @@ interface Card extends ShopItem {
 }
 
 const cards = ref<Card[]>([])
+/** Проходка с той же витрины: в сторе она грузится только при открытии модалки. */
+const pass = ref<ShopItem | null>(null)
 const loadError = ref('')
 const loading = ref(true)
 
 onMounted(async () => {
   try {
     const items = await unwrap<ShopItem[]>(api.get('/shop/items'))
+    pass.value = items.find((i) => i.item_type === 'pass') ?? null
     cards.value = items
       .filter((i) => i.item_type !== 'pass')
       .map((i) => {
@@ -100,6 +103,23 @@ function setQty(id: string, val: number) {
 
 function openOrder(item: Card) {
   purchaseStore.showItem(item, qty.value[item.id] || 1)
+}
+
+function formatRub(kopecks: number): string {
+  return `${(kopecks / 100).toLocaleString('ru-RU', { maximumFractionDigits: 2 })} ₽`
+}
+
+/**
+ * Цена карточки с учётом выбранного количества.
+ *
+ * price_kopecks — источник истины: price в монетах витрины к деньгам
+ * отношения не имеет. Умножаем здесь, чтобы игрок видел итог до открытия
+ * модалки, а не после подтверждения.
+ */
+function totalRub(item: Card): string {
+  if (isFree(item)) return '0 ₽'
+  const kopecks = (item.price_kopecks ?? 0) * (qty.value[item.id] || 1)
+  return formatRub(kopecks)
 }
 
 function handlePassClick() {
@@ -168,8 +188,19 @@ function handlePassClick() {
                 </span>
               </div>
 
+              <!-- Цена: рубли, а не монеты витрины. Количество учитываем сразу,
+                     иначе кнопка «Купить (5 шт.)» стоила бы цену одной штуки. -->
+              <div class="flex items-baseline gap-2 mb-4">
+                <span class="font-heading font-black text-2xl sm:text-3xl" :style="{ color: item.accentColor }">
+                  {{ totalRub(item) }}
+                </span>
+                <span v-if="!item.payments_enabled" class="text-[10px] font-mono text-zinc-500 border border-white/10 px-1.5 py-0.5">
+                  БЕСПЛАТНО
+                </span>
+              </div>
+
               <!-- Описание -->
-              <p class="text-xs sm:text-sm text-zinc-300/80 leading-relaxed font-normal mb-4 transition-colors duration-200 group-hover:text-zinc-100">
+              <p class="text-xs sm:text-sm text-zinc-300/80 leading-relaxed mb-4 transition-colors duration-200 group-hover:text-zinc-100">
                 {{ item.desc }}
               </p>
             </div>
@@ -226,9 +257,19 @@ function handlePassClick() {
           Пропуск Mistraly Pass открывает доступ к серверу, лаунчеру на Rust и закрытому сообществу.
           Бессрочный, покупается один раз.
         </p>
+        <!-- Цена проходки берётся с витрины: price в монетах — не рубли. -->
+        <div v-if="!purchaseStore.hasActivePass" class="font-heading font-black text-3xl sm:text-4xl text-[#0099FF] mb-5">
+          <!-- Приём оплаты выключен — проходка бесплатна, как и товары выше.
+               Раньше здесь рисовался одинокий прочерк. -->
+          <template v-if="!pass">{{ loading ? '…' : '' }}</template>
+          <template v-else-if="isFree(pass)">Бесплатно</template>
+          <template v-else>{{ formatRub(pass.price_kopecks ?? 0) }}</template>
+        </div>
+
         <!-- v-if: при действующей проходке повторная оплата не нужна, -->
         <!-- поэтому и кнопки не показываем. -->
-        <div v-if="!purchaseStore.hasActivePass" class="comic-btn-wrap inline-flex">
+        <div v-if="!purchaseStore.hasActivePass" class="flex justify-center">
+        <div class="comic-btn-wrap inline-flex">
           <button
             @click="handlePassClick"
             class="comic-btn font-heading font-black text-sm uppercase tracking-wider px-8 py-3.5 inline-flex items-center justify-center gap-2 cursor-pointer"
@@ -236,6 +277,7 @@ function handlePassClick() {
           >
             Оформить проходку →
           </button>
+        </div>
         </div>
         <p v-else class="text-xs font-semibold text-emerald-400">
           Проходка уже оформлена — доступ бессрочный.

@@ -13,6 +13,9 @@ const purchase = usePurchaseStore()
 
 const errorMessage_ = ref('')
 const success = ref(false)
+/** Проверяем живую сессию, чтобы не гонять уже залогиненного через OAuth. */
+const checkingSession = ref(false)
+const alreadyIn = ref(false)
 const clientId = import.meta.env.VITE_DISCORD_CLIENT_ID || ''
 
 // Discord возвращает state байт-в-байт. Лаунчер кладёт туда свой nonce,
@@ -42,6 +45,19 @@ const destination = computed(() => {
   return '/profile'
 })
 
+/** Подтверждение передачи сессии лаунчеру — без перехода в Discord. */
+async function confirmHandoff() {
+  if (!launcherNonce.value) return
+  try {
+    await auth.launcherHandoff(launcherNonce.value)
+    success.value = true
+    alreadyIn.value = true
+    setTimeout(() => window.close(), 900)
+  } catch (e) {
+    errorMessage_.value = errorMessage(e, 'Не удалось передать сессию лаунчеру')
+  }
+}
+
 function startDiscordAuth() {
   if (!clientId) {
     errorMessage_.value = 'Discord авторизация временно не настроена.'
@@ -56,9 +72,37 @@ function startDiscordAuth() {
     (state ? `&state=${encodeURIComponent(state)}` : '')
 }
 
+/** Сессия сайта есть — токен можно отдать лаунчеру без Discord. */
+async function tryHandoffWithoutOAuth(): Promise<boolean> {
+  if (!launcherNonce.value) return false
+  if (!auth.isAuthenticated) return false
+  try {
+    await auth.launcherHandoff(launcherNonce.value)
+    return true
+  } catch (e) {
+    // Сессия могла протухнуть между гардом и здесь — тогда показываем
+    // кнопку Discord как раньше, а не молча уходим в ошибку.
+    errorMessage_.value = errorMessage(e, 'Не удалось передать сессию лаунчеру')
+    return false
+  }
+}
+
 onMounted(async () => {
   const code = route.query.code as string | undefined
-  if (!code) return
+  if (!code) {
+    // Лаунчер прислал nonce, но Discord ещё не поучаствовал. Если игрок
+    // уже залогинен на сайте — отдаём токен сразу, без второго входа.
+    checkingSession.value = true
+    await auth.restore()
+    const handedOff = await tryHandoffWithoutOAuth()
+    checkingSession.value = false
+    if (handedOff) {
+      alreadyIn.value = true
+      success.value = true
+      setTimeout(() => window.close(), 900)
+    }
+    return
+  }
 
   try {
     await auth.loginWithDiscord(code, launcherNonce.value || undefined)
@@ -103,8 +147,16 @@ onMounted(async () => {
 
         <div class="relative z-10 text-center">
 
+          <!-- Режим 0: проверяем живую сессию, чтобы не спрашивать Discord заново -->
+          <div v-if="checkingSession" class="py-6">
+            <div class="spinner mx-auto"></div>
+            <span class="font-mono text-[11px] text-zinc-500 uppercase mt-5 block">
+              Проверяем сессию
+            </span>
+          </div>
+
           <!-- Режим 1: Ожидание авторизации -->
-          <div v-if="!success">
+          <div v-else-if="!success">
             <!-- Крупная иконка Discord с жесткой тенью -->
             <div class="relative inline-block mb-6">
               <div
@@ -120,17 +172,39 @@ onMounted(async () => {
               <h2 class="font-heading font-black text-2xl sm:text-3xl text-white tracking-tight leading-snug uppercase">
                 Пропуск в <span class="word-hl">Mistraly</span>
               </h2>
-              <span class="font-mono text-[11px] text-[#5865F2] uppercase font-bold tracking-wider mt-1 block">
-                СИСТЕМА ЕДИНОГО ВХОДА
-              </span>
+            <span class="font-mono text-[11px] text-[#5865F2] uppercase font-bold tracking-wider mt-1 block">
+              {{ launcherNonce ? 'ПЕРЕДАЧА В ЛАУНЧЕР' : 'СИСТЕМА ЕДИНОГО ВХОДА' }}
+            </span>
             </div>
 
-            <p class="text-xs sm:text-sm text-zinc-300/80 leading-relaxed font-normal mb-8 max-w-xs mx-auto">
-              Авторизация через Discord создает безопасный профиль без паролей и синхронизирует ваши дирижабли и скины.
+            <p class="text-xs sm:text-sm text-zinc-300/80 leading-relaxed mb-8 max-w-xs mx-auto">
+              <template v-if="launcherNonce">
+                Лаунчеру нужен доступ к вашему аккаунту. Если вы уже вошли на сайте — просто подтвердите передачу.
+              </template>
+              <template v-else>
+                Авторизация через Discord создает безопасный профиль без паролей и синхронизирует ваши дирижабли и скины.
+              </template>
             </p>
 
-            <!-- Кнопка входа в едином стиле сайта (белеет при наведении) -->
-            <div class="comic-btn-wrap w-full">
+            <!--
+              Кнопка передачи сессии: показывается тому, кто на сайт уже
+              вошёл. Discord в этом случае не нужен — лаунчер получит тот
+              же аккаунт по живой cookie.
+            -->
+            <div v-if="launcherNonce && auth.isAuthenticated" class="comic-btn-wrap w-full">
+              <button
+                :disabled="auth.loading"
+                @click="confirmHandoff"
+                class="comic-btn w-full py-3.5 px-6 font-heading font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2.5 cursor-pointer disabled:opacity-60"
+                :style="{ '--btn-bg': '#0099FF', '--btn-color': '#FFFFFF' }"
+              >
+                <ShieldCheck :size="16" />
+                {{ auth.loading ? 'Передаём...' : `Продолжить как ${auth.user?.username || 'игрок'}` }}
+              </button>
+            </div>
+
+            <!-- Discord нужен только тем, кто на сайт ещё не входил -->
+            <div v-else class="comic-btn-wrap w-full">
               <button
                 :disabled="auth.loading"
                 @click="startDiscordAuth"
@@ -170,7 +244,9 @@ onMounted(async () => {
               Добро пожаловать
             </h2>
             <p class="text-xs text-zinc-400 leading-relaxed max-w-xs mx-auto mb-6">
-              {{ launcherNonce ? 'Токен передан в лаунчер. Это окно закроется автоматически.' : 'Перенаправляем в ваш терминал...' }}
+              <template v-if="alreadyIn">Сессия сайта передана в лаунчер — в Discord не пришлось заходить.</template>
+              <template v-else-if="launcherNonce">Токен передан в лаунчер. Это окно закроется автоматически.</template>
+              <template v-else>Перенаправляем в ваш терминал...</template>
             </p>
 
             <div class="h-1 w-full bg-white/10 rounded-full overflow-hidden">

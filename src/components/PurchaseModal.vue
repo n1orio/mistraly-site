@@ -1,10 +1,41 @@
 <script setup lang="ts">
-import { Check, ChevronLeft, MessageCircle, ShieldCheck, X, Sparkles, Terminal } from 'lucide-vue-next'
-import { usePurchaseStore } from '../stores/purchase'
+import { computed } from 'vue'
+import { Check, ChevronLeft, MessageCircle, ShieldCheck, X, ExternalLink, Loader2, CreditCard } from 'lucide-vue-next'
+import { usePurchaseStore, isFree } from '../stores/purchase'
 import { useAuthStore } from '../stores/auth'
 
 const store = usePurchaseStore()
 const auth = useAuthStore()
+
+/**
+ * Сумма к оплате в рублях.
+ *
+ * Берём копейки, а не price: price — это монеты витрины, а не деньги.
+ * Товаров без price_kopecks или при выключенной оплате показываем 0 ₽,
+ * чтобы квитанция не обещала цену, которую никто не спишет.
+ */
+const priceRub = computed(() => {
+  const item = store.item
+  if (!item) {
+    // Проходка берётся с витрины: её цена тоже живёт в price_kopecks.
+    const kopecks = passPriceKopecks.value
+    return kopecks ? formatRub(kopecks) : '0 ₽'
+  }
+  if (isFree(item)) return '0 ₽'
+  return formatRub(item.price_kopecks ?? 0)
+})
+
+/** Цена проходки — единственный товар с item_type 'pass' на витрине. */
+const passPriceKopecks = computed<number | null>(() => passItem.value?.price_kopecks ?? null)
+
+const isPaid = computed(() => priceRub.value !== '0 ₽')
+
+function formatRub(kopecks: number): string {
+  return `${(kopecks / 100).toLocaleString('ru-RU', { maximumFractionDigits: 2 })} ₽`
+}
+
+// Витрина нужна модалке для цены проходки: её собственный товар — null.
+const passItem = computed(() => (store.item ? null : store.passItem))
 
 function startAuth() {
   const clientId = import.meta.env.VITE_DISCORD_CLIENT_ID || ''
@@ -42,10 +73,7 @@ const hints: Record<string, string> = {
     @click.self="store.close"
   >
     <div class="modal-outer w-full max-w-md relative">
-code
-Code
-
-<!-- Кнопка закрытия (крестик) со скосом -->
+      <!-- Кнопка закрытия (крестик) со скосом -->
   <button
     class="close-btn absolute -top-3 -right-3 z-30 w-8 h-8 bg-[#18191c] hover:bg-white text-white hover:text-black flex items-center justify-center border border-white/20 transition cursor-pointer"
     @click="store.close"
@@ -78,7 +106,7 @@ Code
             v-for="n in 3"
             :key="n"
             class="px-1.5 py-0.5 border font-bold transition-all"
-            :class="store.step >= n
+            :class="store.step >= n || (store.step === 4 && n === 3)
               ? 'bg-[#0099FF] text-black border-[#0099FF]'
               : 'bg-white/5 text-zinc-500 border-white/10'"
           >
@@ -200,8 +228,14 @@ Code
               <span v-if="store.item && store.quantity > 1" class="text-[#0099FF]"> × {{ store.quantity }}</span>
             </strong>
           </div>
-
+          <div class="flex justify-between items-baseline">
+            <span class="text-zinc-500">К оплате:</span>
+            <strong class="text-white text-base">
+              {{ priceRub }}
+              <span v-if="isPaid" class="text-[10px] text-[#0099FF] font-normal ml-1">(через Lava)</span>
+            </strong>
           </div>
+        </div>
 
         <p v-if="hints[store.item?.item_type || 'pass']" class="text-[11px] font-mono text-zinc-500 mb-4 leading-relaxed">
           // {{ hints[store.item?.item_type || 'pass'] }}
@@ -221,6 +255,69 @@ Code
             {{ store.submitting ? 'Оформляем…' : 'Купить' }}
           </button>
         </div>
+      </div>
+
+      <!-- ================= ШАГ 5: ОПЛАТА LAVA ================= -->
+      <div v-else-if="store.step === 5" class="flex flex-col">
+        <h2 class="font-heading font-black text-2xl text-white tracking-tight uppercase mb-1">
+          Оплата
+        </h2>
+        <p class="text-xs text-zinc-400 mb-5 leading-relaxed">
+          Счёт на <strong class="text-white">{{ priceRub }}</strong> выставлен в Lava.
+          Товар выдадим сразу после подтверждения платежа.
+        </p>
+
+        <div class="receipt-box bg-black/45 border border-dashed border-white/15 p-4 mb-4 space-y-2.5 font-mono text-xs">
+          <div class="flex justify-between">
+            <span class="text-zinc-500">Позиция:</span>
+            <strong class="text-white">{{ store.result?.item || 'Mistraly Pass' }}</strong>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-zinc-500">Сумма:</span>
+            <strong class="text-white">{{ priceRub }}</strong>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-zinc-500">Номер заказа:</span>
+            <strong class="text-zinc-300 text-[11px] break-all">{{ store.orderId }}</strong>
+          </div>
+        </div>
+
+        <p v-if="store.error" class="text-xs font-mono text-amber-400 mb-3 block leading-relaxed">
+          ⚠ {{ store.error }}
+        </p>
+
+        <div class="comic-btn-wrap w-full mb-2">
+          <button
+            :disabled="!store.payUrl"
+            @click="store.redirectToPayment"
+            class="comic-btn w-full py-3.5 px-6 font-heading font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            :style="{ '--btn-bg': '#0099FF', '--btn-color': '#FFFFFF' }"
+          >
+            <ExternalLink :size="15" />
+            Перейти к оплате
+          </button>
+        </div>
+
+        <!-- Запасной путь: платёж может пройти, а вебхук задержаться.
+             Кнопка спрашивает статус у бэкенда, а не у Lava напрямую,
+             и переходит к «получено» только при status = success. -->
+        <div class="comic-btn-wrap w-full">
+          <button
+            :disabled="store.submitting"
+            @click="store.checkPayment"
+            class="comic-btn w-full py-3 px-6 font-heading font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+            :style="{ '--btn-bg': '#1f2937', '--btn-color': '#FFFFFF' }"
+          >
+            <Loader2 v-if="store.submitting" :size="14" class="animate-spin" />
+            <CreditCard v-else :size="14" />
+            {{ store.submitting ? 'Проверяем…' : 'Я оплатил — проверить' }}
+          </button>
+        </div>
+
+        <p class="text-[11px] font-mono text-zinc-600 mt-4 text-center leading-relaxed">
+          // Подтверждение приходит от Lava автоматически.
+          // Обычно 1–2 минуты, но иногда до 15.
+        </p>
       </div>
 
       <!-- ================= ШАГ 4: ГОТОВО ================= -->

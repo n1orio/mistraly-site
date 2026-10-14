@@ -124,7 +124,7 @@ function showFallback(e: Event) {
             </div>
 
             <!-- Описание мода -->
-            <p class="text-xs sm:text-sm text-zinc-300/80 leading-relaxed font-normal transition-colors duration-200 group-hover:text-zinc-100">
+            <p class="text-xs sm:text-sm text-zinc-300/80 leading-relaxed transition-colors duration-200 group-hover:text-zinc-100">
               {{ mod.description }}
             </p>
           </div>

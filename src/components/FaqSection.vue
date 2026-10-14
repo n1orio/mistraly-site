@@ -3,6 +3,18 @@ import { ref, computed, markRaw } from 'vue'
 import { Cpu, ShieldCheck, Radio, Sparkles, AlertTriangle } from 'lucide-vue-next'
 
 const selectedIndex = ref(0)
+const sheet = ref<HTMLElement | null>(null)
+
+/**
+ * На телефоне газета с ответом стоит под всем списком вопросов, и клик по
+ * вопросу выглядел так, будто ничего не произошло. Прокручиваем к ответу.
+ */
+function select(idx: number) {
+  selectedIndex.value = idx
+  if (window.matchMedia('(max-width: 1023px)').matches) {
+    requestAnimationFrame(() => sheet.value?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
+  }
+}
 
 const faqs = [
   {
@@ -120,7 +132,12 @@ const content = computed(() => selected.value.content ?? [])
         <div
           v-for="(item, idx) in faqs"
           :key="item.id"
-          @click="selectedIndex = idx"
+          role="button"
+          tabindex="0"
+          :aria-pressed="selectedIndex === idx"
+          @click="select(idx)"
+          @keydown.enter.prevent="select(idx)"
+          @keydown.space.prevent="select(idx)"
           class="nav-tab-item group cursor-pointer transition-all duration-200"
           :class="{ 'is-active': selectedIndex === idx }"
           :style="{
@@ -170,14 +187,14 @@ const content = computed(() => selected.value.content ?? [])
       </div>
 
       <!-- ПРАВАЯ КОЛОНКА: Газета с коцками и зазубринами на гранях -->
-      <div class="lg:col-span-7 w-full newspaper-outer">
+      <div ref="sheet" class="lg:col-span-7 w-full newspaper-outer scroll-mt-24" aria-live="polite">
         <article class="newspaper-sheet p-6 sm:p-8 relative">
 
           <!-- Шапка газеты -->
           <header class="newspaper-header text-center pb-2 mb-4">
-            <h1 class="newspaper-title font-heading font-black text-2xl sm:text-3xl text-[#1a1815] tracking-tight uppercase">
+            <div class="newspaper-title font-heading font-black text-2xl sm:text-3xl text-[#1a1815] tracking-tight uppercase">
               The Mistraly Chronicle
-            </h1>
+            </div>
             <!-- Классическая двойная газетная черта -->
             <div class="newspaper-double-rule mt-2 mb-1"></div>
             <div class="flex items-center justify-between text-[10px] font-mono font-bold tracking-widest text-[#5c5446] uppercase">
@@ -248,6 +265,13 @@ const content = computed(() => selected.value.content ?? [])
 </template>
 
 <style scoped>
+/* Вопросы стали кнопками для клавиатуры. Рамку рисуем внутрь: снаружи её
+   срезал бы собственный clip-path карточки. */
+.nav-tab-item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -4px;
+}
+
 /* Фирменный стиль плашки в заголовке */
 .word-hl {
   display: inline-block;

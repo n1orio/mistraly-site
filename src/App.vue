@@ -35,7 +35,7 @@ const isAdminHost = location.hostname === 'admin.mistraly.net'
       class="relative z-[1] w-full max-w-6xl px-4 py-8 mt-auto border-t border-[var(--border-color)] flex flex-col sm:flex-row items-center justify-between text-xs text-[var(--text-muted)] gap-4"
     >
       <div>© Mistraly • Minecraft 1.21.1</div>
-      <div class="flex items-center gap-5">
+      <div class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
         <router-link to="/offer" class="hover:text-[var(--text-main)] transition underline underline-offset-2">Оферта</router-link>
         <router-link to="/refund" class="hover:text-[var(--text-main)] transition">Возврат</router-link>
         <router-link to="/privacy" class="hover:text-[var(--text-main)] transition">Персональные данные</router-link>

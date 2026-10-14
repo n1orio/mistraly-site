@@ -189,7 +189,7 @@ onMounted(() => {
       <!-- Футер с ссылками внутри оранжевой зоны -->
       <footer class="w-full max-w-6xl px-4 py-6 border-t border-black/20 flex flex-col sm:flex-row items-center justify-between text-xs text-black/85 font-bold gap-4">
         <div>© Mistraly • Minecraft 1.21.1</div>
-        <div class="flex items-center gap-6">
+        <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
           <router-link to="/offer" class="hover:text-black transition underline underline-offset-2">Оферта</router-link>
           <router-link to="/refund" class="hover:text-black transition">Возврат</router-link>
           <router-link to="/privacy" class="hover:text-black transition">Персональные данные</router-link>

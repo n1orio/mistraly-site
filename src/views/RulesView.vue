@@ -312,7 +312,7 @@ onUnmounted(() => {
                 ({{ res.chapterTitle }})
               </span>
             </div>
-            <p class="text-xs text-zinc-300 font-normal leading-relaxed">
+            <p class="text-xs text-zinc-300 leading-relaxed">
               {{ res.matchSnippet }}
             </p>
           </div>
@@ -427,7 +427,7 @@ onUnmounted(() => {
                 </div>
 
                 <!-- Текст правила -->
-                <p class="text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal mb-3.5">
+                <p class="text-sm sm:text-[15px] text-zinc-300 leading-relaxed mb-3.5">
                   {{ rule.text }}
                 </p>
 

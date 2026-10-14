@@ -1,6 +1,23 @@
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import { usePurchaseStore } from '../stores/purchase'
+import { useAuthStore } from '../stores/auth'
 const purchase = usePurchaseStore()
+const auth = useAuthStore()
+const router = useRouter()
+
+/**
+ * Шаг 1 — вход. Раньше кнопка «Войти через Discord» открывала окно покупки
+ * проходки, а уже вошедшему снова предлагала войти.
+ */
+function login() {
+  router.push({ path: '/auth/discord', query: { redirect: '/#stages' } })
+}
+
+/** Шаг 3 — к блоку загрузки. Раньше ссылка вела на несуществующий #launcher. */
+function toLauncher() {
+  document.querySelector('#launcher')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
 </script>
 
 <template>
@@ -46,12 +63,20 @@ const purchase = usePurchaseStore()
               </p>
               <span class="skew-wrap">
                 <button
-                  @click="purchase.showPass()"
+                  v-if="!auth.isAuthenticated"
+                  @click="login"
                   style="--btn-bg:#5865F2; --btn-color:#FFFFFF"
                   class="skew-btn px-5 py-2.5 font-black text-xs uppercase tracking-widest cursor-pointer"
                 >
                   Войти через Discord
                 </button>
+                <span
+                  v-else
+                  style="--btn-bg:#2D334D; --btn-color:#C7D2FE"
+                  class="skew-btn px-5 py-2.5 font-black text-xs uppercase tracking-widest inline-flex items-center gap-2"
+                >
+                  ✓ Вы вошли{{ auth.user?.username ? ' как ' + auth.user.username : '' }}
+                </span>
               </span>
             </div>
           </div>
@@ -138,11 +163,12 @@ const purchase = usePurchaseStore()
                 Mistraly Launcher
               </h3>
               <p class="text-sm sm:text-base text-[#D1FAE5] leading-relaxed mb-5">
-                Скачайте лаунчер на Rust. Он в один клик загрузит Minecraft модпак со всеми удобствами.
+                Скачайте лаунчер — он сам поставит Minecraft, NeoForge, Java и сборку и сразу зайдёт на сервер.
               </p>
               <span class="skew-wrap">
                 <a
                   href="#launcher"
+                  @click.prevent="toLauncher"
                   style="--btn-bg:#4ADE80; --btn-color:#142306"
                   class="skew-btn inline-block px-5 py-2.5 font-black text-xs uppercase tracking-widest cursor-pointer text-decoration-none"
                 >
