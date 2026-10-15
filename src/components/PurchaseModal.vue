@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Check, ChevronLeft, MessageCircle, ShieldCheck, X, ExternalLink, Loader2, CreditCard } from 'lucide-vue-next'
+import { Check, ChevronLeft, MessageCircle, ShieldCheck, X, ExternalLink, Loader2, CreditCard, Ticket } from 'lucide-vue-next'
 import { usePurchaseStore, isFree } from '../stores/purchase'
 import { useAuthStore } from '../stores/auth'
+import { formatRub } from '../api/promo'
 
 const store = usePurchaseStore()
 const auth = useAuthStore()
@@ -14,15 +15,18 @@ const auth = useAuthStore()
  * Товаров без price_kopecks или при выключенной оплате показываем 0 ₽,
  * чтобы квитанция не обещала цену, которую никто не спишет.
  */
-const priceRub = computed(() => {
+/** Сумма без скидки: цена × количество. */
+const baseKopecks = computed(() => {
   const item = store.item
-  if (!item) {
-    // Проходка берётся с витрины: её цена тоже живёт в price_kopecks.
-    const kopecks = passPriceKopecks.value
-    return kopecks ? formatRub(kopecks) : '0 ₽'
-  }
-  if (isFree(item)) return '0 ₽'
-  return formatRub(item.price_kopecks ?? 0)
+  // Проходка берётся с витрины: её цена тоже живёт в price_kopecks.
+  if (!item) return passPriceKopecks.value ?? 0
+  if (isFree(item)) return 0
+  return (item.price_kopecks ?? 0) * store.quantity
+})
+
+const priceRub = computed(() => {
+  const kopecks = store.promo ? store.promo.total_kopecks : baseKopecks.value
+  return kopecks ? formatRub(kopecks) : '0 ₽'
 })
 
 /** Цена проходки — единственный товар с item_type 'pass' на витрине. */
@@ -30,9 +34,6 @@ const passPriceKopecks = computed<number | null>(() => passItem.value?.price_kop
 
 const isPaid = computed(() => priceRub.value !== '0 ₽')
 
-function formatRub(kopecks: number): string {
-  return `${(kopecks / 100).toLocaleString('ru-RU', { maximumFractionDigits: 2 })} ₽`
-}
 
 // Витрина нужна модалке для цены проходки: её собственный товар — null.
 const passItem = computed(() => (store.item ? null : store.passItem))
@@ -228,6 +229,14 @@ const hints: Record<string, string> = {
               <span v-if="store.item && store.quantity > 1" class="text-[#0099FF]"> × {{ store.quantity }}</span>
             </strong>
           </div>
+          <div v-if="store.promo" class="flex justify-between">
+            <span class="text-zinc-500">Без скидки:</span>
+            <span class="text-zinc-500 line-through">{{ formatRub(store.promo.original_kopecks) }}</span>
+          </div>
+          <div v-if="store.promo" class="flex justify-between">
+            <span class="text-zinc-500">Промокод {{ store.promo.code }}:</span>
+            <strong class="text-emerald-400">−{{ formatRub(store.promo.discount_kopecks) }} ({{ store.promo.discount_percent }}%)</strong>
+          </div>
           <div class="flex justify-between items-baseline">
             <span class="text-zinc-500">К оплате:</span>
             <strong class="text-white text-base">
@@ -236,6 +245,44 @@ const hints: Record<string, string> = {
             </strong>
           </div>
         </div>
+
+        <!-- Промокод: обычный или код автора -->
+        <form class="promo-row mb-4" @submit.prevent="store.applyPromo">
+          <label class="sr-only" for="promo">Промокод</label>
+          <div class="promo-field">
+            <Ticket :size="14" class="text-zinc-500 shrink-0" />
+            <input
+              id="promo"
+              v-model.trim="store.promoCode"
+              :disabled="!!store.promo"
+              maxlength="32"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="Промокод"
+              class="promo-input"
+              @input="store.promoError = ''"
+            />
+          </div>
+          <button
+            v-if="store.promo"
+            type="button"
+            class="promo-btn promo-btn--ghost"
+            @click="store.clearPromo"
+          >
+            Убрать
+          </button>
+          <button
+            v-else
+            type="submit"
+            class="promo-btn"
+            :disabled="!store.promoCode || store.promoChecking"
+          >
+            {{ store.promoChecking ? '…' : 'Применить' }}
+          </button>
+        </form>
+        <span v-if="store.promoError" class="text-xs font-mono text-rose-400 -mt-2 mb-3 block">
+          {{ store.promoError }}
+        </span>
 
         <p v-if="hints[store.item?.item_type || 'pass']" class="text-[11px] font-mono text-zinc-500 mb-4 leading-relaxed">
           // {{ hints[store.item?.item_type || 'pass'] }}
@@ -428,5 +475,61 @@ const hints: Record<string, string> = {
 
 .comic-btn:active {
   transform: scale(0.96) rotate(-1.2deg);
+}
+.promo-row {
+  display: flex;
+  gap: 8px;
+}
+.promo-field {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+.promo-field:focus-within {
+  border-color: #0099ff;
+}
+.promo-input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-family: ui-monospace, monospace;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.promo-input::placeholder {
+  color: #71717a;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.promo-input:disabled {
+  color: #34d399;
+}
+.promo-btn {
+  padding: 0 14px;
+  border: none;
+  background: #0099ff;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.promo-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.promo-btn--ghost {
+  background: rgba(255, 255, 255, 0.08);
+  color: #a1a1aa;
 }
 </style>

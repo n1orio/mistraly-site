@@ -42,6 +42,24 @@ export const useAuthStore = defineStore('auth', () => {
 
   const isAuthenticated = computed(() => !!user.value)
   const isAdmin = computed(() => user.value?.role === 'admin')
+  /**
+   * Владелец авторского промокода. Отдельной роли нет (в users роль —
+   * только user/admin), поэтому спрашиваем бэкенд: есть ли у аккаунта код.
+   * null — ещё не спрашивали.
+   */
+  const isAuthor = ref<boolean | null>(null)
+
+  async function checkAuthor(): Promise<boolean> {
+    if (!user.value) return false
+    if (isAuthor.value !== null) return isAuthor.value
+    try {
+      const res = await api.get('/author/stats')
+      isAuthor.value = !!res.data?.success
+    } catch {
+      isAuthor.value = false
+    }
+    return isAuthor.value
+  }
 
   function readJson<T>(key: string): T | null {
     try {
@@ -70,6 +88,7 @@ export const useAuthStore = defineStore('auth', () => {
   function clear() {
     setAccessToken(null)
     user.value = null
+    isAuthor.value = null
     discord.value = null
     localStorage.removeItem(USER_KEY)
     localStorage.removeItem(DISCORD_KEY)
@@ -164,6 +183,8 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   return {
+    isAuthor,
+    checkAuthor,
     user,
     discord,
     ready,

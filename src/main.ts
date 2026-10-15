@@ -6,6 +6,7 @@ import App from './App.vue'
 import { useTheme } from './composables/useTheme'
 import { setUnauthorizedHandler } from './api/client'
 import { useAuthStore } from './stores/auth'
+import { rememberPromoFromUrl } from './stores/purchase'
 
 /**
  * На admin.mistraly.net корень — это сама админка, а не витрина магазина.
@@ -98,7 +99,9 @@ router.beforeEach(async (to) => {
   // Не админа отправляем на страницу отказа, а не на корень: на
   // admin.mistraly.net корень — это сама админка, и редирект туда же
   // зациклил бы гард.
-  if (to.meta.requiresAdmin && !auth.isAdmin) {
+  // Автор промокода тоже попадает в админку — но видит только свою
+  // статистику: остальные разделы бэкенд ему всё равно не отдаст.
+  if (to.meta.requiresAdmin && !auth.isAdmin && !(await auth.checkAuthor())) {
     return { path: '/admin-denied' }
   }
   return true
@@ -119,5 +122,9 @@ initTheme()
 // перезагрузки фоновая шестерня ещё не готова. import() не блокирует
 // mount — он только стартует загрузку.
 void import('./lib/gearRenderer').then((m) => m.preloadGear())
+
+// Реферальная ссылка автора: mistraly.net/?promo=КОД — код подставится
+// в покупку, даже если игрок купит не сразу.
+rememberPromoFromUrl()
 
 createApp(App).use(pinia).use(router).mount('#app')

@@ -13,8 +13,12 @@ import {
   CreditCard,
   Upload,
   Rocket,
-  Save
+  Save,
+  Ticket
 } from 'lucide-vue-next'
+import PromoAdmin from '../components/PromoAdmin.vue'
+import AuthorStats from '../components/AuthorStats.vue'
+import { myAuthorStats, type AuthorStats as AuthorStatsData } from '../api/promo'
 import { useAuthStore } from '../stores/auth'
 import { api, errorMessage, unwrap } from '../api/client'
 import {
@@ -46,7 +50,7 @@ import {
 
 const auth = useAuthStore()
 
-type Tab = 'users' | 'audit' | 'stats' | 'builds'
+type Tab = 'users' | 'audit' | 'stats' | 'builds' | 'promo'
 const tab = ref<Tab>('users')
 
 const users = ref<AdminUser[]>([])
@@ -341,9 +345,23 @@ function canRevoke(p: AdminPurchase): boolean {
   return p.status === 'pending'
 }
 
+// Кабинет автора промокода: всё, что ему положено видеть в админке.
+const authorData = ref<AuthorStatsData | null>(null)
+const authorError = ref('')
+
+async function loadAuthor() {
+  authorError.value = ''
+  try {
+    authorData.value = await myAuthorStats()
+  } catch (e) {
+    authorError.value = errorMessage(e, 'Не удалось загрузить статистику')
+  }
+}
+
 onMounted(async () => {
   await auth.restore()
   if (auth.isAdmin) await loadAll()
+  else if (await auth.checkAuthor()) await loadAuthor()
 })
 
 // Данные вкладок грузим при переходе, а не все сразу: статистика и список
@@ -357,7 +375,7 @@ watch(tab, async (t) => {
 <template>
   <div class="admin">
     <header class="bar">
-      <h1><ShieldCheck :size="22" /> Админка</h1>
+      <h1><ShieldCheck :size="22" /> {{ !auth.isAdmin && auth.isAuthor ? 'Кабинет автора' : 'Админка' }}</h1>
       <div class="right">
         <span class="who">
           {{ auth.user?.username }}
@@ -370,7 +388,18 @@ watch(tab, async (t) => {
       </div>
     </header>
 
-    <p v-if="!auth.isAdmin" class="denied">
+    <!-- Автор промокода видит только свою статистику -->
+    <section v-if="!auth.isAdmin && auth.isAuthor">
+      <h2 class="author-title"><Ticket :size="18" /> Партнёрская программа</h2>
+      <p class="muted">
+        Игроки получают скидку по вашему коду, а вы — процент с каждой оплаченной проходки.
+        Делитесь ссылкой из таблицы: код подставится в покупку сам.
+      </p>
+      <p v-if="authorError" class="err"><X :size="16" /> {{ authorError }}</p>
+      <AuthorStats v-if="authorData" :stats="authorData" />
+    </section>
+
+    <p v-else-if="!auth.isAdmin" class="denied">
       Этот раздел доступен только администратору. Войдите через Discord-аккаунт с ролью admin.
     </p>
 
@@ -387,6 +416,9 @@ watch(tab, async (t) => {
         </button>
         <button :class="{ on: tab === 'builds' }" @click="tab = 'builds'">
           <Rocket :size="16" /> Сборки
+        </button>
+        <button :class="{ on: tab === 'promo' }" @click="tab = 'promo'">
+          <Ticket :size="16" /> Промокоды
         </button>
       </nav>
 
@@ -601,6 +633,10 @@ watch(tab, async (t) => {
       </section>
 
       <!-- Сборки -->
+      <section v-else-if="tab === 'promo'">
+        <PromoAdmin :users="users" />
+      </section>
+
       <section v-else-if="tab === 'builds'">
         <div class="box-inline">
           <h2>Загрузить сборку</h2>
@@ -1139,5 +1175,12 @@ h3 {
   to {
     transform: rotate(360deg);
   }
+}
+.author-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  margin: 0 0 6px;
 }
 </style>
