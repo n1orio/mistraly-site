@@ -279,7 +279,8 @@ function date(raw: string) {
         </label>
         <label>
           Скидка игроку, %
-          <input v-model.number="form.discount_percent" type="number" min="0" max="90" required />
+          <input v-model.number="form.discount_percent" type="number" min="0" :max="form.kind === 'author' ? 90 : 100" required />
+          <small v-if="form.kind === 'promo' && form.discount_percent === 100" class="hint">100% — товар выдаётся бесплатно, без оплаты. Задайте лимит использований.</small>
         </label>
         <label v-if="form.kind === 'author'">
           Автору с проходки, %
@@ -381,6 +382,12 @@ function date(raw: string) {
 </template>
 
 <style scoped>
+.hint {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: #fbbf24;
+}
 h3 {
   font-size: 15px;
   margin: 26px 0 10px;

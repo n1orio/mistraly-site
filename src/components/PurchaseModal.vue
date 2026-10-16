@@ -34,6 +34,9 @@ const passPriceKopecks = computed<number | null>(() => passItem.value?.price_kop
 
 const isPaid = computed(() => priceRub.value !== '0 ₽')
 
+/** Промокод на 100%: товар платный, но по коду выдаётся без оплаты. */
+const freeByPromo = computed(() => !!store.promo && store.promo.total_kopecks === 0 && store.promo.original_kopecks > 0)
+
 
 // Витрина нужна модалке для цены проходки: её собственный товар — null.
 const passItem = computed(() => (store.item ? null : store.passItem))
@@ -240,7 +243,7 @@ const hints: Record<string, string> = {
           <div class="flex justify-between items-baseline">
             <span class="text-zinc-500">К оплате:</span>
             <strong class="text-white text-base">
-              {{ priceRub }}
+              {{ freeByPromo ? 'Бесплатно' : priceRub }}
               <span v-if="isPaid" class="text-[10px] text-[#0099FF] font-normal ml-1">(через Lava)</span>
             </strong>
           </div>
@@ -299,7 +302,7 @@ const hints: Record<string, string> = {
             class="comic-btn w-full py-3.5 px-6 font-heading font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
             :style="{ '--btn-bg': '#0099FF', '--btn-color': '#FFFFFF' }"
           >
-            {{ store.submitting ? 'Оформляем…' : 'Купить' }}
+            {{ store.submitting ? 'Оформляем…' : freeByPromo ? 'Получить бесплатно' : 'Купить' }}
           </button>
         </div>
       </div>
