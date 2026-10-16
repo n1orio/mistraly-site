@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { Download, Coffee, Rocket, ShieldCheck, Monitor } from 'lucide-vue-next'
+import { Download, Coffee, Rocket, ShieldCheck, Monitor, Package, Copy, Check } from 'lucide-vue-next'
 
 /**
  * Блок загрузки лаунчера (#launcher).
@@ -19,6 +19,9 @@ import { Download, Coffee, Rocket, ShieldCheck, Monitor } from 'lucide-vue-next'
  *     "files": {
  *       "windows": { "url": "/downloads/Mistraly_0.2.0_x64-setup.exe", "size": 9123456 },
  *       "linux":   { "url": "/downloads/Mistraly_0.2.0_amd64.AppImage", "size": 81234567 },
+ *       "deb":     { "url": "/downloads/Mistraly_0.2.0_amd64.deb", "size": 9123456 },
+ *       "rpm":     { "url": "/downloads/Mistraly-0.2.0-1.x86_64.rpm", "size": 9123456 },
+ *       "flatpak": { "url": "/downloads/flatpak/net.mistraly.launcher.flatpakref" },
  *       "macos":   { "url": "/downloads/Mistraly_0.2.0_universal.dmg", "size": 12345678 }
  *     }
  *   }
@@ -27,11 +30,18 @@ import { Download, Coffee, Rocket, ShieldCheck, Monitor } from 'lucide-vue-next'
  */
 
 type Platform = 'windows' | 'linux' | 'macos'
+/** Дополнительные Linux-пакеты: показываются ссылками рядом с AppImage. */
+type Extra = 'deb' | 'rpm' | 'flatpak'
+
+interface Asset {
+  url: string
+  size?: number
+}
 
 interface Release {
   version: string
   date?: string
-  files: Partial<Record<Platform, { url: string; size?: number }>>
+  files: Partial<Record<Platform | Extra, Asset>>
 }
 
 const PLATFORMS: Record<Platform, { label: string; hint: string }> = {
@@ -52,15 +62,54 @@ function detectPlatform(): Platform {
 
 const detected = detectPlatform()
 
-const primary = computed(() => {
-  const files = release.value?.files ?? {}
-  if (files[detected]) return detected
-  return (Object.keys(files) as Platform[])[0] ?? null
-})
-
-const others = computed(() =>
-  (Object.keys(release.value?.files ?? {}) as Platform[]).filter((p) => p !== primary.value)
+const available = computed(() =>
+  (Object.keys(PLATFORMS) as Platform[]).filter((p) => release.value?.files[p])
 )
+
+/**
+ * Кнопка «для вашей системы» — только если файл под неё действительно есть.
+ * Раньше Windows-посетителю без .exe предлагался Linux как «ваша система».
+ */
+const primary = computed(() => (available.value.includes(detected) ? detected : null))
+
+/** Что стоит на главной кнопке: своя система, а если её нет — первая доступная. */
+const shown = computed(() => primary.value ?? available.value[0] ?? null)
+
+const others = computed(() => available.value.filter((p) => p !== shown.value))
+
+const linuxExtras = computed(() =>
+  (['deb', 'rpm'] as const)
+    .map((k) => ({ key: k, file: release.value?.files[k] }))
+    .filter((x): x is { key: 'deb' | 'rpm'; file: Asset } => !!x.file)
+)
+
+const flatpak = computed(() => release.value?.files.flatpak ?? null)
+
+/**
+ * Ставим из нашего Flatpak-репозитория по .flatpakref: он сам подключает
+ * репозиторий (с ключом подписи) и Flathub для рантайма, а дальше
+ * обновления приходят через `flatpak update` и Центр приложений.
+ * Полный URL — команды копируют в терминал, относительный путь там не сработает.
+ */
+const flatpakRefUrl = computed(() =>
+  flatpak.value ? new URL(flatpak.value.url, window.location.origin).href : ''
+)
+const flatpakCommands = computed(() =>
+  flatpak.value
+    ? [`flatpak install --user -y ${flatpakRefUrl.value}`, 'flatpak run net.mistraly.launcher'].join('\n')
+    : ''
+)
+
+const copied = ref(false)
+async function copyFlatpak() {
+  try {
+    await navigator.clipboard.writeText(flatpakCommands.value)
+    copied.value = true
+    setTimeout(() => (copied.value = false), 1800)
+  } catch {
+    /* буфер обмена недоступен — команды видны и так */
+  }
+}
 
 function size(bytes?: number) {
   if (!bytes) return ''
@@ -115,7 +164,8 @@ const features = [
             <span class="dl-spinner" />
           </div>
 
-          <template v-else-if="release && primary">
+          <template v-else-if="release && available.length">
+            <template v-if="primary">
             <div class="flex items-center gap-3 mb-1 text-[#D1FAE5]">
               <Monitor :size="18" />
               <span class="text-sm">Для вашей системы — {{ PLATFORMS[primary].label }}</span>
@@ -131,6 +181,30 @@ const features = [
                 Скачать для {{ PLATFORMS[primary].label }}
               </a>
             </span>
+            </template>
+
+            <template v-else>
+              <div class="flex items-center gap-3 mb-1 text-[#D1FAE5]">
+                <Monitor :size="18" />
+                <span class="text-sm">Для {{ PLATFORMS[detected].label }} сборка скоро появится</span>
+              </div>
+              <p class="text-xs text-[var(--text-muted)] mb-6">
+                Пока лаунчер готов для: {{ available.map((p) => PLATFORMS[p].label).join(', ') }}.
+              </p>
+              <span class="dl-btn-wrap">
+                <a :href="release.files[shown!]!.url" class="dl-btn dl-btn--muted" download>
+                  <Download :size="18" />
+                  Скачать для {{ PLATFORMS[shown!].label }}
+                </a>
+              </span>
+            </template>
+
+            <div v-if="shown === 'linux' && linuxExtras.length" class="dl-others">
+              <span>Пакетом:</span>
+              <a v-for="x in linuxExtras" :key="x.key" :href="x.file.url" download>
+                .{{ x.key }}<template v-if="x.file.size"> · {{ size(x.file.size) }}</template>
+              </a>
+            </div>
 
             <div v-if="others.length" class="dl-others">
               <span>Другие системы:</span>
@@ -151,6 +225,35 @@ const features = [
             </span>
           </template>
         </div>
+      </div>
+
+      <!-- Flatpak: быстрая установка на любом Linux -->
+      <div v-if="flatpak" id="flatpak" class="lg:col-span-12 fp-card scroll-mt-24">
+        <div class="flex items-center gap-3 mb-2">
+          <span class="feat-icon"><Package :size="18" /></span>
+          <span class="font-heading text-lg text-white">Установка через Flatpak</span>
+        </div>
+        <p class="text-sm text-[var(--text-muted)] leading-relaxed mb-4">
+          Работает на любом дистрибутиве: Steam Deck, Fedora, Ubuntu, Arch, Mint. Одна команда
+          подключает репозиторий Mistraly и ставит лаунчер — он появится в меню приложений как
+          «Mistraly», а новые версии будут приходить вместе с остальными обновлениями системы.
+          Игра и сборка хранятся в <code>~/.mistraly</code>, как и у AppImage.
+        </p>
+        <div class="fp-code">
+          <pre><code>{{ flatpakCommands }}</code></pre>
+          <button type="button" class="fp-copy" :aria-label="copied ? 'Скопировано' : 'Скопировать команды'" @click="copyFlatpak">
+            <component :is="copied ? Check : Copy" :size="16" />
+            {{ copied ? 'Скопировано' : 'Копировать' }}
+          </button>
+        </div>
+        <p class="text-xs text-[var(--text-muted)] mt-3">
+          Обновить: <code>flatpak update</code> или «Центр приложений». Удалить:
+          <code>flatpak uninstall --user net.mistraly.launcher</code>.
+          Без терминала — <a :href="flatpak.url" class="fp-link">откройте эту ссылку</a>,
+          и GNOME Software или Discover предложат установить Mistraly.
+          Ставили раньше из файла Mistraly.flatpak? Удалите его командой выше и установите заново —
+          тогда заработают обновления; игра и сборка в <code>~/.mistraly</code> останутся.
+        </p>
       </div>
 
       <!-- Что умеет -->
@@ -302,6 +405,67 @@ const features = [
 }
 .dl-others a:hover {
   text-decoration-color: currentColor;
+}
+
+.fp-card {
+  position: relative;
+  padding: 24px 24px 22px;
+  background: #16181b;
+  clip-path: polygon(0% 2%, 100% 0%, 99.5% 100%, 0.5% 96%);
+}
+.fp-card code {
+  font-family: ui-monospace, 'JetBrains Mono', monospace;
+  font-size: 0.92em;
+  color: #d1fae5;
+}
+.fp-code {
+  position: relative;
+  background: #0c0f0d;
+  border: 1px solid rgba(74, 222, 128, 0.18);
+}
+.fp-code pre {
+  margin: 0;
+  padding: 16px 18px;
+  padding-right: 130px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.7;
+  white-space: pre;
+}
+.fp-copy {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #4ade80;
+  color: #142306;
+  font-family: 'Russo One', sans-serif;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.fp-copy:hover {
+  background: #fff;
+}
+.fp-copy:focus-visible {
+  outline: 2px solid #4ade80;
+  outline-offset: 3px;
+}
+.fp-link {
+  color: #d1fae5;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+@media (max-width: 640px) {
+  .fp-code pre {
+    padding-right: 18px;
+    padding-top: 52px;
+  }
 }
 
 .feat {

@@ -14,10 +14,6 @@ function login() {
   router.push({ path: '/auth/discord', query: { redirect: '/#stages' } })
 }
 
-/** Шаг 3 — к блоку загрузки. Раньше ссылка вела на несуществующий #launcher. */
-function toLauncher() {
-  document.querySelector('#launcher')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-}
 </script>
 
 <template>
@@ -166,14 +162,13 @@ function toLauncher() {
                 Скачайте лаунчер — он сам поставит Minecraft, NeoForge, Java и сборку и сразу зайдёт на сервер.
               </p>
               <span class="skew-wrap">
-                <a
-                  href="#launcher"
-                  @click.prevent="toLauncher"
+                <router-link
+                  to="/download"
                   style="--btn-bg:#4ADE80; --btn-color:#142306"
                   class="skew-btn inline-block px-5 py-2.5 font-black text-xs uppercase tracking-widest cursor-pointer text-decoration-none"
                 >
                   Скачать лаунчер
-                </a>
+                </router-link>
               </span>
             </div>
           </div>

@@ -5,6 +5,7 @@ import {
   Home,
   ShoppingBag,
   ScrollText,
+  Download,
 } from 'lucide-vue-next'
 import { useAuthStore } from '../stores/auth'
 
@@ -52,6 +53,13 @@ const tabs = [
     icon: ScrollText,
     color: '#FF4444',
     clipPath: 'polygon(0% 0%, 100% 0%, 99% 88%, 1% 100%)' // диагональный срез
+  },
+  {
+    to: '/download',
+    label: 'Скачать',
+    icon: Download,
+    color: '#4ADE80',
+    clipPath: 'polygon(0% 0%, 100% 0%, 100% 92%, 1% 100%)' // скос влево
   },
 ]
 

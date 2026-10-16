@@ -304,15 +304,15 @@ function statusBadge(status: string) {
 
             <!-- Главное действие -->
             <div class="comic-btn-wrap w-full">
-              <a
+              <router-link
                 v-if="hasPass"
-                href="/#launcher"
+                to="/download"
                 class="comic-btn w-full py-3.5 px-6 font-heading font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer text-decoration-none"
                 :style="{ '--btn-bg': '#22C55E', '--btn-color': '#101113' }"
               >
                 <Download :size="16" />
                 Скачать Mistraly Launcher
-              </a>
+              </router-link>
 
               <button
                 v-else
