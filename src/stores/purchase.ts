@@ -186,15 +186,13 @@ export const usePurchaseStore = defineStore('purchase', () => {
   const isNicknameValid = computed(() => /^[A-Za-z0-9_]{3,16}$/.test(nickname.value))
 
   /**
-   * Ник нужен не для всего подряд. Бэкенд (routes/shop.rs) требует привязанный
-   * ник только там, где товар физически доставляется на сервер, — это item и
-   * unban: без ника некуда выдать предмет. Проходка меняет записи в
-   * users (has_pass / pass_expires_at) и ни о ком не зависит, поэтому
-   * спрашивать ник там — лишний шаг с вводом данных, которые нигде не нужны.
+   * Ник обязателен для проходки и для всего, что доставляется на сервер
+   * (item, unban). Проходку без ника бэкенд не продаёт: иначе игрок с
+   * доступом не мог попасть на сервер, пока не задаст ник в лаунчере.
    */
   const needsNickname = computed(() => {
-    if (!item.value) return false
-    return item.value.item_type === 'item' || item.value.item_type === 'unban'
+    if (!item.value) return true
+    return ['pass', 'item', 'unban'].includes(item.value.item_type)
   })
 
   /** Ник уже привязан к аккаунту и бэкенд его знает. */
@@ -230,8 +228,7 @@ export const usePurchaseStore = defineStore('purchase', () => {
       const link = await unwrap<NicknameLink | null>(api.get('/user/nickname'))
       nickname.value = link?.nickname ?? ''
     } catch {
-      // Не смогли узнать ник — не блокируем покупку: для проходки он не нужен,
-      // а для товара шаг ввода всё равно покажется и ник спросят.
+      // Не смогли узнать ник — покажем шаг ввода: привязка ника идемпотентна.
       nickname.value = ''
     }
     step.value = needsNickname.value && !nickname.value ? 2 : 3
@@ -252,7 +249,7 @@ export const usePurchaseStore = defineStore('purchase', () => {
     void resolveNickname()
   }
 
-  /** Открыть модалку без товара — покупка проходки. Ник не нужен.
+  /** Открыть модалку без товара — покупка проходки.
    *
    * Если проходка уже есть, модалка не открывается: показывать «перейти к
    * оплате» человеку с действующим доступом бессмысленно.
