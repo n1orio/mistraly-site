@@ -198,7 +198,7 @@ function statusBadge(status: string) {
               <div class="w-full h-[320px] flex items-center justify-center relative">
                 <SkinViewer3D
                   :skin-url="skinPreviewUrl"
-                  :variant="user?.skin_variant"
+                  :variant="user?.skin_data ? user.skin_variant : 'slim'"
                   :variant-changed="onVariantChanged"
                 />
               </div>

@@ -1,162 +1,19 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import {
-  Shield,
-  BookOpen,
-  Anchor,
-  MessageSquare,
-  Scale,
   Search,
   X,
-  AlertTriangle,
   Link as LinkIcon,
   Check,
   ArrowUpRight,
   HelpCircle,
   Clock
 } from 'lucide-vue-next'
+import { rulesData, rulesMeta } from '../data/rules'
 
 const searchQuery = ref('')
 const copiedRuleId = ref<string | null>(null)
 const currentHash = ref('')
-
-interface RuleChapter {
-  id: string
-  title: string
-  badge: string
-  badgeColor: string
-  icon: any
-  rules: {
-    num: string
-    title: string
-    text: string
-    penalty?: string
-    isWarning?: boolean
-  }[]
-}
-
-const rulesData: RuleChapter[] = [
-  {
-    id: 'sec-general',
-    title: '1. Основные положения',
-    badge: 'БАЗА',
-    badgeColor: '#0099FF',
-    icon: Shield,
-    rules: [
-      {
-        num: '1.1',
-        title: 'Уважение и комфортная атмосфера',
-        text: 'Сервер нацелен на полу-РП игру, эстетику стимпанка и свободную инженерию. Запрещены любые формы вредительства, целенаправленной токсичности, оскорблений на национальной почве и срыва чужого игрового процесса.',
-        penalty: 'Варн / Мут от 2 часов / Бан до 3 дней'
-      },
-      {
-        num: '1.2',
-        title: 'Единство игрового профиля',
-        text: 'Одному человеку разрешено играть строго с одного аккаунта. Вход привязан к вашей учетной записи Discord. Запрещено регистрировать твинки для обхода наказаний или передавать доступ третьим лицам.',
-        penalty: 'Перманентный бан всех связанных аккаунтов'
-      },
-      {
-        num: '1.3',
-        title: 'Чит-клиенты и запрещенные модификации',
-        text: 'Категорически запрещено использование X-Ray, FreeCam, Baritone, Fly, KillAura, автокликеров для прокачки ферм в AFK и любых модификаций, дающих нечестное преимущество над другими инженерами.',
-        penalty: 'Бан навсегда без права амнистии',
-        isWarning: true
-      }
-    ]
-  },
-  {
-    id: 'sec-create',
-    title: '2. Механизмы и фабрики Create',
-    badge: 'ИНЖЕНЕРИЯ',
-    badgeColor: '#FFCC00',
-    icon: BookOpen,
-    rules: [
-      {
-        num: '2.1',
-        title: 'Оптимизация нагрузок и стабильность TPS',
-        text: 'Мир рассчитывает физику сотен шестеренок. Запрещено оставлять вхолостую работающие циклические механизмы (вечные конвейеры, помпы без резервуаров). Выключайте неиспользуемые узлы через муфты (Clutch).',
-        penalty: 'Предупреждение / Принудительный демонтаж узла'
-      },
-      {
-        num: '2.2',
-        title: 'Лаг-машины и деструктивные схемы',
-        text: 'Намеренное создание конструкций, роняющих частоту тиков сервера ниже 18 TPS, приравнивается к вредительству. Если ваш завод вызывает локальные фризы, инженер обязан оптимизировать схему.',
-        penalty: 'Удаление постройки / Бан до 7 дней',
-        isWarning: true
-      }
-    ]
-  },
-  {
-    id: 'sec-aeronautics',
-    title: '3. Воздушный флот и бои',
-    badge: 'АВИАЦИЯ',
-    badgeColor: '#22C55E',
-    icon: Anchor,
-    rules: [
-      {
-        num: '3.1',
-        title: 'Суверенитет воздушных судов',
-        text: 'Каждый собранный дирижабль считается приватной территорией его создателя. Нахождение на чужом судне без приглашения капитана дает право экипажу устранить нарушителя на месте.',
-        penalty: 'Игровой момент'
-      },
-      {
-        num: '3.2',
-        title: 'Правила воздушных сражений и пушек',
-        text: 'Сражения дирижаблей разрешены только по взаимному согласию сторон либо в нейтральной зоне открытого неба (Warzone). Запрещено обстреливать мирные верфи, доки новичков и спавн.',
-        penalty: 'Откат повреждений + Бан 3–14 дней'
-      },
-      {
-        num: '3.3',
-        title: 'Запрет таранов-камикадзе',
-        text: 'Категорически запрещено собирать неуправляемые взрывные дирижабли с целью намеренно врезаться в чужие базы или мирные поселения.',
-        penalty: 'Перманентный бан по железу',
-        isWarning: true
-      }
-    ]
-  },
-  {
-    id: 'sec-chat',
-    title: '4. Текстовая и радиосвязь',
-    badge: 'СВЯЗЬ',
-    badgeColor: '#A855F7',
-    icon: MessageSquare,
-    rules: [
-      {
-        num: '4.1',
-        title: 'Позиционный микрофон (Voice Chat)',
-        text: 'Запрещено включать саундпады, громкие посторонние шумы, бассбусты и музыку в общественных местах. Нарушение личных границ и преследование игроков с микрофоном наказывается мутом.',
-        penalty: 'Отключение голосового чата от 12 часов'
-      },
-      {
-        num: '4.2',
-        title: 'Общий чат и спам',
-        text: 'Запрещен капс, частый флуд, неадекватное поведение и реклама сторонних серверов/услуг.',
-        penalty: 'Мут от 1 часа / Бан при рекламе'
-      }
-    ]
-  },
-  {
-    id: 'sec-justice',
-    title: '5. Модерация и логирование',
-    badge: 'БЕЗОПАСНОСТЬ',
-    badgeColor: '#EF4444',
-    icon: Scale,
-    rules: [
-      {
-        num: '5.1',
-        title: 'Аудит и подача тикетов',
-        text: 'На сервере ведется поминутная история каждого блока, контейнера и выстрела. При инциденте зафиксируйте координаты и откройте тикет в Discord. Попытка обмануть состав модерации удваивает срок наказания.',
-        penalty: 'Увеличение наказания x2'
-      },
-      {
-        num: '5.2',
-        title: 'Откаты и компенсация ущерба',
-        text: 'Ущерб от гриферства или серверных сбоев восстанавливается администрацией в полном объеме (Rollback). Ресурсы возвращаются пострадавшей стороне.',
-        penalty: 'Восстановление без потерь'
-      }
-    ]
-  }
-]
 
 // Глобальный поиск
 const searchResults = computed(() => {
@@ -191,7 +48,7 @@ const searchResults = computed(() => {
           ruleNum: rule.num,
           ruleTitle: rule.title,
           matchSnippet: snippet,
-          targetId: `rule-${rule.num.replace('.', '-')}`
+          targetId: rule.anchor
         })
       }
     })
@@ -211,7 +68,7 @@ function scrollTo(id: string) {
 
 // Копирование ссылки
 function copyRuleLink(num: string) {
-  const ruleId = `rule-${num.replace('.', '-')}`
+  const ruleId = `rule-${num.replace(/\./g, '-')}`
   const url = `${window.location.origin}${window.location.pathname}#${ruleId}`
 
   navigator.clipboard.writeText(url).then(() => {
@@ -261,7 +118,7 @@ onUnmounted(() => {
           Свод <span class="word-hl">правил</span>
         </h1>
         <p class="text-xs sm:text-sm text-[var(--text-muted)] max-w-lg mx-auto">
-          Официальный кодекс инженеров, пилотов и исследователей сервера Mistraly.
+          {{ rulesMeta.subtitle }}
         </p>
       </div>
 
@@ -384,11 +241,11 @@ onUnmounted(() => {
               <article
                 v-for="rule in chap.rules"
                 :key="rule.num"
-                :id="`rule-${rule.num.replace('.', '-')}`"
+                :id="rule.anchor"
                 class="rule-box p-4 sm:p-5 rounded-lg border transition-all duration-300 relative group"
                 :class="[
                   rule.isWarning ? 'border-red-500/25 bg-red-500/[0.03]' : 'border-white/[0.06] bg-[#101113]/70',
-                  currentHash === `rule-${rule.num.replace('.', '-')}` ? 'is-target-highlight' : ''
+                  currentHash === rule.anchor ? 'is-target-highlight' : ''
                 ]"
               >
                 <!-- Заголовок правила + кнопка копирования ссылки -->
@@ -410,12 +267,12 @@ onUnmounted(() => {
                     type="button"
                     @click="copyRuleLink(rule.num)"
                     class="copy-link-btn flex items-center gap-1.5 px-2 py-1 rounded text-[11px] font-mono transition cursor-pointer select-none"
-                    :class="copiedRuleId === `rule-${rule.num.replace('.', '-')}`
+                    :class="copiedRuleId === rule.anchor
                       ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
                       : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/15 border border-white/10'"
                     :title="'Скопировать ссылку на правило ' + rule.num"
                   >
-                    <template v-if="copiedRuleId === `rule-${rule.num.replace('.', '-')}`">
+                    <template v-if="copiedRuleId === rule.anchor">
                       <Check :size="13" class="text-emerald-400" />
                       <span>Скопировано!</span>
                     </template>
@@ -427,9 +284,10 @@ onUnmounted(() => {
                 </div>
 
                 <!-- Текст правила -->
-                <p class="text-sm sm:text-[15px] text-zinc-300 leading-relaxed mb-3.5">
-                  {{ rule.text }}
-                </p>
+                <div
+                  class="rule-body text-sm sm:text-[15px] text-zinc-300 leading-relaxed mb-3.5"
+                  v-html="rule.html"
+                ></div>
 
                 <!-- Плашка наказания -->
                 <div v-if="rule.penalty" class="flex flex-wrap items-center gap-2 text-xs font-mono pt-3 border-t border-white/[0.06]">
@@ -452,17 +310,18 @@ onUnmounted(() => {
           <div class="p-4 bg-[#151619] border border-white/10 rounded-lg text-left shadow-lg">
             <div class="flex items-center gap-2 text-zinc-300 font-heading font-bold text-xs uppercase mb-1.5">
               <HelpCircle :size="15" class="text-[#0099FF]" />
-              <span>Помощь состава</span>
+              <span>{{ rulesMeta.supportTitle }}</span>
             </div>
             <p class="text-xs text-zinc-400 leading-relaxed mb-3">
-              Если произошел спор, вас загриферили или нужна апелляция:
+              {{ rulesMeta.supportText }}
             </p>
             <a
-              href="https://discord.gg/22uJ8rya7Y"
+              :href="rulesMeta.supportLink"
               target="_blank"
+              rel="noopener noreferrer"
               class="font-heading font-black text-xs uppercase tracking-wider text-[#0099FF] hover:underline inline-flex items-center gap-1"
             >
-              Тикет в Discord →
+              {{ rulesMeta.supportLinkText }} →
             </a>
           </div>
 
@@ -470,10 +329,10 @@ onUnmounted(() => {
           <div class="p-4 bg-[#151619] border border-white/5 rounded-lg text-left font-mono text-[11px] text-zinc-500 space-y-2">
             <div class="flex items-center gap-1.5 text-zinc-400">
               <Clock :size="13" />
-              <span>РЕДАКЦИЯ: 2026.1</span>
+              <span>РЕДАКЦИЯ: {{ rulesMeta.edition }}</span>
             </div>
             <div class="border-t border-white/5 pt-2">
-              Незнание правил не освобождает от ответственности.
+              {{ rulesMeta.disclaimer }}
             </div>
           </div>
         </aside>
@@ -533,5 +392,34 @@ onUnmounted(() => {
   100% {
     box-shadow: 0 0 18px rgba(0, 153, 255, 0.25), inset 0 0 0 1px #0099FF;
   }
+}
+.rule-body :deep(p) + :deep(p) {
+  margin-top: 0.75rem;
+}
+
+.rule-body :deep(.rule-list) {
+  margin: 0.5rem 0 0 1.1rem;
+  list-style: disc;
+}
+
+.rule-body :deep(ol.rule-list) {
+  list-style: decimal;
+}
+
+.rule-body :deep(li) {
+  margin-top: 0.25rem;
+}
+
+.rule-body :deep(.rule-code) {
+  font-family: theme('fontFamily.mono');
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0 0.3em;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+.rule-body :deep(.rule-link) {
+  color: #0099FF;
+  text-decoration: underline;
 }
 </style>

@@ -10,6 +10,7 @@ export interface AuthUser {
   has_pass?: boolean
   pass_expires_at?: string | null
   skin_variant?: string
+  skin_data?: string | null
 }
 
 export interface DiscordInfo {
