@@ -172,14 +172,14 @@ const content = computed(() => selected.value.content ?? [])
                 >
                   {{ item.tag }}
                 </span>
-                <h4 class="font-heading font-black text-sm text-white tracking-tight truncate block">
+                <h4 class="item-title font-heading font-black text-sm tracking-tight truncate block">
                   {{ item.menuTitle }}
                 </h4>
               </div>
             </div>
 
             <!-- Номер пункта -->
-            <span class="font-mono text-xs text-white/30 font-bold shrink-0 group-hover:text-white transition-colors ml-2">
+            <span class="item-num font-mono text-xs font-bold shrink-0 transition-colors ml-2">
               #0{{ idx + 1 }}
             </span>
           </div>
@@ -188,7 +188,8 @@ const content = computed(() => selected.value.content ?? [])
 
       <!-- ПРАВАЯ КОЛОНКА: Газета с коцками и зазубринами на гранях -->
       <div ref="sheet" class="lg:col-span-7 w-full newspaper-outer scroll-mt-24" aria-live="polite">
-        <article class="newspaper-sheet p-6 sm:p-8 relative">
+        <!-- key: при смене вопроса лист пересоздаётся и проигрывает рывок sheet-swap -->
+        <article :key="selectedIndex" class="newspaper-sheet p-6 sm:p-8 relative">
 
           <!-- Шапка газеты -->
           <header class="newspaper-header text-center pb-2 mb-4">
@@ -302,8 +303,27 @@ const content = computed(() => selected.value.content ?? [])
   filter: drop-shadow(8px 8px 0px rgba(0, 0, 0, 0.75));
 }
 
+/* Активный вопрос — на газетной бумаге с растром по краям, как активная
+   вкладка в навигации; текст тушью. */
 .nav-tab-item.is-active > div {
-  background: linear-gradient(90deg, #1f2126 0%, #161719 100%);
+  background:
+    radial-gradient(ellipse closest-side, #ECE5D2 60%, transparent 100%),
+    radial-gradient(circle, rgba(17, 17, 17, 0.45) 32%, transparent 38%) 0 0 / 5px 5px,
+    #ECE5D2;
+}
+
+.item-title {
+  color: #FFFFFF;
+}
+.item-num {
+  color: rgba(255, 255, 255, 0.3);
+}
+.nav-tab-item:hover .item-num {
+  color: #FFFFFF;
+}
+.nav-tab-item.is-active .item-title,
+.nav-tab-item.is-active .item-num {
+  color: #111111;
 }
 
 /* =========================================================
@@ -316,6 +336,8 @@ const content = computed(() => selected.value.content ?? [])
 }
 
 .newspaper-sheet {
+  /* Смена вопроса — рывок в три кадра, как стоп-моушен на сайте. */
+  animation: sheet-swap 0.24s steps(1, end);
   background-color: #ebe3d3;
   background-image:
     radial-gradient(#d8ceba 1px, transparent 1px),
@@ -367,6 +389,19 @@ const content = computed(() => selected.value.content ?? [])
     0.4% 59.5%,
     0% 28%
   );
+}
+
+@keyframes sheet-swap {
+  0% { transform: rotate(-2deg) translate(-6px, 4px) scale(0.97); }
+  33% { transform: rotate(1.2deg) translate(3px, -3px); }
+  66% { transform: rotate(-0.4deg); }
+  100% { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .newspaper-sheet {
+    animation: none;
+  }
 }
 
 /* Двойная черта как в классических печатных газетах */

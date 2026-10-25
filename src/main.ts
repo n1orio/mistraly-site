@@ -8,6 +8,7 @@ import { setUnauthorizedHandler } from './api/client'
 import { useAuthStore } from './stores/auth'
 import { rememberPromoFromUrl } from './stores/purchase'
 import { waitForElement } from './lib/scroll'
+import { installNewsBurst } from './lib/newsBurst'
 
 /**
  * На admin.mistraly.net корень — это сама админка, а не витрина магазина.
@@ -143,5 +144,8 @@ void import('./lib/gearRenderer').then((m) => m.preloadGear())
 // Реферальная ссылка автора: mistraly.net/?promo=КОД — код подставится
 // в покупку, даже если игрок купит не сразу.
 rememberPromoFromUrl()
+
+// Газетный стоп-моушен за кнопками на ховере.
+installNewsBurst()
 
 createApp(App).use(pinia).use(router).mount('#app')

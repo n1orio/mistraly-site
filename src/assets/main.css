@@ -20,7 +20,7 @@
 @font-face{font-family:'Russo One';font-weight:400;font-display:swap;src:url(./fonts/russo-one-latin-400.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:'Russo One';font-weight:400;font-display:swap;src:url(./fonts/russo-one-cyrillic-400.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
 html{color-scheme:dark light;--bg-page:#F1F4F9;--bg-page:#F1F4F9;--bg-card:#FFF;--bg-card-hover:#F8FAFC;--border-color:#E2E8F0;--text-main:#0B0F19;--text-muted:#475569;--text-sub:#64748B;--nav-bg:rgba(255,255,255,.85);--nav-border:#E2E8F0}
-html.dark{color-scheme:dark;background-color:#0A0A0A;background-image:linear-gradient(to bottom,#141414 0%,#0A0A0A 100%);background-repeat:no-repeat;background-attachment:scroll;min-height:100%;--bg-page:#141414;--bg-page-bottom:#0A0A0A;--bg-card:#2B2B2B;--bg-card-hover:#1A1D26;--border-color:rgba(255,255,255,.06);--text-main:#FFF;--text-muted:#94A3B8;--text-sub:#64748B;--nav-bg:rgba(20,20,20,.82);--nav-border:rgba(255,255,255,.08)}
+html.dark{color-scheme:dark;background-color:#070707;background-image:linear-gradient(to bottom,#0C0C0C 0%,#070707 100%);background-repeat:no-repeat;background-attachment:scroll;min-height:100%;--bg-page:#0C0C0C;--bg-page-bottom:#070707;--bg-card:#2B2B2B;--bg-card-hover:#1A1D26;--border-color:rgba(255,255,255,.06);--text-main:#FFF;--text-muted:#94A3B8;--text-sub:#64748B;--nav-bg:rgba(20,20,20,.82);--nav-border:rgba(255,255,255,.08)}
 html,body{margin:0;padding:0;width:100%;min-height:100vh;background-color:transparent;background-repeat:no-repeat;color:var(--text-main);font-family:'Podkova',Georgia,serif;font-weight:800}#app{width:100%;min-height:100vh;display:flex;flex-direction:column}/* Заголовки остаются на 400: у Russo One всего один вес, и синтетическое
    утолщение ломает вид плашек — буквы слипаются на кириллице.
    Правило стоит ПОСЛЕ html,body, иначе наследование 800 победит. */
@@ -28,3 +28,34 @@ h1,h2,h3,.font-heading{font-family:'Russo One','Fira Sans Condensed',sans-serif;
 
 html.dark .page-bg{background-color:transparent}
 
+
+/* =========================================================
+   ГАЗЕТНЫЙ СТОП-МОУШЕН ЗА КНОПКОЙ НА ХОВЕРЕ
+   Газетные вырезки по форме кнопки создаёт lib/newsBurst.ts и каждые
+   ~120 мс меняет их рывком, как кадры стоп-моушена. Слой живёт на
+   обёртке кнопки: у самих кнопок clip-path, он срезал бы вырезки.
+   ========================================================= */
+.comic-btn-wrap,.skew-wrap,.dl-btn-wrap,.comic-burst{position:relative;isolation:isolate}
+/* Кнопка на ховере теряет заливку: остаётся только газетная вырезка,
+   и текст кнопки печатается прямо на ней тёмной краской. */
+html{--btn-hover-bg:transparent;--btn-hover-fg:#111}
+/* Появление и уход покадровые (steps — без плавной интерполяции между
+   кадрами) и зеркальны друг другу: те же два кадра в обратном порядке. */
+.np-layer{position:absolute;inset:0;z-index:-1;pointer-events:none;animation:np-in .2s steps(1,end) both}
+.np-layer--out{animation:np-out .2s steps(1,end) both}
+@keyframes np-in{
+  0%{opacity:1;transform:scale(.55) rotate(-9deg)}
+  50%{opacity:1;transform:scale(.9) rotate(4deg)}
+  100%{opacity:1;transform:none}}
+@keyframes np-out{
+  0%{opacity:1;transform:scale(.9) rotate(4deg)}
+  50%{opacity:1;transform:scale(.55) rotate(-9deg)}
+  100%{opacity:0;transform:scale(.55) rotate(-9deg)}}
+@media (prefers-reduced-motion:reduce){.np-layer,.np-layer--out{animation:none}}
+/* Обводка тушью — на держателе: clip-path на самой вырезке срезал бы filter. */
+.np-holder{position:absolute;filter:drop-shadow(2px 0 0 #111) drop-shadow(-2px 0 0 #111) drop-shadow(0 2px 0 #111) drop-shadow(0 -2px 0 #111)}
+/* Газетная бумага с растром: точки проступают к краям и пропадают в
+   центре, под надписью кнопки. Позицию растра скрипт дёргает каждый кадр. */
+.np{position:absolute;inset:0;background:#ECE5D2}
+.np::before{content:'';position:absolute;inset:0;background:radial-gradient(circle,rgba(17,17,17,.55) 32%,transparent 38%) var(--np-dots,0 0)/5px 5px;
+  -webkit-mask:radial-gradient(closest-side,transparent 45%,#000 100%);mask:radial-gradient(closest-side,transparent 45%,#000 100%)}

@@ -431,8 +431,8 @@ function statusBadge(status: string) {
 
 .comic-btn:hover {
   transform: scale(1.04) rotate(-1.2deg);
-  background-color: #FFFFFF !important;
-  color: #0D0E10 !important;
+  background-color: var(--btn-hover-bg) !important;
+  color: var(--btn-hover-fg) !important;
 }
 
 .comic-btn:active {

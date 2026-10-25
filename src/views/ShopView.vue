@@ -397,8 +397,8 @@ function handlePassClick() {
 /* При наведении: растет, становится БЕЛОЙ, текст черный */
 .comic-btn:hover {
   transform: scale(1.04) rotate(-1.2deg);
-  background-color: #FFFFFF !important;
-  color: #0d0e10 !important;
+  background-color: var(--btn-hover-bg) !important;
+  color: var(--btn-hover-fg) !important;
 }
 
 .comic-btn:active {

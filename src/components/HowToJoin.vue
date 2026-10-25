@@ -33,7 +33,7 @@ function login() {
             <div class="text-[17px] font-black tracking-[0.04em] uppercase text-[#EFEBD9] leading-none mb-1 pl-1">
               ЭТАП
             </div>
-            <div class="bg-[#5865F2] text-white px-2.5 py-1.5 shadow-[3px_4px_0px_#1E2465] transform -rotate-2">
+            <div class="stage-plate stage-plate--a px-2.5 py-1.5 transform -rotate-2" style="--plate:#5865F2">
               <div class="text-[19px] font-black tracking-[-0.01em] uppercase text-[#181611] leading-tight">ВХОД</div>
             </div>
           </div>
@@ -89,7 +89,7 @@ function login() {
             <div class="text-[17px] font-black tracking-[0.04em] uppercase text-[#EFEBD9] leading-none mb-1 pr-1">
               ЭТАП
             </div>
-            <div class="bg-[#E05929] text-[#181611] px-2.5 py-1.5 shadow-[3px_4px_0px_#14130E] transform rotate-3">
+            <div class="stage-plate stage-plate--b px-2.5 py-1.5 transform rotate-3" style="--plate:#E05929">
               <div class="text-[19px] font-black tracking-[-0.01em] uppercase text-[#181611] leading-tight">ДОСТУП</div>
             </div>
           </div>
@@ -137,7 +137,7 @@ function login() {
             <div class="text-[17px] font-black tracking-[0.04em] uppercase text-[#EFEBD9] leading-none mb-1 pl-1">
               ЭТАП
             </div>
-            <div class="bg-[#84CC16] text-[#142306] px-2.5 py-1.5 shadow-[3px_4px_0px_#142306] transform -rotate-2">
+            <div class="stage-plate stage-plate--c px-2.5 py-1.5 transform -rotate-2" style="--plate:#84CC16">
               <div class="text-[19px] font-black tracking-[-0.01em] uppercase text-[#181611] leading-tight">В ПОЛЁТ</div>
             </div>
           </div>
@@ -210,9 +210,15 @@ h3,
   z-index: 1;
 }
 
+/* Подскок на ховере — рывком в два кадра, как стоп-моушен на сайте. */
 .group:hover .skew-card {
-  transform: rotate(-1.2deg) skewX(6deg) translate(-2px, -3px);
+  animation: card-hop 0.16s steps(1, end) forwards;
   filter: drop-shadow(14px 18px 22px rgba(0, 0, 0, 0.65));
+}
+@keyframes card-hop {
+  0% { transform: rotate(-1.2deg) skewX(6deg) translate(-1px, -1px); }
+  50% { transform: rotate(-2deg) skewX(6deg) translate(-4px, -6px); }
+  100% { transform: rotate(-1.2deg) skewX(6deg) translate(-2px, -3px); }
 }
 
 .skew-card-flip {
@@ -221,7 +227,18 @@ h3,
 }
 
 .group:hover .skew-card-flip {
-  transform: rotate(-1.2deg) skewX(-6deg) translate(2px, -3px);
+  animation-name: card-hop-flip;
+}
+@keyframes card-hop-flip {
+  0% { transform: rotate(-1.2deg) skewX(-6deg) translate(1px, -1px); }
+  50% { transform: rotate(-0.4deg) skewX(-6deg) translate(4px, -6px); }
+  100% { transform: rotate(-1.2deg) skewX(-6deg) translate(2px, -3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .group:hover .skew-card {
+    animation: none;
+  }
 }
 
 /* Сдвиги карточек */
@@ -243,6 +260,31 @@ h3,
 
 .group:hover .stage-sticker-wrap {
   transform: translateY(-4px) scale(1.05);
+}
+
+/* Плашка этапа — вырезанный клочок с рваным краем и контуром тушью, как
+   буквы MISTRALY в шапке. Фон на ::before: clip-path на самой плашке
+   срезал бы контур (filter). */
+.stage-plate {
+  position: relative;
+  filter: drop-shadow(1.5px 0 0 #111) drop-shadow(-1.5px 0 0 #111) drop-shadow(0 1.5px 0 #111)
+          drop-shadow(0 -1.5px 0 #111) drop-shadow(3px 4px 0 rgba(0, 0, 0, 0.55));
+}
+.stage-plate::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--plate);
+}
+.stage-plate--a::before {
+  clip-path: polygon(0% 6%, 18% 0%, 41% 5%, 63% 0%, 86% 4%, 100% 0%, 97% 48%, 100% 96%, 78% 100%, 55% 94%, 31% 100%, 9% 95%, 0% 100%, 3% 52%);
+}
+.stage-plate--b::before {
+  clip-path: polygon(2% 0%, 24% 5%, 47% 0%, 70% 6%, 100% 2%, 98% 35%, 100% 70%, 96% 100%, 73% 95%, 49% 100%, 26% 96%, 0% 100%, 2% 64%, 0% 30%);
+}
+.stage-plate--c::before {
+  clip-path: polygon(0% 0%, 21% 6%, 44% 1%, 66% 5%, 90% 0%, 100% 8%, 98% 55%, 100% 100%, 74% 95%, 52% 100%, 28% 94%, 6% 100%, 0% 92%, 2% 45%);
 }
 
 /* =========================================================
@@ -294,11 +336,11 @@ h3,
 
 .skew-btn:hover {
   transform: scale(1.06);
-  color: #0d0e10 !important;
+  color: var(--btn-hover-fg) !important;
 }
 
 .skew-btn:hover::before {
-  background-color: #FFFFFF !important;
+  background-color: var(--btn-hover-bg) !important;
 }
 
 .skew-btn:active {

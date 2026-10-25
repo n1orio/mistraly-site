@@ -162,6 +162,9 @@ function isActive(tab: { to: string; exact?: boolean }) {
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
               filter 0.2s ease;
   filter: drop-shadow(6px 6px 0px rgba(0, 0, 0, 0.45));
+  /* Газетная вырезка на ховере (lib/newsBurst.ts) — поменьше, чем у кнопок. */
+  --np-pad-x: 6px;
+  --np-pad-y: 5px;
 }
 
 /*
@@ -204,6 +207,8 @@ function isActive(tab: { to: string; exact?: boolean }) {
 
 /* =========================================
    НАВЕДЕНИЕ (ВЫЕЗД ВНИЗ)
+   Заливка вкладки пропадает: за ней проявляется газетная вырезка
+   (lib/newsBurst.ts), текст печатается на ней тушью.
    ========================================= */
 .nav-tab:hover {
   transform: translateY(0px);
@@ -212,11 +217,11 @@ function isActive(tab: { to: string; exact?: boolean }) {
 }
 
 .nav-tab:hover .tab-shape {
-  background-color: var(--accent);
+  background: transparent !important;
 }
 
 .nav-tab:hover .tab-body {
-  color: #FFFFFF;
+  color: #111111;
 }
 
 .nav-tab:hover .tab-icon {
@@ -226,6 +231,8 @@ function isActive(tab: { to: string; exact?: boolean }) {
 
 /* =========================================
    АКТИВНАЯ ВКЛАДКА (ВСЕГДА ВЫДВИНУТА)
+   Лежит на газетной бумаге с растром по краям, как вырезки у кнопок;
+   текст и иконка — тушью, без цвета.
    ========================================= */
 .nav-tab.is-active {
   transform: translateY(1px);
@@ -233,11 +240,14 @@ function isActive(tab: { to: string; exact?: boolean }) {
 }
 
 .nav-tab.is-active .tab-shape {
-  background-color: var(--accent);
+  background:
+    radial-gradient(ellipse closest-side, #ECE5D2 55%, transparent 100%),
+    radial-gradient(circle, rgba(17, 17, 17, 0.5) 32%, transparent 38%) 0 0 / 4px 4px,
+    #ECE5D2;
 }
 
 .nav-tab.is-active .tab-body {
-  color: #FFFFFF;
+  color: #111111;
 }
 
 .nav-tab.is-active .tab-icon {

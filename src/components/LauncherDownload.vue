@@ -301,21 +301,30 @@ const features = [
   transform: rotate(-2deg);
   box-shadow: 3px 4px 0 #0c1512;
 }
+/* Форма карточки — на ::before, а не на самой карточке: clip-path на
+   .dl-card срезал бы комикс-взрыв за кнопкой при наведении. */
 .dl-card {
   position: relative;
+  isolation: isolate;
   padding: 38px 30px 30px;
-  background: linear-gradient(180deg, #19221e 0%, #111814 100%);
-  clip-path: polygon(0% 2%, 100% 0%, 99% 100%, 1% 97%);
   min-height: 250px;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
+.dl-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, #19221e 0%, #111814 100%);
+  clip-path: polygon(0% 2%, 100% 0%, 99% 100%, 1% 97%);
+}
 .dl-card::after {
   content: '';
   position: absolute;
   inset: 5px;
-  clip-path: inherit;
+  clip-path: polygon(0% 2%, 100% 0%, 99% 100%, 1% 97%);
   box-shadow: inset 0 0 0 1px rgba(74, 222, 128, 0.18);
   pointer-events: none;
 }
@@ -379,10 +388,10 @@ const features = [
 }
 .dl-btn:hover {
   transform: rotate(-1.5deg) scale(1.05);
-  color: #0d0e10;
+  color: var(--btn-hover-fg);
 }
 .dl-btn:hover::before {
-  background: #fff;
+  background: var(--btn-hover-bg);
 }
 .dl-btn:focus-visible {
   outline: 2px solid #4ade80;
