@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import SkinViewer3D from '../components/SkinViewer3D.vue'
-import GameSettings from '../components/GameSettings.vue'
+import GameCabinet from '../components/GameCabinet.vue'
 import {
   Download,
   LogOut,
   Upload,
   ShieldCheck,
-  Check,
-  Wallet
+  Check
 } from '../lib/icons'
 import { usePurchaseStore } from '../stores/purchase'
 import { useAuthStore } from '../stores/auth'
@@ -231,11 +230,11 @@ function statusBadge(status: string) {
           </section>
 
           <router-link to="/bank" class="mc-btn mc-btn--block">
-            <Wallet :size="24" />
+            <img src="/images/wiki/chat/bank.png" alt="" class="w-6 h-6 [image-rendering:pixelated]" />
             Открыть банк
           </router-link>
 
-          <GameSettings />
+          <GameCabinet :name="linkedNickname?.nickname || user?.username || ''" />
 
           <!-- Журнал покупок -->
           <section class="mc-panel p-6">

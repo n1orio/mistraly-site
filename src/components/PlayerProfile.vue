@@ -8,7 +8,6 @@ export type GameProfile = {
   theme: string
   plus: boolean
   stats: Record<string, number>
-  equipment: Item[]
   accounts: { id: number; name: string; description: string; color: number }[]
   shops: { id: number; goods: Item; price: number; stock: number; dimension: string; x: number; y: number; z: number; closed: boolean }[]
 }
@@ -74,13 +73,6 @@ const updated = computed(() => {
           <dd>{{ value(k, data.stats[k]) }}</dd>
         </div>
       </dl>
-    </section>
-
-    <section v-if="data.equipment.length">
-      <h2 class="art-h2">Снаряжение</h2>
-      <ul class="gp-list">
-        <li v-for="(it, i) in data.equipment" :key="i">{{ it.name }}<template v-if="it.count > 1"> × {{ it.count }}</template></li>
-      </ul>
     </section>
 
     <section v-if="data.accounts.length">

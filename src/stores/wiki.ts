@@ -125,6 +125,7 @@ const PAGE_ICONS: Record<string, string> = {
   settings: 'gear',
   punishments: 'admin',
   formatting: 'pencil',
+  bank: 'bank',
   transfers: 'arrows',
   'co-owners': 'people',
   fines: 'fine',
@@ -141,10 +142,10 @@ export const catIcon = (name: string) => chatIcon(CAT_ICONS[name] ?? 'book')
 
 /** Значок статьи: предмет из её сноски, а если его нет — значок темы. */
 export function pageIcon(page: Pick<WikiPage, 'slug' | 'cat' | 'source'>): string {
+  // Своя иконка темы важнее предмета: правка статьи не заменит значок банка мистом.
+  if (PAGE_ICONS[page.slug]) return chatIcon(PAGE_ICONS[page.slug])
   const id = /^<icon\/([a-z0-9_:]+)>/m.exec(page.source)?.[1]
-  const item = id ? itemById(id)?.icon : null
-  if (item) return item
-  return PAGE_ICONS[page.slug] ? chatIcon(PAGE_ICONS[page.slug]) : catIcon(page.cat)
+  return (id ? itemById(id)?.icon : null) ?? catIcon(page.cat)
 }
 
 export function render(source: string, slug: string): Parsed {

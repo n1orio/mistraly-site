@@ -125,7 +125,7 @@ const KIND: Record<string, string> = { transfer: 'Перевод', pay_fine: 'О
   <main class="w-full flex-1 text-[var(--text-main)] px-4 pt-12 pb-16">
     <div class="w-full max-w-5xl mx-auto">
       <div class="section-head">
-        <h1 class="section-title">Банк <span class="word-hl">сервера</span></h1>
+        <h1 class="section-title bk-h1"><img src="/images/wiki/chat/bank.png" alt="" />Банк <span class="word-hl">сервера</span></h1>
         <p class="section-sub">Те же счета и штрафы, что в игре</p>
       </div>
 
@@ -270,6 +270,17 @@ const KIND: Record<string, string> = { transfer: 'Перевод', pay_fine: 'О
 </template>
 
 <style scoped>
+.bk-h1 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.bk-h1 img {
+  width: 32px;
+  height: 32px;
+  image-rendering: pixelated;
+}
 .bk-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
