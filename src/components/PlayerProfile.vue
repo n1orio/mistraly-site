@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { headHtml } from '../lib/wikiMarkup'
+import { themeOf } from '../lib/nameThemes'
+import NameTag from './NameTag.vue'
 
 /** Профиль с игрового сервера: те же разделы, что и в игре, скрытое сюда не приходит. */
 type Item = { id: string; name: string; count: number }
@@ -14,13 +16,7 @@ export type GameProfile = {
 
 const props = defineProps<{ name: string; data: GameProfile; updated: string }>()
 
-const THEMES: Record<string, { label: string; color: string }> = {
-  DEFAULT: { label: 'Обычная', color: '#3fb8b0' },
-  PLUS: { label: 'Plus', color: '#ffd84a' },
-  ADMIN: { label: 'Админ', color: '#e64c4c' },
-  GLITCH: { label: 'Глитч', color: '#00a0ff' },
-}
-const theme = computed(() => THEMES[props.data.theme] ?? THEMES.DEFAULT)
+const theme = computed(() => themeOf(props.data.theme))
 
 const LABELS: Record<string, string> = {
   PLAY_TIME: 'Время в игре',
@@ -52,21 +48,33 @@ const updated = computed(() => {
 </script>
 
 <template>
-  <div class="gp" :style="{ '--gp': theme.color }">
+  <div
+    class="gp"
+    :style="{
+      '--gp': theme.accent,
+      '--gp-bg': theme.bg,
+      '--gp-top': theme.top,
+      '--gp-bottom': theme.bottom,
+      '--gp-card': theme.card,
+      '--gp-line': theme.line,
+      '--gp-border': theme.border,
+      '--gp-head': theme.heading,
+    }"
+  >
     <div class="gp-top">
       <span v-html="headHtml(name, 96)"></span>
       <div class="min-w-0">
-        <h1 class="gp-name">{{ name }}</h1>
+        <h1 class="gp-name"><NameTag :name="name" :theme="data.theme" :size="24" /></h1>
         <p class="gp-tags">
           <span class="gp-theme">{{ theme.label }}</span>
           <span v-if="data.plus" class="gp-plus">PLUS</span>
         </p>
-        <p class="gp-note">Данные с сервера, обновлено {{ updated }}</p>
+        <p class="gp-note">Статистика из игры, обновлено {{ updated }}</p>
       </div>
     </div>
 
     <section v-if="stats.length">
-      <h2 class="art-h2">Статистика</h2>
+      <h2 class="gp-h">Статистика</h2>
       <dl class="gp-stats">
         <div v-for="k in stats" :key="k">
           <dt>{{ LABELS[k] }}</dt>
@@ -76,7 +84,7 @@ const updated = computed(() => {
     </section>
 
     <section v-if="data.accounts.length">
-      <h2 class="art-h2">Счета</h2>
+      <h2 class="gp-h">Счета</h2>
       <ul class="gp-list">
         <li v-for="a in data.accounts" :key="a.id">
           <i class="gp-dot" :style="{ background: hex(a.color) }"></i>
@@ -87,7 +95,7 @@ const updated = computed(() => {
     </section>
 
     <section v-if="data.shops.length">
-      <h2 class="art-h2">Магазины</h2>
+      <h2 class="gp-h">Магазины</h2>
       <div class="art-table">
         <table>
           <thead><tr><th>№</th><th>Товар</th><th>Цена</th><th>В наличии</th><th>Где</th></tr></thead>
@@ -107,18 +115,30 @@ const updated = computed(() => {
 </template>
 
 <style>
+.gp {
+  margin-bottom: 16px;
+  padding: 0 14px 14px;
+  background: var(--gp-bg);
+  border: 2px solid var(--gp-border);
+}
 .gp-top {
   display: flex;
   align-items: center;
   gap: 18px;
-  padding-bottom: 12px;
-  border-bottom: 4px solid var(--gp);
+  margin: 0 -14px 12px;
+  padding: 12px 14px;
+  background: linear-gradient(var(--gp-top), var(--gp-bottom));
+  border-bottom: 2px solid var(--gp);
 }
 .gp-name {
   margin: 0 0 4px;
-  color: var(--gp);
-  font-size: 32px;
+  font-size: 24px;
   line-height: 1.2;
+}
+.gp-h {
+  margin: 14px 0 6px;
+  color: var(--gp-head);
+  font-size: 16px;
 }
 .gp-tags {
   display: flex;
@@ -149,8 +169,8 @@ const updated = computed(() => {
 }
 .gp-stats div {
   padding: 8px 12px;
-  background: var(--well);
-  border: 2px solid #2b2b2c;
+  background: var(--gp-card);
+  border: 2px solid var(--gp-line);
 }
 .gp-stats dt {
   color: var(--text-muted);

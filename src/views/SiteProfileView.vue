@@ -2,6 +2,9 @@
 import { computed, onMounted, ref } from 'vue'
 import SkinViewer3D from '../components/SkinViewer3D.vue'
 import GameCabinet from '../components/GameCabinet.vue'
+import PlayerProfile, { type GameProfile } from '../components/PlayerProfile.vue'
+import NameTag from '../components/NameTag.vue'
+import { loadPlayerThemes } from '../lib/nameThemes'
 import {
   Download,
   LogOut,
@@ -27,6 +30,7 @@ const purchases = ref<
 const skinFile = ref<File | null>(null)
 const variant = ref<'default' | 'slim'>('default')
 const statusMsg = ref('')
+const game = ref<{ name: string; data: GameProfile; updated_at: string } | null>(null)
 const isUploading = ref(false)
 
 const hasPass = computed(() => !!pass.value?.has_pass && !pass.value?.expired)
@@ -34,7 +38,8 @@ const hasPass = computed(() => !!pass.value?.has_pass && !pass.value?.expired)
 onMounted(async () => {
   await auth.restore()
   if (!auth.isAuthenticated) return
-  await Promise.all([loadProfile(), loadNickname(), loadPurchases()])
+  loadPlayerThemes()
+  await Promise.all([loadProfile(), loadNickname(), loadPurchases(), loadGame()])
   const v = user.value?.skin_variant
   // В базе это строка без ограничений, а в UI допустимы только два
   // формата — мусорные значения отбрасываем, иначе select «поедет».
@@ -42,6 +47,14 @@ onMounted(async () => {
     variant.value = v
   }
 })
+
+async function loadGame() {
+  try {
+    game.value = await unwrap(api.get('/user/game-profile'))
+  } catch {
+    game.value = null
+  }
+}
 
 async function loadProfile() {
   try {
@@ -145,7 +158,9 @@ function statusBadge(status: string) {
       <div class="flex items-center justify-between gap-4 pb-6">
         <div class="flex items-center gap-3 min-w-0 flex-wrap">
           <span class="mc-tag">Профиль</span>
-          <h1 class="section-title !m-0 truncate">{{ user?.username || auth.discord?.discord_username || 'Игрок' }}</h1>
+          <h1 class="section-title !m-0 truncate">
+            <NameTag :name="game?.name || user?.username || auth.discord?.discord_username || 'Игрок'" :theme="game?.data.theme" :size="32" />
+          </h1>
           <span v-if="user?.role === 'admin'" class="mc-tag mc-tag--bad">Admin</span>
         </div>
         <button class="mc-btn mc-btn--muted mc-btn--sm shrink-0" @click="logout">
@@ -153,6 +168,8 @@ function statusBadge(status: string) {
           <span>Выйти</span>
         </button>
       </div>
+
+      <PlayerProfile v-if="game" :name="game.name" :data="game.data" :updated="game.updated_at" />
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         <!-- Стенд скина -->

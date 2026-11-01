@@ -42,6 +42,8 @@ export type Ctx = {
   recipes: Record<string, RecipeData[]>
   /** Страницы вики: нужны для карточек и автоссылок. */
   pages: { slug: string; title: string; lead?: string }[]
+  /** Цвет и иконка ника по теме игрока. */
+  nick?: (name: string) => { color: string; icon: string; shadow?: string }
 }
 
 const NICK = '[A-Za-z0-9_\\u0400-\\u04FF]{2,32}'
@@ -177,7 +179,10 @@ export function inline(text: string, st: Inline): string {
       else if (url.internal) out += `<a href="${escapeHtml(url.href)}" data-wiki>${label}</a>`
       else out += `<a href="${escapeHtml(url.href)}" target="_blank" rel="noopener noreferrer nofollow ugc">${label}</a>`
     } else if (m[8] !== undefined) {
-      out += `<a href="/wiki/user/${encodeURIComponent(m[8])}" data-wiki class="w-mention">${headHtml(m[8], 16)}${escapeHtml(m[8])}</a>`
+      const tag = st.ctx.nick?.(m[8])
+      const style = tag ? ` style="color:${tag.color}${tag.shadow ? `;text-shadow:1px 1px 0 ${tag.shadow}` : ''}"` : ''
+      const icon = tag ? `<img src="${escapeHtml(tag.icon)}" alt="" class="w-item-img">` : ''
+      out += `<a href="/wiki/user/${encodeURIComponent(m[8])}" data-wiki class="w-mention"${style}>${headHtml(m[8], 16)}${icon}${escapeHtml(m[8])}</a>`
     } else if (m[9] !== undefined) {
       const it = item(st.ctx, m[9])
       out += it ? itemChip(it) : escapeHtml(m[0])

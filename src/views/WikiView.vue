@@ -5,9 +5,11 @@ import { Search, X } from '../lib/icons'
 import { api, errorMessage, unwrap } from '../api/client'
 import { headHtml } from '../lib/wikiMarkup'
 import { useAuthStore } from '../stores/auth'
+import { loadPlayerThemes } from '../lib/nameThemes'
 import { catIcon, cats, groups, itemById, leadText, loadPages, pageIcon, pages, uiIcon, type Revision, type RevisionFull } from '../stores/wiki'
 import WikiArticle from '../components/WikiArticle.vue'
 import WikiBlocks from '../components/WikiBlocks.vue'
+import NameTag from '../components/NameTag.vue'
 import WikiEditor from '../components/WikiEditor.vue'
 import PlayerProfile, { type GameProfile } from '../components/PlayerProfile.vue'
 
@@ -149,7 +151,10 @@ watch(
   },
   { immediate: true }
 )
-onMounted(() => loadPages())
+onMounted(() => {
+  loadPages()
+  loadPlayerThemes()
+})
 onUnmounted(() => {
   document.title = SITE_TITLE
 })
@@ -243,7 +248,7 @@ function login() {
               <tbody>
                 <tr v-for="(r, i) in list" :key="r.id">
                   <td><router-link :to="`/wiki/${page.slug}/rev/${r.id}`">{{ when(r.created_at) }}</router-link></td>
-                  <td><router-link :to="`/wiki/user/${encodeURIComponent(r.author)}`" class="log-user"><span v-html="headHtml(r.author, 16)"></span>{{ r.author }}</router-link></td>
+                  <td><router-link :to="`/wiki/user/${encodeURIComponent(r.author)}`" class="log-user"><span v-html="headHtml(r.author, 16)"></span><NameTag :name="r.author" /></router-link></td>
                   <td>{{ r.summary || '—' }}</td>
                   <td>
                     <span v-if="i === 0" class="mc-tag mc-tag--dim">Текущая</span>
@@ -253,7 +258,7 @@ function login() {
                 <tr>
                   <td colspan="4">
                     Исходная версия,
-                    <router-link to="/wiki/user/NioRio" class="log-user"><span v-html="headHtml('NioRio', 16)"></span>NioRio</router-link>
+                    <router-link to="/wiki/user/NioRio" class="log-user"><span v-html="headHtml('NioRio', 16)"></span><NameTag name="NioRio" /></router-link>
                   </td>
                 </tr>
               </tbody>
@@ -280,7 +285,7 @@ function login() {
                 <tr v-for="r in list" :key="r.id">
                   <td>{{ when(r.created_at) }}</td>
                   <td><router-link :to="`/wiki/${r.slug}`">{{ r.title }}</router-link></td>
-                  <td><router-link :to="`/wiki/user/${encodeURIComponent(r.author)}`" class="log-user"><span v-html="headHtml(r.author, 16)"></span>{{ r.author }}</router-link></td>
+                  <td><router-link :to="`/wiki/user/${encodeURIComponent(r.author)}`" class="log-user"><span v-html="headHtml(r.author, 16)"></span><NameTag :name="r.author" /></router-link></td>
                   <td>{{ r.summary || '—' }}</td>
                 </tr>
               </tbody>
@@ -318,7 +323,7 @@ function login() {
               <div v-else class="player-head">
                 <span v-html="headHtml(player.username, 96)"></span>
                 <div>
-                  <h1 class="wiki-title">{{ player.username }}</h1>
+                  <h1 class="wiki-title"><NameTag :name="player.username" :size="32" /></h1>
                   <p class="wiki-lead">Участник с {{ when(player.created_at).split(',')[0] }}. На сервер ещё не заходил.</p>
                 </div>
               </div>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { api, errorMessage, unwrap } from '../api/client'
+import { THEMES, iconUrl } from '../lib/nameThemes'
 
 /**
  * Личный кабинет и настройки из игры: те же вкладки, карточки тем и подписи.
@@ -21,13 +22,6 @@ type Prefs = {
 
 const props = defineProps<{ name: string }>()
 
-const THEMES = [
-  { id: 'DEFAULT', label: 'Обычная', lock: '', name: '#ffffff', bg: '#181a20', top: '#2a3140', bottom: '#1e222c', accent: '#3fb8b0', border: '#4a5060', card: '#20242e', line: '#3a4050' },
-  { id: 'PLUS', label: 'Plus', lock: 'нужна подписка Plus', name: '#ffd84a', bg: '#1c170c', top: '#4a3812', bottom: '#2a1f0a', accent: '#ffd84a', border: '#8a6e2a', card: '#2a2312', line: '#6a5420' },
-  { id: 'ADMIN', label: 'Админ', lock: 'только админам', name: '#ff5a5a', bg: '#1c0c0c', top: '#4a1414', bottom: '#2a0a0a', accent: '#e64c4c', border: '#8f1818', card: '#2a1212', line: '#602020' },
-  { id: 'GLITCH', label: 'Глитч', lock: 'недоступна', name: '#ff2a3c', bg: '#0e0f18', top: '#2a1830', bottom: '#12182e', accent: '#ff2a3c', border: '#0078c0', card: '#181a28', line: '#7a2038' },
-]
-const ICON: Record<string, string> = { DEFAULT: 'def', PLUS: 'plus', ADMIN: 'admin', GLITCH: 'glitch' }
 
 const STATS = [
   ['PLAY_TIME', 'Время в игре'],
@@ -151,7 +145,7 @@ const rows = computed(() => SETTINGS[settingsTab.value])
         >
           <span class="gc-theme-head" :style="{ background: `linear-gradient(${t.top}, ${t.bottom})`, color: t.name }">{{ t.label }}</span>
           <span class="gc-theme-name" :style="{ color: t.name }">
-            <img :src="`/images/wiki/chat/${ICON[t.id]}.png`" alt="" />{{ props.name }}
+            <img :src="iconUrl(t)" alt="" />{{ props.name }}
           </span>
           <span class="gc-slots">
             <i v-for="n in 6" :key="n" :style="{ background: t.card, borderColor: t.line }"></i>

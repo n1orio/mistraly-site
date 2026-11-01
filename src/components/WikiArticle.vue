@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import WikiBlocks from './WikiBlocks.vue'
+import NameTag from './NameTag.vue'
 import { buildToc, headHtml } from '../lib/wikiMarkup'
 import { pageIcon, pages, render, type WikiPage } from '../stores/wiki'
 
@@ -75,7 +76,7 @@ function when(iso: string | null) {
         <span class="art-foot-label">Авторы:</span>
         <router-link v-for="a in page.authors" :key="a" :to="`/wiki/user/${encodeURIComponent(a)}`" class="art-author">
           <span v-html="headHtml(a, 32)"></span>
-          {{ a }}
+          <NameTag :name="a" />
         </router-link>
       </div>
       <div class="art-meta">

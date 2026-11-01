@@ -3,8 +3,11 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { Home, ShoppingBag, ScrollText, Download, Discord, BookOpen } from '../lib/icons'
 import { useAuthStore } from '../stores/auth'
+import { loadPlayerThemes } from '../lib/nameThemes'
+import NameTag from './NameTag.vue'
 
 const route = useRoute()
+loadPlayerThemes()
 const auth = useAuthStore()
 
 // Раньше здесь стояла заглушка 'Nio' — любой посетитель видел чужой ник.
@@ -71,7 +74,7 @@ function isActive(tab: { to: string; exact?: boolean }) {
             <img v-if="avatarUrl" :src="avatarUrl" :alt="username" />
             <template v-else>{{ username.charAt(0) }}</template>
           </span>
-          <span class="me-name">{{ username }}</span>
+          <NameTag class="me-name" :name="username" />
         </router-link>
       </div>
     </div>

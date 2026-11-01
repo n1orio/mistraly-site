@@ -2,6 +2,7 @@ import { computed, ref } from 'vue'
 import { api, unwrap } from '../api/client'
 import base from '../data/wiki-data.json'
 import { parseWiki, type Ctx, type Parsed } from '../lib/wikiMarkup'
+import { iconUrl, themeOfPlayer } from '../lib/nameThemes'
 
 /**
  * Статьи вики: базовые лежат в сайте, правки игроков приходят с бэкенда и
@@ -92,6 +93,10 @@ function ctxFor(slug: string): Ctx {
     items: base.items as Ctx['items'],
     recipes: base.recipes as Ctx['recipes'],
     pages: pageIndex.value,
+    nick: (name) => {
+      const t = themeOfPlayer(name)
+      return { color: t.name, icon: iconUrl(t), shadow: t.shadow }
+    },
   }
 }
 
