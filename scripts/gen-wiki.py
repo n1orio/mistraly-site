@@ -458,4 +458,6 @@ groups = [{'title': t, 'page': s, 'items': [f'mistraly:{i}' for i in ids.split()
 data = {'pages': pages, 'cats': [{'name': c, 'text': CAT_TEXT[c]} for c in CATS],
         'groups': groups, 'items': items, 'recipes': recipes}
 json.dump(data, open(OUT_JSON, 'w', encoding='utf-8'), ensure_ascii=False, indent=0)
+# Базовые статьи для вики в игре: мод забирает их с сайта вместе с правками игроков.
+json.dump({'pages': pages}, open('public/wiki-pages.json', 'w', encoding='utf-8'), ensure_ascii=False)
 print(len(pages), 'статей,', len(items), 'предметов,', len(os.listdir(OUT_IMG)), 'картинок')

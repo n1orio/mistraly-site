@@ -44,6 +44,9 @@ export type RevisionFull = {
 
 type ServerPage = { slug: string; title: string; cat: string; source: string; rev_id: string; updated_at: string; authors: string[] }
 
+/** Автор исходных статей: остаётся в списке и после правок игроков. */
+const BASE_AUTHOR = 'NioRio'
+
 const server = ref<ServerPage[]>([])
 let loading: Promise<void> | null = null
 
@@ -53,9 +56,10 @@ export const baseSource = (slug: string) => base.pages.find((p) => p.slug === sl
 
 export const pages = computed<WikiPage[]>(() => {
   const list = new Map<string, WikiPage>(
-    base.pages.map((p) => [p.slug, { ...p, rev: null, updated: null, authors: [] }])
+    base.pages.map((p) => [p.slug, { ...p, rev: null, updated: null, authors: [BASE_AUTHOR] }])
   )
   for (const s of server.value) {
+    const fromBase = list.has(s.slug)
     list.set(s.slug, {
       slug: s.slug,
       title: s.title,
@@ -63,7 +67,7 @@ export const pages = computed<WikiPage[]>(() => {
       source: s.source,
       rev: s.rev_id,
       updated: s.updated_at,
-      authors: s.authors,
+      authors: fromBase ? [...new Set([BASE_AUTHOR, ...s.authors])] : s.authors,
     })
   }
   return [...list.values()]

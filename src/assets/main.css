@@ -69,20 +69,20 @@ h1,h2,h3,h4,.font-heading{font-family:'Minecraft Ten','Noto Sans',sans-serif;fon
 
   /* Кнопка как настоящая клавиша. Форма и полосы взяты у MC_Button_Hero с
      minecraft.net, а толщину даёт основание снизу (--depth, тень без размытия).
-     Наведение приподнимает клавишу, нажатие вдавливает её на всю толщину:
-     вниз она уходит почти мгновенно, а обратно возвращается с пружинкой. */
+     При нажатии верх уходит в основание на всю его толщину. Нижний край кнопки
+     остаётся на месте, поэтому видно именно прожатие, а не сдвиг всей кнопки. */
   .mc-btn{
     --face:var(--blue);--top:var(--blue-hi);--lip:var(--blue-lo);--side:var(--blue-lip);--fg:#fff;
-    --inset:6px;--depth:6px;--lift:0px;
+    --inset:6px;--depth:6px;
     position:relative;display:inline-flex;align-items:center;justify-content:center;gap:10px;
     margin-bottom:calc(var(--depth) + 2px);
     padding:15px 28px;
     background:var(--face);color:var(--fg);
     border:2px solid var(--ink);border-radius:0;
     box-shadow:inset 0 calc(var(--inset)*-1) 0 var(--lip),inset 0 var(--inset) 0 var(--top),
-      0 calc(var(--depth) + var(--lift)) 0 0 var(--side),0 calc(var(--depth) + var(--lift) + 2px) 0 0 var(--ink);
-    transform:translateY(calc(var(--lift)*-1));
-    transition:transform .18s cubic-bezier(.3,2.2,.5,1),box-shadow .18s cubic-bezier(.3,2.2,.5,1);
+      0 var(--depth) 0 0 var(--side),0 calc(var(--depth) + 2px) 0 0 var(--ink);
+    /* Отпускание чуть медленнее нажатия: клавиша вдавливается резко, а выходит мягко. */
+    transition:transform .11s ease-out,box-shadow .11s ease-out;
     cursor:pointer;user-select:none;text-decoration:none;touch-action:manipulation;
     font-family:'Noto Sans','Helvetica Neue',Arial,sans-serif;font-weight:800;font-size:18px;line-height:20px;
     letter-spacing:.03em;text-transform:uppercase;
@@ -92,15 +92,15 @@ h1,h2,h3,h4,.font-heading{font-family:'Minecraft Ten','Noto Sans',sans-serif;fon
   .mc-btn::after{content:'';position:absolute;inset:-6px -2px calc((var(--depth) + 4px)*-1)}
   /* Только для мыши: на телефоне hover залипает после тапа. */
   @media (hover:hover){
-    .mc-btn:hover:not(:disabled){--lift:2px;filter:brightness(1.1)}
+    .mc-btn:hover:not(:disabled){filter:brightness(1.1)}
   }
   .mc-btn:active:not(:disabled){
-    --lift:0px;
-    transform:translateY(var(--depth));
-    box-shadow:inset 0 var(--inset) 0 var(--lip),0 2px 0 0 var(--ink);
-    background:var(--lip);
+    transform:translateY(calc(var(--depth) + 2px));
+    /* Светлая полоса гаснет, сверху ложится тень: верх теперь утоплен. */
+    box-shadow:inset 0 calc(var(--inset)*-1) 0 var(--lip),inset 0 var(--inset) 0 rgba(0,0,0,.28),
+      0 0 0 0 var(--side),0 0 0 0 var(--ink);
     filter:none;
-    transition-duration:.04s;transition-timing-function:linear;
+    transition-duration:.05s;transition-timing-function:linear;
   }
   .mc-btn:focus-visible{outline:2px solid #fff;outline-offset:2px}
   .mc-btn:disabled{cursor:not-allowed;opacity:.5}

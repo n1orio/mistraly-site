@@ -67,16 +67,10 @@ function when(iso: string | null) {
     <footer class="art-foot">
       <div class="art-authors">
         <span class="art-foot-label">Авторы:</span>
-        <template v-if="page.authors.length">
-          <router-link v-for="a in page.authors" :key="a" :to="`/wiki/user/${encodeURIComponent(a)}`" class="art-author">
-            <span v-html="headHtml(a, 32)"></span>
-            {{ a }}
-          </router-link>
-        </template>
-        <span v-else class="art-author">
-          <img src="/icons/server.png" alt="" class="art-team" />
-          Команда Mistraly
-        </span>
+        <router-link v-for="a in page.authors" :key="a" :to="`/wiki/user/${encodeURIComponent(a)}`" class="art-author">
+          <span v-html="headHtml(a, 32)"></span>
+          {{ a }}
+        </router-link>
       </div>
       <div class="art-meta">
         <span v-if="page.updated">Последнее изменение: {{ when(page.updated) }}</span>

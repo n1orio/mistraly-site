@@ -237,7 +237,12 @@ function login() {
                     <button v-else-if="isAdmin" type="button" class="edit-link" :disabled="busy" @click="revert(r.id)">Откатить</button>
                   </td>
                 </tr>
-                <tr><td colspan="4">Исходная версия статьи от команды Mistraly</td></tr>
+                <tr>
+                  <td colspan="4">
+                    Исходная версия,
+                    <router-link to="/wiki/user/NioRio" class="log-user"><span v-html="headHtml('NioRio', 16)"></span>NioRio</router-link>
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
