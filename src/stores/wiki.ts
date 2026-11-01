@@ -46,13 +46,14 @@ export type RevisionFull = {
 type ServerPage = { slug: string; title: string; cat: string; source: string; rev_id: string; updated_at: string; authors: string[] }
 
 /** Автор исходных статей: остаётся в списке и после правок игроков. */
-const BASE_AUTHOR = 'NioRio'
+export const BASE_AUTHOR = 'NioRio'
 
 const server = ref<ServerPage[]>([])
 let loading: Promise<void> | null = null
 
 export const cats = base.cats
 export const groups = base.groups
+export const basePages = base.pages.map(({ slug, title }) => ({ slug, title }))
 export const baseSource = (slug: string) => base.pages.find((p) => p.slug === slug)?.source ?? ''
 
 export const pages = computed<WikiPage[]>(() => {

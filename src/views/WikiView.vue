@@ -6,7 +6,7 @@ import { api, errorMessage, unwrap } from '../api/client'
 import { headHtml } from '../lib/wikiMarkup'
 import { useAuthStore } from '../stores/auth'
 import { loadPlayerThemes, usePageTheme } from '../lib/nameThemes'
-import { catIcon, cats, groups, itemById, leadText, loadPages, pageIcon, pages, uiIcon, type Revision, type RevisionFull } from '../stores/wiki'
+import { BASE_AUTHOR, basePages, catIcon, cats, groups, itemById, leadText, loadPages, pageIcon, pages, uiIcon, type Revision, type RevisionFull } from '../stores/wiki'
 import WikiArticle from '../components/WikiArticle.vue'
 import WikiBlocks from '../components/WikiBlocks.vue'
 import NameTag from '../components/NameTag.vue'
@@ -86,6 +86,25 @@ const loadError = ref('')
 // Страница игрока целиком в цветах его темы.
 usePageTheme(computed(() => game.value?.data.theme))
 const busy = ref(false)
+
+// Исходные статьи лежат в сборке сайта, а не в ревизиях, поэтому автору базы их
+// добавляем здесь. Статьи, которые он уже правил, второй раз не считаем.
+const contribution = computed(() => {
+  const p = player.value
+  if (!p) return []
+  const edits = p.edits.map((r) => ({
+    key: r.id,
+    slug: r.slug,
+    title: r.title,
+    note: `${when(r.created_at)}${r.summary ? ` · ${r.summary}` : ''}`,
+  }))
+  if (p.username.toLowerCase() !== BASE_AUTHOR.toLowerCase()) return edits
+  const edited = new Set(p.edits.map((r) => r.slug))
+  const authored = basePages
+    .filter((b) => !edited.has(b.slug))
+    .map((b) => ({ key: b.slug, slug: b.slug, title: b.title, note: 'исходная статья' }))
+  return [...edits, ...authored]
+})
 
 const STATUS: Record<string, string> = { pending: 'На проверке', approved: 'Принята', rejected: 'Отклонена' }
 function when(iso: string) {
@@ -322,11 +341,11 @@ function login() {
           <div v-else-if="kind === 'user'" class="wiki-sheet">
             <PlayerProfile v-if="game" :name="game.name" :data="game.data" :updated="game.updated_at">
               <template v-if="player">
-                <h2 class="gp-h">Вклад в вики: {{ player.edits.length }}</h2>
-                <ul v-if="player.edits.length" class="art-ul">
-                  <li v-for="r in player.edits" :key="r.id">
-                    <router-link :to="`/wiki/${r.slug}`">{{ r.title }}</router-link>
-                    <span class="log-dim"> {{ when(r.created_at) }}{{ r.summary ? ` · ${r.summary}` : '' }}</span>
+                <h2 class="gp-h">Вклад в вики: {{ contribution.length }}</h2>
+                <ul v-if="contribution.length" class="art-ul">
+                  <li v-for="c in contribution" :key="c.key">
+                    <router-link :to="`/wiki/${c.slug}`">{{ c.title }}</router-link>
+                    <span class="log-dim"> {{ c.note }}</span>
                   </li>
                 </ul>
               </template>
@@ -339,13 +358,13 @@ function login() {
                   <p class="wiki-lead">Участник с {{ when(player.created_at).split(',')[0] }}. На сервер ещё не заходил.</p>
                 </div>
               </div>
-              <h2 class="art-h2">Вклад в вики: {{ player.edits.length }}</h2>
-              <ul v-if="player.edits.length" class="art-ul">
-                <li v-for="r in player.edits" :key="r.id">
-                  <router-link :to="`/wiki/${r.slug}`">{{ r.title }}</router-link>
-                  <span class="log-dim"> {{ when(r.created_at) }}{{ r.summary ? ` · ${r.summary}` : '' }}</span>
-                </li>
-              </ul>
+              <h2 class="art-h2">Вклад в вики: {{ contribution.length }}</h2>
+                <ul v-if="contribution.length" class="art-ul">
+                  <li v-for="c in contribution" :key="c.key">
+                    <router-link :to="`/wiki/${c.slug}`">{{ c.title }}</router-link>
+                    <span class="log-dim"> {{ c.note }}</span>
+                  </li>
+                </ul>
             </template>
             <template v-else>
               <h1 class="wiki-title">{{ parts[1] }}</h1>
