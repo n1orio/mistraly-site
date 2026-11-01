@@ -81,11 +81,10 @@ function showFallback(e: Event) {
   background: var(--panel-hi);
 }
 .mod .mc-slot {
-  margin: 3px;
 }
 .mod-title {
   margin: 0 0 6px;
-  font-size: 16px;
+  font-size: 24px;
   line-height: 1.25;
 }
 .mod-text {

@@ -162,7 +162,7 @@ onMounted(async () => {
           {{ auth.loading ? 'Проверка связи...' : 'Войти через Discord' }}
         </button>
 
-        <div v-if="errorMessage_" class="mc-well m-[3px] mt-5 p-3 text-[15px] text-[var(--bad)] flex items-center gap-2 text-left">
+        <div v-if="errorMessage_" class="mc-well mt-5 p-3 text-[15px] text-[var(--bad)] flex items-center gap-2 text-left">
           <AlertTriangle :size="24" class="shrink-0" />
           <span>{{ errorMessage_ }}</span>
         </div>

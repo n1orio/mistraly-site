@@ -221,7 +221,7 @@ const features = [
       <div v-if="flatpak" id="flatpak" class="lg:col-span-12 fp-card mc-panel scroll-mt-24">
         <div class="flex items-center gap-3 mb-2">
           <span class="mc-slot feat-icon"><Package :size="18" /></span>
-          <span class="font-heading text-[16px]">Установка через Flatpak</span>
+          <span class="font-bold text-[17px]">Установка через Flatpak</span>
         </div>
         <p class="text-[var(--text-muted)] leading-relaxed mb-4">
           Работает на любом дистрибутиве: Steam Deck, Fedora, Ubuntu, Arch, Mint. Одна команда
@@ -302,7 +302,6 @@ const features = [
 }
 .fp-code {
   position: relative;
-  margin: 3px;
 }
 .fp-code pre {
   margin: 0;
@@ -332,10 +331,12 @@ const features = [
 .feat-icon {
   width: 48px;
   height: 48px;
-  margin: 3px 3px 8px;
+  margin: 0 0 8px;
 }
 .feat-title {
-  font-size: 16px;
+  font-family: 'Noto Sans', 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 700;
+  font-size: 17px;
   line-height: 1.3;
 }
 .feat-text {

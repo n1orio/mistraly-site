@@ -157,11 +157,11 @@ function statusBadge(status: string) {
         <!-- Стенд скина -->
         <div class="lg:col-span-5 mc-panel p-5">
           <div class="flex justify-between items-center mb-2">
-            <span class="font-heading text-[16px]">3D скин игрока</span>
+            <span class="font-bold text-[17px]">3D скин игрока</span>
             <span class="text-[14px] text-[var(--text-sub)]">Вращайте мышью</span>
           </div>
 
-          <div class="mc-well m-[3px] mb-4 h-[320px] flex items-center justify-center relative">
+          <div class="mc-well mb-4 h-[320px] flex items-center justify-center relative">
             <SkinViewer3D
               :skin-url="skinPreviewUrl"
               :variant="user?.skin_data ? user.skin_variant : 'slim'"
@@ -207,11 +207,11 @@ function statusBadge(status: string) {
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
-              <div class="mc-well m-[3px] p-3">
+              <div class="mc-well p-3">
                 <span class="text-[14px] text-[var(--text-sub)] block">Никнейм в игре</span>
                 <strong>{{ linkedNickname?.nickname || 'Не привязан' }}</strong>
               </div>
-              <div class="mc-well m-[3px] p-3">
+              <div class="mc-well p-3">
                 <span class="text-[14px] text-[var(--text-sub)] block">Discord</span>
                 <strong class="flex items-center gap-1.5">
                   <ShieldCheck :size="24" class="text-[var(--sky)]" />
@@ -230,16 +230,16 @@ function statusBadge(status: string) {
           <!-- Журнал покупок -->
           <section class="mc-panel p-6">
             <div class="flex items-center justify-between mb-4">
-              <h2 class="sub-title !text-[16px]">Журнал покупок</h2>
+              <h2 class="sub-title !text-[24px]">Журнал покупок</h2>
               <router-link to="/shop" class="mc-link inline-flex items-center gap-1">Магазин</router-link>
             </div>
 
-            <div v-if="!purchases.length" class="mc-well m-[3px] text-center py-6 text-[var(--text-muted)]">
+            <div v-if="!purchases.length" class="mc-well text-center py-6 text-[var(--text-muted)]">
               Покупок пока не зарегистрировано.
             </div>
 
             <div v-else class="flex flex-col gap-2">
-              <div v-for="p in purchases" :key="p.id" class="mc-well m-[3px] flex items-center justify-between gap-3 p-3">
+              <div v-for="p in purchases" :key="p.id" class="mc-well flex items-center justify-between gap-3 p-3">
                 <div class="min-w-0">
                   <strong class="block">{{ p.item_name }}</strong>
                   <span class="text-[14px] text-[var(--text-sub)]">
@@ -269,7 +269,6 @@ function statusBadge(status: string) {
   justify-content: space-between;
   gap: 8px;
   min-width: 0;
-  margin: 3px;
   padding: 6px 10px;
   font-size: 15px;
   cursor: pointer;
@@ -280,7 +279,6 @@ function statusBadge(status: string) {
 .seg {
   display: flex;
   flex: none;
-  margin: 3px;
   padding: 3px;
 }
 .seg button {

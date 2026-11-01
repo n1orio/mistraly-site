@@ -18,7 +18,7 @@ defineProps<{ doc: LegalDoc }>()
 
     <div class="flex flex-col gap-8">
       <div v-for="section in doc.sections" :key="section.title">
-        <h2 class="font-heading text-[16px] text-[var(--text-main)] mb-3 leading-snug">
+        <h2 class="font-heading text-[24px] text-[var(--text-main)] mb-3 leading-snug">
           {{ section.title }}
         </h2>
         <p

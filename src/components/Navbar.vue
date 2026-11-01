@@ -41,7 +41,7 @@ function isActive(tab: { to: string; exact?: boolean }) {
   <header class="top">
     <div class="top-in">
       <router-link to="/" class="brand" aria-label="Mistraly, на главную">
-        <img src="/images/ui/logo.png" alt="" class="brand-logo pixel-img" width="184" height="37" />
+        MISTRALY
       </router-link>
 
       <!-- Вкладки как в лаунчере: активная подчёркнута яркой полосой -->
@@ -98,10 +98,10 @@ function isActive(tab: { to: string; exact?: boolean }) {
   display: flex;
   align-items: center;
   flex: none;
-}
-.brand-logo {
-  width: 184px;
-  height: 37px;
+  color: #fff;
+  font-family: 'Minecraft Ten', 'Noto Sans', sans-serif;
+  font-size: 24px;
+  text-decoration: none;
 }
 .tabs {
   display: flex;
@@ -116,7 +116,7 @@ function isActive(tab: { to: string; exact?: boolean }) {
   gap: 8px;
   padding: 0 14px;
   color: var(--text-muted);
-  font-family: 'Minecraft', 'Podkova', sans-serif;
+  font-weight: 600;
   font-size:16px;
   text-decoration: none;
   white-space: nowrap;
@@ -155,7 +155,7 @@ function isActive(tab: { to: string; exact?: boolean }) {
   max-width: 200px;
   padding: 6px 10px;
   color: var(--text-main);
-  font-family: 'Minecraft', 'Podkova', sans-serif;
+  font-weight: 600;
   font-size:16px;
   text-decoration: none;
 }
@@ -185,7 +185,7 @@ function isActive(tab: { to: string; exact?: boolean }) {
   image-rendering: pixelated;
 }
 
-/* Логотип 184 px и пять пунктов в ряд не влезают уже чем в 900 px. */
+/* Название и пять пунктов в ряд не влезают уже чем в 900 px. */
 @media (max-width: 900px) {
   .top-in {
     gap: 12px;
@@ -221,9 +221,8 @@ function isActive(tab: { to: string; exact?: boolean }) {
     justify-content: center;
     gap: 3px;
     padding: 0;
-    font-family: 'Podkova', serif;
     font-weight: 700;
-    font-size: 13px;
+    font-size: 12px;
   }
   .tab span {
     display: inline;

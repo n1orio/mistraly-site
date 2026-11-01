@@ -99,11 +99,9 @@ function login() {
   margin-bottom: 16px;
 }
 .step-num {
-  margin: 3px;
-  font-family: 'Minecraft', 'Podkova', sans-serif;
+  font-family: 'Minecraft Ten', 'Noto Sans', sans-serif;
   font-size:32px;
   color: var(--sky);
-  text-shadow: 3px 3px 0 var(--ink);
 }
 .step-kick {
   margin: 6px 0 0;
@@ -113,7 +111,7 @@ function login() {
 }
 .step-title {
   margin: 0 0 8px;
-  font-size: 16px;
+  font-size: 24px;
 }
 .step-text {
   flex: 1;

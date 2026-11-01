@@ -186,7 +186,7 @@ const hints: Record<string, string> = {
         </p>
 
         <!-- Квитанция заказа с пунктирной рамкой -->
-        <div class="mc-well m-[3px] mb-4 p-4 space-y-2 text-[15px]">
+        <div class="mc-well mb-4 p-4 space-y-2 text-[15px]">
           <div class="flex justify-between">
             <span class="text-[var(--text-sub)]">Получатель:</span>
             <strong class="text-white">{{ store.nickname || auth.user?.username || 'Привязан к аккаунту' }}</strong>
@@ -284,7 +284,7 @@ const hints: Record<string, string> = {
           Товар выдадим сразу после подтверждения платежа.
         </p>
 
-        <div class="mc-well m-[3px] mb-4 p-4 space-y-2 text-[15px]">
+        <div class="mc-well mb-4 p-4 space-y-2 text-[15px]">
           <div class="flex justify-between">
             <span class="text-[var(--text-sub)]">Позиция:</span>
             <strong class="text-white">{{ store.result?.item || 'Mistraly Pass' }}</strong>
@@ -403,7 +403,6 @@ const hints: Record<string, string> = {
   align-items: center;
   gap: 8px;
   min-width: 0;
-  margin: 3px;
   padding: 0 10px;
 }
 .promo-field:focus-within {

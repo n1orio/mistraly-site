@@ -204,8 +204,8 @@ onUnmounted(() => {
         </div>
 
         <aside class="hidden xl:flex flex-col gap-3 w-64 shrink-0 sticky top-24">
-          <div class="mc-panel p-4 m-[3px]">
-            <div class="flex items-center gap-2 font-heading text-[16px] mb-2">
+          <div class="mc-panel p-4">
+            <div class="flex items-center gap-2 font-bold text-[17px] mb-2">
               <HelpCircle :size="24" class="text-[var(--sky)]" />
               <span>{{ rulesMeta.supportTitle }}</span>
             </div>
@@ -309,16 +309,14 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin: 3px;
   padding: 8px 10px;
   background: var(--panel);
   color: var(--text-main);
-  border: 0;
+  border: 2px solid var(--ink);
   text-align: left;
   font-weight: 600;
   font-size: 16px;
   cursor: pointer;
-  box-shadow: 0 -3px 0 0 var(--ink), 0 3px 0 0 var(--ink), -3px 0 0 0 var(--ink), 3px 0 0 0 var(--ink);
 }
 .toc:hover {
   background: var(--panel-hi);
@@ -335,7 +333,6 @@ onUnmounted(() => {
 .chapter-icon {
   width: 48px;
   height: 48px;
-  margin: 3px;
 }
 .chapter-title {
   flex: 1;
@@ -349,11 +346,10 @@ onUnmounted(() => {
     padding: 14px;
   }
   .chapter-title {
-    font-size: 16px;
+    font-size: 24px;
   }
 }
 .rule {
-  margin: 3px;
   padding: 14px 16px;
   scroll-margin-top: 90px;
 }
@@ -373,8 +369,10 @@ onUnmounted(() => {
   color: var(--bad);
 }
 .rule-title {
+  font-family: 'Noto Sans', 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 700;
   margin: 0;
-  font-size: 16px;
+  font-size: 17px;
   line-height: 1.3;
 }
 .rule-link {

@@ -22,9 +22,7 @@ function scrollToContent() {
   <section class="hero">
     <div class="hero-art" aria-hidden="true" />
     <div class="hero-in">
-      <h1 class="hero-logo">
-        <img src="/images/ui/logo.png" alt="MISTRALY" class="pixel-img" width="184" height="37" />
-      </h1>
+      <h1 class="hero-title">MISTRALY</h1>
       <p class="hero-lead">Физика полетов, дирижабли, кастомный лаунчер и закрытое сообщество без гриферов и лишнего мусора.</p>
     </div>
 
@@ -92,15 +90,14 @@ function scrollToContent() {
   padding: 48px 16px 32px;
   text-align: center;
 }
-/* Только целый масштаб: иначе пиксели логотипа станут разной ширины. */
-.hero-logo {
-  margin: 0 0 20px;
-  line-height: 0;
-  filter: drop-shadow(0 8px 0 rgba(5, 11, 30, 0.35));
-}
-.hero-logo img {
-  width: 736px;
-  height: 148px;
+/* Размеры кратны 8, иначе пиксели шрифта станут разной ширины. Тень нужна
+   только для читаемости на светлом небе. */
+.hero-title {
+  margin: 0 0 24px;
+  color: #fff;
+  font-size: 120px;
+  line-height: 1;
+  text-shadow: 0 6px 0 rgba(5, 11, 30, 0.6);
 }
 .hero-lead {
   max-width: 620px;
@@ -148,13 +145,12 @@ function scrollToContent() {
 .bar-slot {
   width: 48px;
   height: 48px;
-  margin: 3px;
 }
 .bar-title {
-  font-family: 'Minecraft', 'Podkova', sans-serif;
+  font-family: 'Noto Sans', 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 700;
   font-size:16px;
   line-height: 1.2;
-  text-shadow: 2px 2px 0 var(--ink);
 }
 .bar-note {
   color: var(--text-muted);
@@ -177,18 +173,16 @@ function scrollToContent() {
 }
 
 @media (max-width: 860px) {
-  .hero-logo img {
-    width: 552px;
-    height: 111px;
+  .hero-title {
+    font-size: 80px;
   }
 }
 @media (max-width: 640px) {
   .hero {
     min-height: calc(100vh - 56px - 64px);
   }
-  .hero-logo img {
-    width: 368px;
-    height: 74px;
+  .hero-title {
+    font-size: 48px;
   }
   .hero-lead {
     font-size: 17px;
@@ -201,7 +195,7 @@ function scrollToContent() {
   }
   .bar-play {
     order: -1;
-    width: calc(100% - 6px);
+    width: 100%;
     padding-left: 12px;
     padding-right: 12px;
   }
@@ -213,15 +207,6 @@ function scrollToContent() {
   }
   .bar-side--end .mc-btn {
     flex: 1;
-  }
-}
-/* 375 px минус поля не вмещают логотип 368: шаг вниз, тоже целый. */
-@media (max-width: 400px) {
-  .hero-logo img {
-    width: 184px;
-    height: 37px;
-    transform: scale(1.75);
-    margin: 16px 0;
   }
 }
 </style>

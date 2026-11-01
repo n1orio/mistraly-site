@@ -249,7 +249,7 @@ onUnmounted(() => {
 }
 .lore-h {
   margin: 0;
-  font-size: 16px;
+  font-size: 24px;
   line-height: 1.3;
 }
 .lore-h--gap {

@@ -168,21 +168,19 @@ const content = computed(() => selected.value.content ?? [])
   display: flex;
   align-items: center;
   gap: 14px;
-  margin: 3px;
   padding: 10px 14px;
   background: var(--panel);
   color: var(--text-main);
-  border: 0;
+  border: 2px solid var(--ink);
   text-align: left;
   cursor: pointer;
-  box-shadow: 0 -3px 0 0 var(--ink), 0 3px 0 0 var(--ink), -3px 0 0 0 var(--ink), 3px 0 0 0 var(--ink);
 }
 .q:hover {
   background: var(--panel-hi);
 }
 .q.is-active {
   background: var(--blue-lo);
-  box-shadow: 0 -3px 0 0 var(--ink), 0 3px 0 0 var(--ink), -3px 0 0 0 var(--ink), 3px 0 0 0 var(--ink), inset 6px 0 0 0 var(--sky);
+  box-shadow: inset 6px 0 0 0 var(--sky);
 }
 .q:focus-visible {
   outline: 3px solid #fff;
@@ -208,11 +206,11 @@ const content = computed(() => selected.value.content ?? [])
   color: #C5EEFF;
 }
 .q-title {
+  font-family: 'Noto Sans', 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 700;
   display: block;
-  font-family: 'Minecraft', 'Podkova', sans-serif;
   font-size:16px;
   line-height: 1.25;
-  text-shadow: 2px 2px 0 var(--ink);
 }
 
 .answer {
@@ -223,7 +221,7 @@ const content = computed(() => selected.value.content ?? [])
 }
 .answer-title {
   margin: 14px 0 10px;
-  font-size: 16px;
+  font-size: 24px;
   line-height: 1.3;
 }
 .answer-text {
@@ -232,7 +230,6 @@ const content = computed(() => selected.value.content ?? [])
   line-height: 1.5;
 }
 .spec {
-  margin: 3px;
   padding: 14px;
   font-size: 15px;
   color: var(--text-muted);

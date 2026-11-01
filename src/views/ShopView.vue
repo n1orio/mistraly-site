@@ -192,18 +192,18 @@ function handlePassClick() {
   padding: 18px;
 }
 .item .mc-slot {
-  margin: 3px;
 }
 .item-title {
+  font-family: 'Noto Sans', 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 700;
   margin: 6px 0 0;
-  font-size: 16px;
+  font-size: 17px;
   line-height: 1.25;
 }
 .item-price {
-  font-family: 'Minecraft', 'Podkova', sans-serif;
+  font-family: 'Minecraft Ten', 'Noto Sans', sans-serif;
   font-size: 24px;
   color: var(--sky);
-  text-shadow: 2px 2px 0 var(--ink);
 }
 .item-text {
   flex: 1;
@@ -216,7 +216,7 @@ function handlePassClick() {
   display: flex;
   align-items: center;
   align-self: flex-end;
-  margin: 3px 3px 14px;
+  margin: 0 0 14px;
   padding: 3px;
 }
 .qty button {
@@ -256,9 +256,8 @@ function handlePassClick() {
 }
 .pass-price {
   margin-bottom: 16px;
-  font-family: 'Minecraft', 'Podkova', sans-serif;
+  font-family: 'Minecraft Ten', 'Noto Sans', sans-serif;
   font-size: 32px;
   color: var(--sky);
-  text-shadow: 3px 3px 0 var(--ink);
 }
 </style>

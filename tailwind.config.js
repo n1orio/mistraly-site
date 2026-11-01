@@ -8,8 +8,8 @@ export default {
         brand: { dark: '#0B1A3E', card: '#122A5C', blue: '#2F80FF', cyan: '#6FD0FF' }
       },
       fontFamily: {
-        sans: ['Podkova', 'Georgia', 'serif'],
-        heading: ['Minecraft', 'Podkova', 'sans-serif']
+        sans: ['Noto Sans', 'Helvetica Neue', 'Arial', 'sans-serif'],
+        heading: ['Minecraft Ten', 'Noto Sans', 'sans-serif']
       }
     }
   },

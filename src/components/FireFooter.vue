@@ -217,7 +217,6 @@ onMounted(() => {
   font-size: clamp(24px, 7vw, 48px);
   line-height: 1.1;
   color: #fff;
-  text-shadow: 4px 4px 0 var(--blue-lip);
 }
 .foot {
   background: var(--blue-lip);
