@@ -318,15 +318,19 @@ function login() {
           </div>
 
           <div v-else-if="kind === 'user'" class="wiki-sheet">
-            <template v-if="player">
-              <PlayerProfile v-if="game" :name="game.name" :data="game.data" :updated="game.updated_at" />
-              <div v-else class="player-head">
-                <span v-html="headHtml(player.username, 96)"></span>
-                <div>
-                  <h1 class="wiki-title"><NameTag :name="player.username" :size="32" /></h1>
-                  <p class="wiki-lead">Участник с {{ when(player.created_at).split(',')[0] }}. На сервер ещё не заходил.</p>
-                </div>
+            <PlayerProfile v-if="game" :name="game.name" :data="game.data" :updated="game.updated_at" />
+            <div v-else-if="player" class="player-head">
+              <span v-html="headHtml(player.username, 96)"></span>
+              <div>
+                <h1 class="wiki-title"><NameTag :name="player.username" :size="32" /></h1>
+                <p class="wiki-lead">Участник с {{ when(player.created_at).split(',')[0] }}. На сервер ещё не заходил.</p>
               </div>
+            </div>
+            <template v-else>
+              <h1 class="wiki-title">{{ parts[1] }}</h1>
+              <p class="wiki-lead">{{ loadError || 'Загрузка…' }}</p>
+            </template>
+            <template v-if="player">
               <h2 class="art-h2">Вклад в вики: {{ player.edits.length }}</h2>
               <p v-if="!player.edits.length" class="art-p">Правок пока нет.</p>
               <ul v-else class="art-ul">
@@ -335,10 +339,6 @@ function login() {
                   <span class="log-dim"> {{ when(r.created_at) }}{{ r.summary ? ` · ${r.summary}` : '' }}</span>
                 </li>
               </ul>
-            </template>
-            <template v-else>
-              <h1 class="wiki-title">{{ parts[1] }}</h1>
-              <p class="wiki-lead">{{ loadError || 'Загрузка…' }}</p>
             </template>
           </div>
 
