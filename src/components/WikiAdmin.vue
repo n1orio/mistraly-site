@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import WikiArticle from './WikiArticle.vue'
 import { api, errorMessage, unwrap } from '../api/client'
 import { diffLines } from '../lib/wikiMarkup'
@@ -41,13 +41,65 @@ const preview = computed<WikiPage | null>(() =>
     : null
 )
 
+// Предложение наградить автора: появляется сразу после принятия правки.
+type RewardState = { status: string; error: string | null; amount: number }
+const reward = ref<{ id: string; title: string; author: string } | null>(null)
+const rewardAmount = ref<number | null>(null)
+const rewardState = ref<RewardState | null>(null)
+const rewardError = ref('')
+let rewardTimer: number | undefined
+
+function closeReward() {
+  clearTimeout(rewardTimer)
+  reward.value = null
+  rewardState.value = null
+  rewardAmount.value = null
+  rewardError.value = ''
+}
+onUnmounted(() => clearTimeout(rewardTimer))
+
+/** Деньги начисляет игровой сервер: ждём его ответа, пока окно открыто. */
+async function watchReward(id: string) {
+  try {
+    const state = await unwrap<RewardState | null>(api.get(`/admin/wiki/edits/${id}/reward`))
+    if (reward.value?.id !== id) return
+    rewardState.value = state
+    if (state?.status === 'done' || state?.status === 'failed') return
+  } catch {
+    /* сеть мигнула: спросим ещё раз */
+  }
+  rewardTimer = window.setTimeout(() => watchReward(id), 3000)
+}
+
+async function sendReward() {
+  if (!reward.value || !rewardAmount.value) return
+  const id = reward.value.id
+  busy.value = true
+  rewardError.value = ''
+  try {
+    await unwrap(api.post(`/admin/wiki/edits/${id}/reward`, { amount: rewardAmount.value }))
+    rewardState.value = { status: 'pending', error: null, amount: rewardAmount.value }
+    clearTimeout(rewardTimer)
+    rewardTimer = window.setTimeout(() => watchReward(id), 3000)
+  } catch (e) {
+    rewardError.value = errorMessage(e, 'Не удалось начислить мисты')
+  } finally {
+    busy.value = false
+  }
+}
+
 async function decide(action: 'approve' | 'reject') {
   if (!selected.value) return
+  const edit = selected.value
   busy.value = true
   error.value = ''
   try {
-    await unwrap(api.post(`/admin/wiki/edits/${selected.value.id}/${action}`, { comment: comment.value }))
+    await unwrap(api.post(`/admin/wiki/edits/${edit.id}/${action}`, { comment: comment.value }))
     comment.value = ''
+    if (action === 'approve') {
+      closeReward()
+      reward.value = { id: edit.id, title: edit.title, author: edit.author }
+    }
     await load()
     await loadPages(true)
   } catch (e) {
@@ -59,6 +111,25 @@ async function decide(action: 'approve' | 'reject') {
 </script>
 
 <template>
+  <section v-if="reward" class="wq-reward">
+    <p>
+      Правка «{{ reward.title }}» принята.
+      <template v-if="!rewardState || rewardState.status === 'failed'">Начислить мисты игроку <b>{{ reward.author }}</b>?</template>
+    </p>
+    <p v-if="rewardState?.status === 'done'" class="wq-ok">{{ reward.author }} получил {{ rewardState.amount }} мист. на основной счёт.</p>
+    <p v-else-if="rewardState?.status === 'failed'" class="wq-warn">{{ rewardState.error }}</p>
+    <p v-else-if="rewardState" class="muted">Ждём игровой сервер: {{ rewardState.amount }} мист. начислятся, как только он заберёт операцию.</p>
+    <p v-if="rewardError" class="wq-warn">{{ rewardError }}</p>
+    <div class="wq-actions">
+      <template v-if="!rewardState || rewardState.status === 'failed'">
+        <input v-model.number="rewardAmount" class="mc-input wq-amount" type="number" min="1" max="100000" placeholder="Сумма" />
+        <button class="mc-btn mc-btn--sm" :disabled="busy || !rewardAmount" @click="sendReward">Начислить</button>
+      </template>
+      <button class="mc-btn mc-btn--muted mc-btn--sm" @click="closeReward">
+        {{ rewardState && rewardState.status !== 'failed' ? 'Закрыть' : 'Без награды' }}
+      </button>
+    </div>
+  </section>
   <div class="wq">
     <p v-if="!queue.length" class="muted">Новых правок нет.</p>
     <template v-else>
@@ -120,6 +191,25 @@ async function decide(action: 'approve' | 'reject') {
   padding: 8px 12px;
   border-left: 4px solid var(--warn);
   background: rgba(242, 192, 55, 0.1);
+}
+.wq-ok {
+  color: var(--ok);
+}
+.wq-reward {
+  margin-bottom: 16px;
+  padding: 12px;
+  background: var(--panel-hi);
+  border: 2px solid var(--edge-c);
+  border-left: 4px solid var(--blue);
+}
+.wq-reward p {
+  margin: 0 0 8px;
+}
+.wq-reward .wq-actions {
+  align-items: center;
+}
+.wq-amount {
+  width: 120px;
 }
 .wq-tabs {
   display: flex;

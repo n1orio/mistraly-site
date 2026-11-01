@@ -118,7 +118,7 @@ const TX: Record<string, string> = {
   ADMIN_OUT: 'Списание',
 }
 const STATUS: Record<string, string> = { pending: 'Ждёт сервер', taken: 'Выполняется', done: 'Готово', failed: 'Не выполнено' }
-const KIND: Record<string, string> = { transfer: 'Перевод', pay_fine: 'Оплата штрафа' }
+const KIND: Record<string, string> = { transfer: 'Перевод', pay_fine: 'Оплата штрафа', reward: 'Награда за вики' }
 </script>
 
 <template>
