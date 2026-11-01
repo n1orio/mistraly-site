@@ -131,7 +131,7 @@ const initials = (name: string) =>
     </div>
 
     <figure v-else-if="b.t === 'image'" class="art-image">
-      <img :src="b.src" :alt="b.caption" loading="lazy" />
+      <img :src="b.src" :alt="b.caption" loading="lazy" :class="{ 'art-pixel': b.pixel }" />
       <figcaption v-if="b.caption">{{ b.caption }}</figcaption>
     </figure>
 

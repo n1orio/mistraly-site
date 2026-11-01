@@ -5,7 +5,7 @@ import WikiArticle from './WikiArticle.vue'
 import { Check, Search, X } from '../lib/icons'
 import { api, errorMessage, unwrap } from '../api/client'
 import { useAuthStore } from '../stores/auth'
-import { allItems, cats, loadPages, pages, recipeIds, type WikiPage } from '../stores/wiki'
+import { allAssets, allItems, cats, loadPages, pages, recipeIds, type WikiPage } from '../stores/wiki'
 
 /** Редактор статьи: панель кнопок, просмотр, подсказка @ника. Правка уходит на проверку. */
 const props = defineProps<{ page: WikiPage | null }>()
@@ -117,13 +117,41 @@ function line(text: string) {
   })
 }
 
-const picker = ref<'' | 'item' | 'recipe'>('')
+const picker = ref<'' | 'item' | 'recipe' | 'asset'>('')
 const pickQuery = ref('')
 const picked = computed(() => {
   const q = pickQuery.value.trim().toLowerCase()
   const list = picker.value === 'recipe' ? allItems.filter((i) => recipeIds.includes(i.id)) : allItems
   return list.filter((i) => !q || i.name.toLowerCase().includes(q) || i.id.includes(q)).slice(0, 10)
 })
+const pickedAssets = computed(() => {
+  const q = pickQuery.value.trim().toLowerCase()
+  return allAssets.filter((a) => !q || a.id.includes(q)).slice(0, 24)
+})
+function pickAsset(id: string) {
+  line(`<asset/${id}>`)
+  picker.value = ''
+  pickQuery.value = ''
+}
+
+const uploading = ref(false)
+async function upload(e: Event) {
+  const input = e.target as HTMLInputElement
+  const file = input.files?.[0]
+  input.value = ''
+  if (!file) return
+  error.value = ''
+  uploading.value = true
+  try {
+    const res = await unwrap<{ id: string }>(api.post('/wiki/uploads', file, { headers: { 'Content-Type': 'application/octet-stream' } }))
+    line(`<image/up/${res.id}/Подпись>`)
+  } catch (err) {
+    error.value = errorMessage(err, 'Не удалось загрузить картинку')
+  } finally {
+    uploading.value = false
+  }
+}
+
 function pick(id: string) {
   if (picker.value === 'item') wrap('', '', `<item/${id}>`)
   else line(`<recipes/${id}>`)
@@ -278,6 +306,11 @@ function login() {
           <button type="button" @click="wrap('@', '', 'ник')">@Игрок</button>
           <button type="button" :class="{ 'is-on': picker === 'item' }" @click="picker = picker === 'item' ? '' : 'item'">Предмет</button>
           <button type="button" :class="{ 'is-on': picker === 'recipe' }" @click="picker = picker === 'recipe' ? '' : 'recipe'">Рецепт</button>
+          <button type="button" :class="{ 'is-on': picker === 'asset' }" @click="picker = picker === 'asset' ? '' : 'asset'">Текстура мода</button>
+          <label class="edit-upload">
+            {{ uploading ? 'Загрузка…' : 'Картинка' }}
+            <input type="file" accept="image/png,image/jpeg,image/webp" hidden :disabled="uploading" @change="upload" />
+          </label>
         </div>
 
         <div v-if="picker" class="edit-picker">
@@ -286,10 +319,18 @@ function login() {
             <input v-model="pickQuery" placeholder="Название предмета" />
             <button type="button" aria-label="Закрыть" @click="picker = ''"><X :size="24" /></button>
           </label>
-          <button v-for="it in picked" :key="it.id" type="button" class="edit-pick" @click="pick(it.id)">
-            <img v-if="it.icon" :src="it.icon" alt="" />
-            {{ it.name }}
-          </button>
+          <template v-if="picker === 'asset'">
+            <button v-for="a in pickedAssets" :key="a.id" type="button" class="edit-pick" @click="pickAsset(a.id)">
+              <img :src="`/images/wiki/assets/${a.id}.png`" alt="" />
+              {{ a.id }}
+            </button>
+          </template>
+          <template v-else>
+            <button v-for="it in picked" :key="it.id" type="button" class="edit-pick" @click="pick(it.id)">
+              <img v-if="it.icon" :src="it.icon" alt="" />
+              {{ it.name }}
+            </button>
+          </template>
         </div>
 
         <div class="edit-box">

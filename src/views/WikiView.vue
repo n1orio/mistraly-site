@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Clock, History, Home, Package, Plus, ScrollText, Search, X } from '../lib/icons'
+import { Search, X } from '../lib/icons'
 import { api, errorMessage, unwrap } from '../api/client'
 import { headHtml } from '../lib/wikiMarkup'
 import { useAuthStore } from '../stores/auth'
-import { catIcon, cats, groups, itemById, leadText, loadPages, pageIcon, pages, type Revision, type RevisionFull } from '../stores/wiki'
+import { catIcon, cats, groups, itemById, leadText, loadPages, pageIcon, pages, uiIcon, type Revision, type RevisionFull } from '../stores/wiki'
 import WikiArticle from '../components/WikiArticle.vue'
 import WikiBlocks from '../components/WikiBlocks.vue'
 import WikiEditor from '../components/WikiEditor.vue'
@@ -175,18 +175,18 @@ function login() {
           <nav aria-label="Разделы вики">
             <div class="portlet">
               <div class="portlet-title">Вики</div>
-              <router-link to="/wiki" class="portlet-link"><Home :size="12" />Заглавная</router-link>
-              <router-link to="/wiki/recent" class="portlet-link"><Clock :size="12" />Свежие правки</router-link>
-              <router-link to="/wiki/items" class="portlet-link"><Package :size="12" />Все предметы</router-link>
-              <router-link to="/wiki/formatting" class="portlet-link"><ScrollText :size="12" />Форматирование</router-link>
-              <router-link to="/wiki/new" class="portlet-link"><Plus :size="12" />Создать статью</router-link>
-              <router-link to="/wiki/my" class="portlet-link"><History :size="12" />Мои правки</router-link>
+              <router-link to="/wiki" class="portlet-link"><img :src="uiIcon('home')" alt="" class="wiki-mini-img" />Заглавная</router-link>
+              <router-link to="/wiki/recent" class="portlet-link"><img :src="uiIcon('clock')" alt="" class="wiki-mini-img" />Свежие правки</router-link>
+              <router-link to="/wiki/items" class="portlet-link"><img :src="uiIcon('chest')" alt="" class="wiki-mini-img" />Все предметы</router-link>
+              <router-link to="/wiki/formatting" class="portlet-link"><img :src="uiIcon('pencil')" alt="" class="wiki-mini-img" />Форматирование</router-link>
+              <router-link to="/wiki/new" class="portlet-link"><img :src="uiIcon('new')" alt="" class="wiki-mini-img" />Создать статью</router-link>
+              <router-link to="/wiki/my" class="portlet-link"><img :src="uiIcon('msg')" alt="" class="wiki-mini-img" />Мои правки</router-link>
             </div>
             <div class="portlet">
               <div class="portlet-title">Разделы</div>
               <template v-for="c in cats" :key="c.name">
                 <router-link :to="`/wiki/category/${c.name}`" class="portlet-link" :class="{ 'is-cat': openCat === c.name }">
-                  <component :is="catIcon(c.name)" :size="12" />{{ c.name }}
+                  <img :src="catIcon(c.name)" alt="" class="wiki-mini-img" />{{ c.name }}
                 </router-link>
                 <template v-if="openCat === c.name">
                   <router-link
@@ -196,8 +196,7 @@ function login() {
                     class="portlet-sub"
                     :class="{ 'is-on': slug === p.slug }"
                   >
-                    <img v-if="pageIcon(p).img" :src="pageIcon(p).img!" alt="" class="wiki-mini-img" />
-                    <component :is="pageIcon(p).icon" v-else :size="12" />
+                    <img :src="pageIcon(p)" alt="" class="wiki-mini-img" />
                     {{ p.title }}
                   </router-link>
                 </template>
@@ -273,7 +272,7 @@ function login() {
 
           <!-- Служебные страницы -->
           <div v-else-if="kind === 'recent'" class="wiki-sheet">
-            <h1 class="wiki-title">Свежие правки</h1>
+            <h1 class="wiki-title wiki-title--icon"><img :src="uiIcon('clock')" alt="" />Свежие правки</h1>
             <p v-if="!list.length" class="wiki-lead">Принятых правок пока нет. Станьте первым автором: откройте любую статью и нажмите «Править».</p>
             <table v-else class="wiki-log">
               <thead><tr><th>Дата</th><th>Статья</th><th>Автор</th><th>Что изменено</th></tr></thead>
@@ -289,7 +288,7 @@ function login() {
           </div>
 
           <div v-else-if="kind === 'my'" class="wiki-sheet">
-            <h1 class="wiki-title">Мои правки</h1>
+            <h1 class="wiki-title wiki-title--icon"><img :src="uiIcon('msg')" alt="" />Мои правки</h1>
             <template v-if="!auth.isAuthenticated">
               <p class="wiki-lead">Войдите, чтобы видеть свои правки и предлагать новые.</p>
               <button class="mc-btn mc-btn--discord mc-btn--sm" @click="login">Войти через Discord</button>
@@ -339,7 +338,7 @@ function login() {
           </div>
 
           <div v-else-if="kind === 'items'" class="wiki-sheet">
-            <h1 class="wiki-title">Все предметы</h1>
+            <h1 class="wiki-title wiki-title--icon"><img :src="uiIcon('chest')" alt="" />Все предметы</h1>
             <p class="wiki-lead">Предметы и блоки, которых нет в обычном Minecraft. Нажмите на предмет, чтобы открыть статью о нём.</p>
             <section v-for="g in groups" :key="g.title">
               <h2 class="art-h2"><router-link :to="`/wiki/${g.page}`">{{ g.title }}</router-link></h2>
@@ -348,13 +347,12 @@ function login() {
           </div>
 
           <div v-else-if="kind === 'category' && catPages(catName).length" class="wiki-sheet">
-            <h1 class="wiki-title wiki-title--icon"><component :is="catIcon(catName)" :size="36" />Категория: {{ catName }}</h1>
+            <h1 class="wiki-title wiki-title--icon"><img :src="catIcon(catName)" alt="" />Категория: {{ catName }}</h1>
             <p class="wiki-lead">В этой категории статей: {{ catPages(catName).length }}.</p>
             <ul class="wiki-catlist">
               <li v-for="p in catPages(catName)" :key="p.slug">
                 <router-link :to="`/wiki/${p.slug}`" class="portal-link">
-                  <img v-if="pageIcon(p).img" :src="pageIcon(p).img!" alt="" class="wiki-mini-img" />
-                  <component :is="pageIcon(p).icon" v-else :size="12" />
+                  <img :src="pageIcon(p)" alt="" class="wiki-mini-img" />
                   {{ p.title }}
                 </router-link>
                 <p>{{ leadText(p.source) }}</p>
@@ -376,20 +374,19 @@ function login() {
             </p>
             <div class="wiki-portals">
               <section v-for="c in cats" :key="c.name" class="wiki-portal">
-                <h2><component :is="catIcon(c.name)" :size="24" /><router-link :to="`/wiki/category/${c.name}`">{{ c.name }}</router-link></h2>
+                <h2><img :src="catIcon(c.name)" alt="" class="wiki-mid-img" /><router-link :to="`/wiki/category/${c.name}`">{{ c.name }}</router-link></h2>
                 <p>{{ c.text }}</p>
                 <ul>
                   <li v-for="p in catPages(c.name)" :key="p.slug">
                     <router-link :to="`/wiki/${p.slug}`" class="portal-link">
-                      <img v-if="pageIcon(p).img" :src="pageIcon(p).img!" alt="" class="wiki-mini-img" />
-                      <component :is="pageIcon(p).icon" v-else :size="12" />
+                      <img :src="pageIcon(p)" alt="" class="wiki-mini-img" />
                       {{ p.title }}
                     </router-link>
                   </li>
                 </ul>
               </section>
               <section class="wiki-portal">
-                <h2><Plus :size="24" />Участие</h2>
+                <h2><img :src="uiIcon('new')" alt="" class="wiki-mid-img" />Участие</h2>
                 <p>Как помочь вики.</p>
                 <ul>
                   <li><router-link to="/wiki/formatting">Форматирование и разметка</router-link></li>
@@ -479,6 +476,12 @@ function login() {
 .wiki-mini-img {
   width: 16px;
   height: 16px;
+  flex: none;
+  image-rendering: pixelated;
+}
+.wiki-mid-img {
+  width: 24px;
+  height: 24px;
   flex: none;
   image-rendering: pixelated;
 }
@@ -1258,6 +1261,25 @@ a.art-author:hover {
   color: inherit;
   cursor: pointer;
 }
+.edit-upload {
+  padding: 6px 10px;
+  background: #1e1e1f;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.edit-upload:hover {
+  background: var(--panel-hi);
+  color: #fff;
+}
+.art-image img.art-pixel {
+  width: auto;
+  min-width: 96px;
+  max-height: 256px;
+  border: 0;
+  image-rendering: pixelated;
+}
 .edit-pick {
   display: inline-flex;
   align-items: center;
@@ -1369,14 +1391,5 @@ a.art-author:hover {
     display: block;
     overflow-x: auto;
   }
-}
-</style>
-<style>
-.infobox-art svg {
-  color: var(--sky);
-}
-.wiki-title--icon svg {
-  flex: none;
-  color: var(--sky);
 }
 </style>

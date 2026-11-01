@@ -7,7 +7,8 @@ import {
   LogOut,
   Upload,
   ShieldCheck,
-  Check
+  Check,
+  Wallet
 } from '../lib/icons'
 import { usePurchaseStore } from '../stores/purchase'
 import { useAuthStore } from '../stores/auth'
@@ -228,6 +229,11 @@ function statusBadge(status: string) {
             </router-link>
             <button v-else class="mc-btn mc-btn--block" @click="buyPass">Купить Mistraly Pass →</button>
           </section>
+
+          <router-link to="/bank" class="mc-btn mc-btn--block">
+            <Wallet :size="24" />
+            Открыть банк
+          </router-link>
 
           <GameSettings />
 

@@ -28,16 +28,14 @@ function when(iso: string | null) {
   <article class="wiki-sheet">
     <p v-if="note" class="art-note">{{ note }}</p>
     <h1 class="wiki-title wiki-title--icon">
-      <img v-if="icon.img" :src="icon.img" alt="" />
-      <component :is="icon.icon" v-else :size="36" />
+      <img :src="icon" alt="" />
       {{ page.title }}
     </h1>
 
     <aside v-if="parsed.info.length || parsed.icon" class="infobox" :aria-label="`Кратко: ${page.title}`">
       <div class="infobox-name">{{ page.title }}</div>
       <div class="infobox-art">
-        <img v-if="parsed.icon" :src="parsed.icon" alt="" />
-        <component :is="icon.icon" v-else :size="96" />
+        <img :src="parsed.icon ?? icon" alt="" />
       </div>
       <dl>
         <template v-for="row in parsed.info" :key="row.key">

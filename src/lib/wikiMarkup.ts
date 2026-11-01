@@ -25,7 +25,7 @@ export type Block =
   | { t: 'items'; items: WikiItem[] }
   | { t: 'recipes'; recipes: Recipe[] }
   | { t: 'pages'; pages: PageCard[] }
-  | { t: 'image'; src: string; caption: string }
+  | { t: 'image'; src: string; caption: string; pixel?: boolean }
   | { t: 'demo'; code: string; blocks: Block[] }
 
 export type Parsed = {
@@ -150,7 +150,8 @@ const TOKENS = new RegExp(
     `(?<![\\w@/])@(${NICK})`, // 8 игрок
     '<item/([a-z0-9_:]+)>', // 9 предмет
     `<avatar/(${NICK})(?:/(\\d{1,3}))?>`, // 10, 11 голова
-    '(?<![\\wа-яёА-ЯЁ])!(?=[\\wа-яёА-ЯЁ])([\\wа-яёА-ЯЁ]+)', // 12 слово без автоссылки
+    '<icon/([a-z0-9_/]+)>', // 12 текстура мода в строке
+    '(?<![\\wа-яёА-ЯЁ])!(?=[\\wа-яёА-ЯЁ])([\\wа-яёА-ЯЁ]+)', // 13 слово без автоссылки
   ].join('|'),
   'g'
 )
@@ -182,7 +183,9 @@ export function inline(text: string, st: Inline): string {
       out += it ? itemChip(it) : escapeHtml(m[0])
     } else if (m[10] !== undefined) {
       out += headHtml(m[10], Number(m[11] || 24))
-    } else if (m[12] !== undefined) out += escapeHtml(m[12])
+    } else if (m[12] !== undefined) {
+      out += `<img src="/images/wiki/assets/${escapeHtml(m[12])}.png" alt="" class="w-item-img">`
+    } else if (m[13] !== undefined) out += escapeHtml(m[13])
   }
   return out + autolink(text.slice(last), st)
 }
@@ -310,9 +313,15 @@ function parseBlocks(lines: string[], st: Inline, toc: { n: number }): Block[] {
         return p ? [{ slug, title: p.title, text: p.lead ?? '' }] : []
       })
       if (pages.length) out.push({ t: 'pages', pages })
-    } else if ((m = /^<image\/(images\/[\w\-./]+)(?:\/(.*))?>$/.exec(line)) && !m[1].includes('..')) {
+    } else if ((m = /^<image\/up\/([0-9a-f-]{36})(?:\/(.*))?>$/.exec(line))) {
+      flush()
+      out.push({ t: 'image', src: `${API_URL}/wiki/uploads/${m[1]}`, caption: m[2] ?? '' })
+    } else if ((m = /^<image\/(images\/[\w\-./]+?\.(?:png|webp|jpg))(?:\/(.*))?>$/.exec(line)) && !m[1].includes('..')) {
       flush()
       out.push({ t: 'image', src: `/${m[1]}`, caption: m[2] ?? '' })
+    } else if ((m = /^<asset\/([a-z0-9_/]+)(?:\/\/(.*))?>$/.exec(line)) && !m[1].includes('..')) {
+      flush()
+      out.push({ t: 'image', src: `/images/wiki/assets/${m[1]}.png`, caption: m[2] ?? '', pixel: true })
     } else {
       para.push(line)
     }

@@ -66,6 +66,12 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true }
   },
   { path: '/offer', name: 'Offer', component: () => import('./views/OfferView.vue') },
+  {
+    path: '/bank',
+    name: 'Bank',
+    component: () => import('./views/BankView.vue'),
+    meta: { requiresAuth: true }
+  },
   { path: '/rules', name: 'Rules', component: () => import('./views/RulesView.vue') },
   { path: '/wiki/:rest(.*)*', name: 'Wiki', component: () => import('./views/WikiView.vue') },
   { path: '/download', name: 'Download', component: () => import('./views/DownloadView.vue') },

@@ -16,6 +16,7 @@ import glob
 import json
 import os
 import re
+import shutil
 import sys
 
 from PIL import Image
@@ -49,6 +50,7 @@ BLOCK_ICONS = {'atm': 'atm_front', 'shop': 'shop_side', 'mist_ore': 'mist_ore', 
 os.makedirs(OUT_IMG, exist_ok=True)
 for f in glob.glob(f'{OUT_IMG}/*.png'):
     os.remove(f)
+shutil.rmtree(f'{OUT_IMG}/assets', ignore_errors=True)
 
 
 def copy_icon(src, name):
@@ -455,7 +457,20 @@ for rs in recipes.values():
 
 groups = [{'title': t, 'page': s, 'items': [f'mistraly:{i}' for i in ids.split()]} for t, s, ids in GROUPS]
 
-data = {'pages': pages, 'cats': [{'name': c, 'text': CAT_TEXT[c]} for c in CATS],
+# Все текстуры мода для редактора: предметы, блоки, значки, модели брони.
+assets = []
+ASSET_ROOT = f'{RES}/assets/mistraly/textures'
+for f in sorted(glob.glob(f'{ASSET_ROOT}/**/*.png', recursive=True)):
+    rel = os.path.relpath(f, ASSET_ROOT)[:-4]
+    out = f'{OUT_IMG}/assets/{rel}.png'
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    img = Image.open(f).convert('RGBA')
+    if img.height > img.width * 4:          # анимация: только первый кадр
+        img = img.crop((0, 0, img.width, img.width))
+    img.save(out, optimize=True)
+    assets.append({'id': rel, 'w': img.width, 'h': img.height})
+
+data = {'pages': pages, 'assets': assets, 'cats': [{'name': c, 'text': CAT_TEXT[c]} for c in CATS],
         'groups': groups, 'items': items, 'recipes': recipes}
 json.dump(data, open(OUT_JSON, 'w', encoding='utf-8'), ensure_ascii=False, indent=0)
 # Базовые статьи для вики в игре: мод забирает их с сайта вместе с правками игроков.

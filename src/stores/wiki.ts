@@ -1,11 +1,7 @@
-import { computed, ref, type Component } from 'vue'
+import { computed, ref } from 'vue'
 import { api, unwrap } from '../api/client'
 import base from '../data/wiki-data.json'
 import { parseWiki, type Ctx, type Parsed } from '../lib/wikiMarkup'
-import {
-  Anchor, BookOpen, Check, Cog, Compass, CreditCard, Home, Key, MessageSquare, Monitor, ScrollText, Shield, Sparkles, Swords,
-  Terminal, Users, Wallet,
-} from '../lib/icons'
 
 /**
  * Статьи вики: базовые лежат в сайте, правки игроков приходят с бэкенда и
@@ -113,36 +109,42 @@ function leadOf(source: string): string {
 
 export const leadText = leadOf
 
-const CAT_ICONS: Record<string, Component> = {
-  Основы: BookOpen,
-  Экономика: Wallet,
-  Игрок: Users,
-  Добыча: Compass,
-  Снаряжение: Swords,
+const chatIcon = (name: string) => `/images/wiki/chat/${name}.png`
+
+const CAT_ICONS: Record<string, string> = {
+  Основы: 'book',
+  Экономика: 'bank',
+  Игрок: 'def',
+  Добыча: 'pick',
+  Снаряжение: 'sword',
 }
-const PAGE_ICONS: Record<string, Component> = {
-  start: Home,
-  chat: MessageSquare,
-  commands: Terminal,
-  settings: Cog,
-  punishments: Shield,
-  formatting: ScrollText,
-  transfers: CreditCard,
-  'co-owners': Users,
-  fines: Key,
-  profile: Users,
-  cabinet: Monitor,
-  plus: Sparkles,
-  achievements: Check,
-  death: Anchor,
+const PAGE_ICONS: Record<string, string> = {
+  start: 'home',
+  chat: 'local',
+  commands: 'term',
+  settings: 'gear',
+  punishments: 'admin',
+  formatting: 'pencil',
+  transfers: 'arrows',
+  'co-owners': 'people',
+  fines: 'fine',
+  profile: 'def',
+  cabinet: 'glitch',
+  plus: 'plus',
+  achievements: 'cup',
+  death: 'skull',
 }
 
-export const catIcon = (name: string): Component => CAT_ICONS[name] ?? BookOpen
+/** Значок раздела или служебной ссылки: чатовые иконки 8×8. */
+export const uiIcon = chatIcon
+export const catIcon = (name: string) => chatIcon(CAT_ICONS[name] ?? 'book')
 
-/** Иконка статьи: предмет из её сноски, а если его нет — значок темы. */
-export function pageIcon(page: Pick<WikiPage, 'slug' | 'cat' | 'source'>): { img: string | null; icon: Component } {
+/** Значок статьи: предмет из её сноски, а если его нет — значок темы. */
+export function pageIcon(page: Pick<WikiPage, 'slug' | 'cat' | 'source'>): string {
   const id = /^<icon\/([a-z0-9_:]+)>/m.exec(page.source)?.[1]
-  return { img: id ? itemById(id)?.icon ?? null : null, icon: PAGE_ICONS[page.slug] ?? catIcon(page.cat) }
+  const item = id ? itemById(id)?.icon : null
+  if (item) return item
+  return PAGE_ICONS[page.slug] ? chatIcon(PAGE_ICONS[page.slug]) : catIcon(page.cat)
 }
 
 export function render(source: string, slug: string): Parsed {
@@ -152,3 +154,4 @@ export function render(source: string, slug: string): Parsed {
 export const itemById = (id: string) => (base.items as Ctx['items'])[id]
 export const allItems = Object.entries(base.items as Ctx['items']).map(([id, v]) => ({ id, ...v }))
 export const recipeIds = Object.keys(base.recipes)
+export const allAssets = base.assets
