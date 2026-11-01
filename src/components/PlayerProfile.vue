@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { headHtml } from '../lib/wikiMarkup'
 import { themeOf } from '../lib/nameThemes'
+import { accountLook } from '../lib/accountColors'
 import NameTag from './NameTag.vue'
 
 /** Профиль с игрового сервера: те же разделы, что и в игре, скрытое сюда не приходит. */
@@ -39,7 +40,7 @@ function value(key: string, n: number) {
 }
 
 const stats = computed(() => Object.keys(LABELS).filter((k) => k in props.data.stats))
-const hex = (color: number) => `#${(color & 0xffffff).toString(16).padStart(6, '0')}`
+const goods = (it: Item) => (!it.name || it.id === 'minecraft:air' ? 'Без товара' : it.name)
 const DIM: Record<string, string> = { 'minecraft:overworld': 'Верхний мир', 'minecraft:the_nether': 'Незер', 'minecraft:the_end': 'Энд' }
 const updated = computed(() => {
   const d = new Date(`${props.updated.replace(' ', 'T')}Z`)
@@ -50,16 +51,7 @@ const updated = computed(() => {
 <template>
   <div
     class="gp"
-    :style="{
-      '--gp': theme.accent,
-      '--gp-bg': theme.bg,
-      '--gp-top': theme.top,
-      '--gp-bottom': theme.bottom,
-      '--gp-card': theme.card,
-      '--gp-line': theme.line,
-      '--gp-border': theme.border,
-      '--gp-head': theme.heading,
-    }"
+    :style="{ '--gp': theme.accent, '--gp-top': theme.top, '--gp-bottom': theme.bottom, '--gp-head': theme.heading }"
   >
     <div class="gp-top">
       <span v-html="headHtml(name, 96)"></span>
@@ -73,62 +65,92 @@ const updated = computed(() => {
       </div>
     </div>
 
-    <section v-if="stats.length">
-      <h2 class="gp-h">Статистика</h2>
-      <dl class="gp-stats">
-        <div v-for="k in stats" :key="k">
-          <dt>{{ LABELS[k] }}</dt>
-          <dd>{{ value(k, data.stats[k]) }}</dd>
-        </div>
-      </dl>
-    </section>
+    <div class="gp-grid">
+      <div class="gp-main">
+        <section v-if="data.accounts.length">
+          <h2 class="gp-h">Счета</h2>
+          <div v-for="a in data.accounts" :key="a.id" class="gp-acc" :style="{ borderLeftColor: accountLook(a.color).bar }">
+            <b :class="accountLook(a.color).cls" :style="{ color: accountLook(a.color).text }">{{ a.name }}</b>
+            <small v-if="a.description">{{ a.description }}</small>
+          </div>
+        </section>
 
-    <section v-if="data.accounts.length">
-      <h2 class="gp-h">Счета</h2>
-      <ul class="gp-list">
-        <li v-for="a in data.accounts" :key="a.id">
-          <i class="gp-dot" :style="{ background: hex(a.color) }"></i>
-          <b>{{ a.name }}</b>
-          <span v-if="a.description" class="log-dim"> {{ a.description }}</span>
-        </li>
-      </ul>
-    </section>
-
-    <section v-if="data.shops.length">
-      <h2 class="gp-h">Магазины</h2>
-      <div class="art-table">
-        <table>
-          <thead><tr><th>№</th><th>Товар</th><th>Цена</th><th>В наличии</th><th>Где</th></tr></thead>
-          <tbody>
-            <tr v-for="s in data.shops" :key="s.id">
-              <td>#{{ s.id }}</td>
-              <td>{{ s.goods.name || '—' }}</td>
-              <td>{{ s.price }} мист.</td>
-              <td>{{ s.closed ? 'Закрыт' : s.stock }}</td>
-              <td>{{ DIM[s.dimension] ?? s.dimension }}, {{ s.x }} {{ s.y }} {{ s.z }}</td>
-            </tr>
-          </tbody>
-        </table>
+        <section v-if="data.shops.length">
+          <h2 class="gp-h">Магазины</h2>
+          <div class="art-table">
+            <table>
+              <thead><tr><th>№</th><th>Товар</th><th>Цена</th><th>В наличии</th><th>Где</th></tr></thead>
+              <tbody>
+                <tr v-for="s in data.shops" :key="s.id">
+                  <td>#{{ s.id }}</td>
+                  <td>{{ goods(s.goods) }}</td>
+                  <td>{{ s.price }} мист.</td>
+                  <td>{{ s.closed ? 'Закрыт' : s.stock }}</td>
+                  <td>{{ DIM[s.dimension] ?? s.dimension }}, {{ s.x }} {{ s.y }} {{ s.z }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <slot />
       </div>
-    </section>
+
+      <aside v-if="stats.length" class="gp-side">
+        <h2 class="gp-h">Статистика</h2>
+        <dl class="gp-stats">
+          <div v-for="k in stats" :key="k">
+            <dt>{{ LABELS[k] }}</dt>
+            <dd>{{ value(k, data.stats[k]) }}</dd>
+          </div>
+        </dl>
+      </aside>
+    </div>
   </div>
 </template>
 
 <style>
 .gp {
   margin-bottom: 16px;
-  padding: 0 14px 14px;
-  background: var(--gp-bg);
-  border: 2px solid var(--gp-border);
 }
 .gp-top {
   display: flex;
   align-items: center;
   gap: 18px;
-  margin: 0 -14px 12px;
+  margin-bottom: 14px;
   padding: 12px 14px;
   background: linear-gradient(var(--gp-top), var(--gp-bottom));
   border-bottom: 2px solid var(--gp);
+}
+.gp-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 240px;
+  gap: 20px;
+  align-items: start;
+}
+.gp-main {
+  min-width: 0;
+}
+.gp-side {
+  position: sticky;
+  top: 80px;
+}
+.gp-side .gp-h {
+  margin-top: 0;
+}
+.gp-acc {
+  margin-bottom: 6px;
+  padding: 8px 12px;
+  background: var(--well);
+  border: 2px solid var(--edge-c);
+  border-left-width: 6px;
+}
+.gp-acc b {
+  display: inline-block;
+}
+.gp-acc small {
+  display: block;
+  color: var(--text-muted);
+  font-size: 13px;
 }
 .gp-name {
   margin: 0 0 4px;
@@ -162,15 +184,19 @@ const updated = computed(() => {
   font-size: 13px;
 }
 .gp-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 8px;
   margin: 0;
+  background: var(--well);
+  border: 2px solid var(--edge-c);
 }
 .gp-stats div {
-  padding: 8px 12px;
-  background: var(--gp-card);
-  border: 2px solid var(--gp-line);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  padding: 6px 10px;
+}
+.gp-stats div + div {
+  border-top: 2px solid var(--edge-c);
 }
 .gp-stats dt {
   color: var(--text-muted);
@@ -179,23 +205,16 @@ const updated = computed(() => {
 .gp-stats dd {
   margin: 0;
   font-weight: 700;
-  font-size: 18px;
+  font-size: 15px;
+  white-space: nowrap;
 }
-.gp-list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.gp-list li {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 6px;
-  padding: 4px 0;
-}
-.gp-dot {
-  flex: none;
-  width: 12px;
-  height: 12px;
+@media (max-width: 800px) {
+  .gp-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .gp-side {
+    position: static;
+    order: -1;
+  }
 }
 </style>

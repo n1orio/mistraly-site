@@ -25,7 +25,7 @@ html{
   color-scheme:dark;
   --bg-page:#121212;--bg-void:#0C0C0C;
   --panel:#1A1A1A;--panel-hi:#222223;--well:#141414;
-  --ink:#050505;--line:#3D3D3D;
+  --ink:#050505;--line:#3D3D3D;--edge-c:#2B2B2C;--head-c:#2D2D2E;
   --blue:#186EF0;--blue-hi:#6FA3F2;--blue-lo:#1357BD;--blue-lip:#0E3F8A;
   --sky:#5C9DF5;
   --ok:#2BD948;--warn:#F2C037;--bad:#EB5A4E;
@@ -43,10 +43,17 @@ html,body{margin:0;padding:0;width:100%;min-height:100vh;color:var(--text-main);
 h1,h2,h3,h4,.font-heading{font-family:'Minecraft Ten','Noto Sans',sans-serif;font-weight:400;letter-spacing:0}
 .pixel-img{image-rendering:pixelated}
 
+/* Переход лесенкой нарисован в цветах обычной палитры, в теме игрока он не нужен. */
+.themed .dither{display:none}
+.acc-gold{background:linear-gradient(90deg,#b8860b,#ffd84a,#fff6c2,#ffd84a,#b8860b);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent!important;animation:acc-flow 3s linear infinite}
+.acc-glitch{text-shadow:1px 1px 0 #00a0ff}
+@keyframes acc-flow{to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){.acc-gold{animation:none}}
+
 @layer components{
   /* Блоки как на minecraft.net: прямые углы и сплошная рамка 2 px. */
   .mc-box{
-    --edge:#2B2B2C;
+    --edge:var(--edge-c);
     border:2px solid var(--edge);
     box-shadow:var(--bevel,0 0 #0000);
   }

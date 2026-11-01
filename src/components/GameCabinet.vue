@@ -336,7 +336,7 @@ const rows = computed(() => SETTINGS[settingsTab.value])
   flex: none;
   width: 32px;
   height: 16px;
-  background: #2d2d2e;
+  background: var(--head-c);
   border: 2px solid #464747;
 }
 .gc-row i::after {

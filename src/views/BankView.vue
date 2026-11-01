@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { api, errorMessage, unwrap } from '../api/client'
+import { accountLook } from '../lib/accountColors'
 
 /**
  * Банк сервера: те же счета, история и штрафы, что в игре. Деньги живут на игровом
@@ -99,7 +100,6 @@ function payFine(f: Fine) {
   if (account) send({ kind: 'pay_fine', fine: f.id, account })
 }
 
-const hex = (c: number) => `#${(c & 0xffffff).toString(16).padStart(6, '0')}`
 const money = (n: number) => `${n.toLocaleString('ru-RU')} мист.`
 const date = (t: number) => new Date(t).toLocaleString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
 
@@ -151,9 +151,9 @@ const KIND: Record<string, string> = { transfer: 'Перевод', pay_fine: 'О
               :class="{ 'is-on': selected?.id === a.id }"
               @click="selectedId = a.id"
             >
-              <i :style="{ background: hex(a.color) }"></i>
+              <i :style="{ background: accountLook(a.color).bar }"></i>
               <span class="min-w-0">
-                <b>{{ a.name }}</b>
+                <b :class="accountLook(a.color).cls" :style="{ color: accountLook(a.color).text }">{{ a.name }}</b>
                 <small>{{ a.primary ? 'основной · ' : '' }}{{ a.mine ? `№${a.id}` : `владелец ${a.owner}` }}</small>
               </span>
               <strong>{{ money(a.balance) }}</strong>
@@ -322,7 +322,7 @@ const KIND: Record<string, string> = { transfer: 'Перевод', pay_fine: 'О
   margin-bottom: 6px;
   padding: 10px 12px;
   background: var(--well);
-  border: 2px solid #2b2b2c;
+  border: 2px solid var(--edge-c);
   color: inherit;
   font: inherit;
   text-align: left;
@@ -369,7 +369,7 @@ const KIND: Record<string, string> = { transfer: 'Перевод', pay_fine: 'О
   justify-content: space-between;
   gap: 10px;
   padding: 10px 0;
-  border-top: 2px solid #2b2b2c;
+  border-top: 2px solid var(--edge-c);
 }
 .bk-pay {
   display: flex;

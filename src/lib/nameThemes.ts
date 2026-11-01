@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { onUnmounted, ref, watch, type Ref } from 'vue'
 import { api, unwrap } from '../api/client'
 
 /** Темы ника из NameTheme в моде: те же цвета и иконки, что в игре. */
@@ -46,3 +46,39 @@ export function loadPlayerThemes() {
 
 export const themeOfPlayer = (nick: string) => themeOf(playerThemes.value[nick.toLowerCase()])
 export const iconUrl = (t: NameTheme) => `/images/wiki/chat/${t.icon}.png`
+
+const PAGE_VARS = (t: NameTheme): Record<string, string> => ({
+  '--bg-page': t.bg,
+  '--bg-void': t.bottom,
+  '--panel': t.card,
+  '--panel-hi': t.line,
+  '--well': t.bottom,
+  '--line': t.line,
+  '--edge-c': t.line,
+  '--head-c': t.top,
+  '--sky': t.heading,
+  '--blue': t.border,
+  '--blue-hi': t.accent,
+  '--blue-lo': t.line,
+  '--blue-lip': t.top,
+})
+
+/** Вся страница в цветах темы игрока: переменные палитры на html, при уходе снимаются. */
+export function usePageTheme(theme: Ref<string | null | undefined>) {
+  const root = document.documentElement
+  const clear = () => {
+    Object.keys(PAGE_VARS(THEMES[0])).forEach((k) => root.style.removeProperty(k))
+    root.classList.remove('themed')
+  }
+  watch(
+    theme,
+    (id) => {
+      clear()
+      if (!id) return
+      Object.entries(PAGE_VARS(themeOf(id))).forEach(([k, v]) => root.style.setProperty(k, v))
+      root.classList.add('themed')
+    },
+    { immediate: true }
+  )
+  onUnmounted(clear)
+}

@@ -4,7 +4,7 @@ import SkinViewer3D from '../components/SkinViewer3D.vue'
 import GameCabinet from '../components/GameCabinet.vue'
 import PlayerProfile, { type GameProfile } from '../components/PlayerProfile.vue'
 import NameTag from '../components/NameTag.vue'
-import { loadPlayerThemes } from '../lib/nameThemes'
+import { loadPlayerThemes, usePageTheme } from '../lib/nameThemes'
 import {
   Download,
   LogOut,
@@ -31,6 +31,7 @@ const skinFile = ref<File | null>(null)
 const variant = ref<'default' | 'slim'>('default')
 const statusMsg = ref('')
 const game = ref<{ name: string; data: GameProfile; updated_at: string } | null>(null)
+usePageTheme(computed(() => game.value?.data.theme))
 const isUploading = ref(false)
 
 const hasPass = computed(() => !!pass.value?.has_pass && !pass.value?.expired)

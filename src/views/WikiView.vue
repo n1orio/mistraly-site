@@ -5,7 +5,7 @@ import { Search, X } from '../lib/icons'
 import { api, errorMessage, unwrap } from '../api/client'
 import { headHtml } from '../lib/wikiMarkup'
 import { useAuthStore } from '../stores/auth'
-import { loadPlayerThemes } from '../lib/nameThemes'
+import { loadPlayerThemes, usePageTheme } from '../lib/nameThemes'
 import { catIcon, cats, groups, itemById, leadText, loadPages, pageIcon, pages, uiIcon, type Revision, type RevisionFull } from '../stores/wiki'
 import WikiArticle from '../components/WikiArticle.vue'
 import WikiBlocks from '../components/WikiBlocks.vue'
@@ -83,6 +83,8 @@ const old = ref<RevisionFull | null>(null)
 const player = ref<{ username: string; role: string; created_at: string; edits: Revision[] } | null>(null)
 const game = ref<{ name: string; data: GameProfile; updated_at: string } | null>(null)
 const loadError = ref('')
+// Страница игрока целиком в цветах его темы.
+usePageTheme(computed(() => game.value?.data.theme))
 const busy = ref(false)
 
 const STATUS: Record<string, string> = { pending: 'На проверке', approved: 'Принята', rejected: 'Отклонена' }
@@ -318,27 +320,36 @@ function login() {
           </div>
 
           <div v-else-if="kind === 'user'" class="wiki-sheet">
-            <PlayerProfile v-if="game" :name="game.name" :data="game.data" :updated="game.updated_at" />
-            <div v-else-if="player" class="player-head">
-              <span v-html="headHtml(player.username, 96)"></span>
-              <div>
-                <h1 class="wiki-title"><NameTag :name="player.username" :size="32" /></h1>
-                <p class="wiki-lead">Участник с {{ when(player.created_at).split(',')[0] }}. На сервер ещё не заходил.</p>
+            <PlayerProfile v-if="game" :name="game.name" :data="game.data" :updated="game.updated_at">
+              <template v-if="player">
+                <h2 class="gp-h">Вклад в вики: {{ player.edits.length }}</h2>
+                <ul v-if="player.edits.length" class="art-ul">
+                  <li v-for="r in player.edits" :key="r.id">
+                    <router-link :to="`/wiki/${r.slug}`">{{ r.title }}</router-link>
+                    <span class="log-dim"> {{ when(r.created_at) }}{{ r.summary ? ` · ${r.summary}` : '' }}</span>
+                  </li>
+                </ul>
+              </template>
+            </PlayerProfile>
+            <template v-else-if="player">
+              <div class="player-head">
+                <span v-html="headHtml(player.username, 96)"></span>
+                <div>
+                  <h1 class="wiki-title"><NameTag :name="player.username" :size="32" /></h1>
+                  <p class="wiki-lead">Участник с {{ when(player.created_at).split(',')[0] }}. На сервер ещё не заходил.</p>
+                </div>
               </div>
-            </div>
-            <template v-else>
-              <h1 class="wiki-title">{{ parts[1] }}</h1>
-              <p class="wiki-lead">{{ loadError || 'Загрузка…' }}</p>
-            </template>
-            <template v-if="player">
               <h2 class="art-h2">Вклад в вики: {{ player.edits.length }}</h2>
-              <p v-if="!player.edits.length" class="art-p">Правок пока нет.</p>
-              <ul v-else class="art-ul">
+              <ul v-if="player.edits.length" class="art-ul">
                 <li v-for="r in player.edits" :key="r.id">
                   <router-link :to="`/wiki/${r.slug}`">{{ r.title }}</router-link>
                   <span class="log-dim"> {{ when(r.created_at) }}{{ r.summary ? ` · ${r.summary}` : '' }}</span>
                 </li>
               </ul>
+            </template>
+            <template v-else>
+              <h1 class="wiki-title">{{ parts[1] }}</h1>
+              <p class="wiki-lead">{{ loadError || 'Загрузка…' }}</p>
             </template>
           </div>
 
@@ -447,12 +458,12 @@ function login() {
   margin-bottom: 10px;
   padding-bottom: 6px;
   background: var(--panel);
-  border: 2px solid #2b2b2c;
+  border: 2px solid var(--edge-c);
 }
 .portlet-title {
   margin-bottom: 4px;
   padding: 5px 10px;
-  background: #2d2d2e;
+  background: var(--head-c);
   color: #fff;
   font-weight: 700;
   font-size: 13px;
@@ -546,7 +557,7 @@ function login() {
   gap: 4px;
   padding: 2px 6px;
   background: var(--well);
-  border: 2px solid #2b2b2c;
+  border: 2px solid var(--edge-c);
   color: var(--text-muted);
 }
 .wiki-search-box:focus-within {
@@ -610,7 +621,7 @@ function login() {
 }
 .wiki-content {
   background: var(--panel);
-  border: 2px solid #2b2b2c;
+  border: 2px solid var(--edge-c);
   border-top: 4px solid #3d3d3d;
 }
 .wiki-sheet {
@@ -646,7 +657,7 @@ function login() {
 }
 .wiki-catlist li {
   padding: 8px 0;
-  border-bottom: 2px solid #2b2b2c;
+  border-bottom: 2px solid var(--edge-c);
 }
 .wiki-catlist p {
   margin: 2px 0 0;
@@ -660,7 +671,7 @@ function login() {
 }
 .wiki-portal {
   background: var(--well);
-  border: 2px solid #2b2b2c;
+  border: 2px solid var(--edge-c);
 }
 .wiki-portal h2 {
   display: flex;
@@ -668,7 +679,7 @@ function login() {
   gap: 8px;
   margin: 0;
   padding: 6px 12px;
-  background: #2d2d2e;
+  background: var(--head-c);
   font-size: 16px;
 }
 .wiki-portal h2 a {
@@ -692,12 +703,12 @@ function login() {
 .wiki-log th,
 .wiki-log td {
   padding: 6px 10px;
-  border: 2px solid #2b2b2c;
+  border: 2px solid var(--edge-c);
   text-align: left;
   vertical-align: top;
 }
 .wiki-log th {
-  background: #2d2d2e;
+  background: var(--head-c);
 }
 .log-user {
   display: inline-flex;
@@ -791,7 +802,7 @@ function login() {
 .infobox dd {
   margin: 0;
   padding: 5px 10px;
-  border-top: 2px solid #2b2b2c;
+  border-top: 2px solid var(--edge-c);
 }
 .infobox dt {
   font-weight: 700;
@@ -803,7 +814,7 @@ function login() {
   margin: 4px 0 12px;
   padding: 8px 14px 10px;
   background: var(--well);
-  border: 2px solid #2b2b2c;
+  border: 2px solid var(--edge-c);
   font-size: 14px;
 }
 .toc-title {
@@ -906,7 +917,7 @@ function login() {
   margin: 0 0 12px;
   padding: 10px 14px;
   overflow-x: auto;
-  border: 2px solid #2b2b2c;
+  border: 2px solid var(--edge-c);
 }
 .art-code code {
   padding: 0;
@@ -955,7 +966,7 @@ function login() {
   display: block;
   padding: 10px 12px;
   background: var(--well);
-  border: 2px solid #2b2b2c;
+  border: 2px solid var(--edge-c);
   color: var(--text-main);
   text-decoration: none;
 }
@@ -980,7 +991,7 @@ function login() {
 }
 .art-image img {
   max-width: 100%;
-  border: 2px solid #2b2b2c;
+  border: 2px solid var(--edge-c);
 }
 .art-image figcaption {
   color: var(--text-sub);
@@ -993,7 +1004,7 @@ function login() {
   gap: 10px;
   margin: 6px 0;
   padding: 6px 0;
-  border-bottom: 2px solid #2b2b2c;
+  border-bottom: 2px solid var(--edge-c);
 }
 .demo-code {
   overflow-wrap: anywhere;
@@ -1082,11 +1093,11 @@ a.art-item:hover {
 .art-table th,
 .art-table td {
   padding: 5px 10px;
-  border: 2px solid #2b2b2c;
+  border: 2px solid var(--edge-c);
   text-align: left;
 }
 .art-table th {
-  background: #2d2d2e;
+  background: var(--head-c);
 }
 .art-table tbody tr:nth-child(even) {
   background: var(--well);
@@ -1225,7 +1236,7 @@ a.art-author:hover {
   gap: 2px;
   padding: 4px;
   background: var(--well);
-  border: 2px solid #2b2b2c;
+  border: 2px solid var(--edge-c);
   border-bottom: 0;
 }
 .edit-bar button:hover {
@@ -1241,7 +1252,7 @@ a.art-author:hover {
   gap: 4px;
   padding: 6px;
   background: var(--well);
-  border: 2px solid #2b2b2c;
+  border: 2px solid var(--edge-c);
   border-bottom: 0;
 }
 .edit-pick-search {
@@ -1338,7 +1349,7 @@ a.art-author:hover {
   background: var(--blue);
 }
 .edit-preview {
-  border: 2px solid #2b2b2c;
+  border: 2px solid var(--edge-c);
 }
 .edit-actions {
   display: flex;
@@ -1359,7 +1370,7 @@ a.art-author:hover {
     margin-bottom: 8px;
     padding: 8px 12px;
     background: var(--panel);
-    border: 2px solid #2b2b2c;
+    border: 2px solid var(--edge-c);
     font-weight: 700;
     cursor: pointer;
   }

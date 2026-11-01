@@ -105,7 +105,7 @@ function isActive(tab: { to: string; exact?: boolean }) {
   z-index: 50;
   width: 100%;
   background: var(--bg-void);
-  box-shadow: inset 0 -2px 0 0 #2B2B2C;
+  box-shadow: inset 0 -2px 0 0 var(--edge-c);
 }
 .top-in {
   display: flex;
@@ -241,7 +241,7 @@ function isActive(tab: { to: string; exact?: boolean }) {
     gap: 0;
     height: 64px;
     background: var(--bg-void);
-    box-shadow: inset 0 2px 0 0 #2B2B2C;
+    box-shadow: inset 0 2px 0 0 var(--edge-c);
   }
   .tab {
     flex: 1;
