@@ -6,6 +6,7 @@ import { api, unwrap } from '../api/client'
 import { useAuthStore } from '../stores/auth'
 import { loadPlayerThemes } from '../lib/nameThemes'
 import NameTag from './NameTag.vue'
+import { headHtml } from '../lib/wikiMarkup'
 
 const route = useRoute()
 loadPlayerThemes()
@@ -29,13 +30,6 @@ watch(
   },
   { immediate: true }
 )
-
-/** Аватар Discord, если он есть; иначе первая буква ника. */
-const avatarUrl = computed(() => {
-  const hash = auth.discord?.discord_avatar
-  if (!hash || !auth.discord?.discord_id) return undefined
-  return `https://cdn.discordapp.com/avatars/${auth.discord.discord_id}/${hash}.png?size=64`
-})
 
 function startAuth() {
   const clientId = import.meta.env.VITE_DISCORD_CLIENT_ID || ''
@@ -87,10 +81,7 @@ function isActive(tab: { to: string; exact?: boolean }) {
           Войти
         </button>
         <router-link v-else to="/profile" class="me" :class="{ 'is-active': route.path === '/profile' }">
-          <span class="me-face">
-            <img v-if="avatarUrl" :src="avatarUrl" :alt="username" />
-            <template v-else>{{ username.charAt(0) }}</template>
-          </span>
+          <span class="me-head" v-html="headHtml(username, 32)"></span>
           <NameTag class="me-name" :name="username" />
         </router-link>
       </div>
@@ -134,38 +125,36 @@ function isActive(tab: { to: string; exact?: boolean }) {
 }
 .tabs {
   display: flex;
-  align-items: stretch;
-  gap: 4px;
+  align-items: center;
   flex: 1;
 }
+/* Вкладки как хотбар: ряд слотов, выбранный обведён белой рамкой. */
 .tab {
   position: relative;
   display: flex;
   align-items: center;
   gap: 8px;
+  height: 44px;
+  margin-left: -2px;
   padding: 0 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid var(--ink);
+  box-shadow: inset 2px 2px 0 rgba(0, 0, 0, 0.5), inset -2px -2px 0 rgba(255, 255, 255, 0.08);
   color: var(--text-muted);
+  font-size: 16px;
   font-weight: 600;
-  font-size:16px;
   text-decoration: none;
   white-space: nowrap;
 }
 .tab:hover {
   color: #fff;
-  background: var(--panel);
+  background: rgba(255, 255, 255, 0.12);
 }
 .tab.is-active {
+  z-index: 1;
   color: #fff;
-}
-.tab.is-active::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 6px;
-  background: var(--blue);
-  box-shadow: inset 0 3px 0 0 var(--blue-hi);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 0 0 2px var(--ink), 0 0 0 3px #e8e8e8, 0 0 0 5px var(--ink);
 }
 .tab:focus-visible,
 .me:focus-visible {
@@ -197,20 +186,10 @@ function isActive(tab: { to: string; exact?: boolean }) {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.me-face {
-  display: grid;
-  place-items: center;
+.me-head {
+  display: flex;
   flex: none;
-  width: 32px;
-  height: 32px;
-  overflow: hidden;
-  background: var(--blue-lo);
-}
-.me-face img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  image-rendering: pixelated;
+  box-shadow: 0 0 0 2px var(--ink);
 }
 
 /* Название и пять пунктов в ряд не влезают уже чем в 900 px. */
@@ -255,9 +234,12 @@ function isActive(tab: { to: string; exact?: boolean }) {
   .tab span {
     display: inline;
   }
-  .tab.is-active::after {
-    top: 0;
-    bottom: auto;
+  .tab {
+    height: 56px;
+    margin-left: 0;
+  }
+  .tab.is-active {
+    box-shadow: inset 0 0 0 3px #e8e8e8;
   }
 }
 </style>

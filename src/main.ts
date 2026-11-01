@@ -1,4 +1,5 @@
 import './assets/main.css'
+import './assets/wiki.css'
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'

@@ -33,6 +33,7 @@ html{
   --bg-card:var(--panel);--bg-card-hover:var(--panel-hi);--border-color:var(--line);
   background-color:var(--bg-page);
 }
+body{background:var(--bg-page) url(/images/ui/block-tile.png) 0 0/128px 128px;image-rendering:auto}
 html,body{margin:0;padding:0;width:100%;min-height:100vh;color:var(--text-main);font-family:'Noto Sans','Helvetica Neue',Arial,sans-serif;font-weight:400;font-size:16px;line-height:1.5}
 #app{width:100%;min-height:100vh;display:flex;flex-direction:column}
 .no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
@@ -40,7 +41,7 @@ html,body{margin:0;padding:0;width:100%;min-height:100vh;color:var(--text-main);
 
 /* Заголовки как на minecraft.net: Ten без теней. В шрифте 8 пикселей на кегль:
    чёткими выходят размеры, кратные 8. */
-h1,h2,h3,h4,.font-heading{font-family:'Minecraft Ten','Noto Sans',sans-serif;font-weight:400;letter-spacing:0}
+h1,h2,h3,h4,.font-heading{font-family:'Minecraft Ten','Noto Sans',sans-serif;font-weight:400;letter-spacing:0;text-shadow:2px 2px 0 rgba(0,0,0,.65)}
 .pixel-img{image-rendering:pixelated}
 
 /* Переход лесенкой нарисован в цветах обычной палитры, в теме игрока он не нужен. */
@@ -57,17 +58,20 @@ h1,h2,h3,h4,.font-heading{font-family:'Minecraft Ten','Noto Sans',sans-serif;fon
     border:2px solid var(--edge);
     box-shadow:var(--bevel,0 0 #0000);
   }
+  /* Панель как окно игры: срезанные пиксельные углы и объёмная кромка. */
   .mc-panel{
     @apply mc-box;
     background:var(--panel);
+    --edge:var(--ink);
+    --bevel:inset 2px 2px 0 0 rgba(255,255,255,.1),inset -2px -2px 0 0 rgba(0,0,0,.45);
+    clip-path:polygon(0 4px,4px 4px,4px 0,calc(100% - 4px) 0,calc(100% - 4px) 4px,100% 4px,100% calc(100% - 4px),calc(100% - 4px) calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,4px calc(100% - 4px),0 calc(100% - 4px));
   }
-  /* Утопленная ячейка: поле, слот инвентаря, квитанция. Тень сверху — как
-     у выпадающих списков на minecraft.net. */
+  /* Утопленная ячейка: поле, квитанция. Свет сверху слева наоборот, как в инвентаре. */
   .mc-well{
     @apply mc-box;
     background:var(--well);
-    --edge:var(--line);
-    --bevel:inset 0 6px 0 0 rgba(0,0,0,.3);
+    --edge:var(--ink);
+    --bevel:inset 2px 2px 0 0 rgba(0,0,0,.55),inset -2px -2px 0 0 rgba(255,255,255,.1);
   }
   .mc-slot{
     @apply mc-well;
@@ -160,3 +164,9 @@ h1,h2,h3,h4,.font-heading{font-family:'Minecraft Ten','Noto Sans',sans-serif;fon
   75%{box-shadow:16px 0 0 var(--blue-lo),16px 16px 0 var(--blue),0 16px 0 var(--sky);background:var(--blue)}
 }
 @media (prefers-reduced-motion:reduce){.mc-spinner{animation:none}}
+
+/* Полоса прокрутки и выделение как в игре. */
+html{scrollbar-color:#4a4a4a #0c0c0c}
+::-webkit-scrollbar{width:12px;height:12px}
+::-webkit-scrollbar-track{background:#0c0c0c}
+::-webkit-scrollbar-thumb{background:#4a4a4a;border:2px solid #0c0c0c;box-shadow:inset 2px 2px 0 #6b6b6b,inset -2px -2px 0 #2d2d2d}
