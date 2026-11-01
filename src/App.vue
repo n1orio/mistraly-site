@@ -27,9 +27,8 @@ const isAdminHost = location.hostname === 'admin.mistraly.net'
     <FireFooter v-if="route.path === '/' && !isAdminHost" />
 
     <footer v-else-if="!isAdminHost" class="site-foot relative z-[1] w-full mt-auto">
-      <div class="dither dither--void dither--up" style="transform:none" aria-hidden="true" />
       <div class="site-foot-in">
-        <div class="max-w-6xl mx-auto px-4 py-7 flex flex-col sm:flex-row items-center justify-between gap-4 text-[15px] text-[var(--text-muted)]">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-4 text-[15px] text-[var(--text-muted)]">
           <div>© Mistraly • Minecraft 26.3</div>
           <div class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
             <router-link to="/offer" class="foot-link">Оферта</router-link>
@@ -49,7 +48,9 @@ const isAdminHost = location.hostname === 'admin.mistraly.net'
 
 <style>
 .site-foot-in {
-  background: var(--bg-void);
+  margin-top: 16px;
+  background: linear-gradient(180deg, var(--head-c), var(--head-lo));
+  box-shadow: inset 0 2px 0 0 var(--blue);
 }
 .foot-link:hover {
   color: var(--sky);

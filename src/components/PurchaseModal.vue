@@ -81,7 +81,7 @@ const hints: Record<string, string> = {
     <X :size="24" />
   </button>
 
-  <div class="mc-panel p-6 sm:p-7 text-left max-h-[calc(100vh-40px)] overflow-y-auto">
+  <div class="mc-panel p-4 text-left max-h-[calc(100vh-40px)] overflow-y-auto">
     <div>
 
       <!-- ВЕРХНЯЯ СТРОКА: Статус и индикатор шагов -->
@@ -376,7 +376,7 @@ const hints: Record<string, string> = {
 }
 .modal-title {
   margin: 0 0 6px;
-  font-size: 24px;
+  font-size: 16px;
   line-height: 1.2;
 }
 .step-dot {

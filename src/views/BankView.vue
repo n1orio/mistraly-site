@@ -122,14 +122,14 @@ const KIND: Record<string, string> = { transfer: 'Перевод', pay_fine: 'О
 </script>
 
 <template>
-  <main class="w-full flex-1 text-[var(--text-main)] px-4 pt-12 pb-16">
+  <main class="w-full flex-1 text-[var(--text-main)] px-4 pt-6 pb-12">
     <div class="w-full max-w-5xl mx-auto">
       <div class="section-head">
         <h1 class="section-title bk-h1"><img src="/images/wiki/chat/bank.png" alt="" />Банк <span class="word-hl">сервера</span></h1>
         <p class="section-sub">Те же счета и штрафы, что в игре</p>
       </div>
 
-      <p v-if="problem" class="mc-panel p-6 text-center">{{ problem }}</p>
+      <p v-if="problem" class="mc-panel p-4 text-center">{{ problem }}</p>
 
       <template v-else-if="bank">
         <p v-if="bank.warns" class="bk-warn">
@@ -137,7 +137,7 @@ const KIND: Record<string, string> = { transfer: 'Перевод', pay_fine: 'О
         </p>
 
         <div class="bk-grid">
-          <section class="mc-panel p-5">
+          <section class="mc-panel p-4">
             <div class="bk-head">
               <h2 class="bk-title">Счета</h2>
               <span class="log-dim">Всего: {{ money(total) }}</span>
@@ -162,7 +162,7 @@ const KIND: Record<string, string> = { transfer: 'Перевод', pay_fine: 'О
             <p class="bk-dim">Счетов можно открыть: {{ bank.max_accounts }}. Пополнение и снятие только в банкомате.</p>
           </section>
 
-          <section class="mc-panel p-5">
+          <section class="mc-panel p-4">
             <h2 class="bk-title">Перевод</h2>
             <label class="bk-field">Со счёта
               <select v-model.number="fromId" class="mc-input">
@@ -192,7 +192,7 @@ const KIND: Record<string, string> = { transfer: 'Перевод', pay_fine: 'О
           </section>
         </div>
 
-        <section v-if="actions.length" class="mc-panel p-5 mt-6">
+        <section v-if="actions.length" class="mc-panel p-4 mt-3">
           <h2 class="bk-title">Операции с сайта</h2>
           <ul class="bk-actions">
             <li v-for="a in actions" :key="a.id">
@@ -203,7 +203,7 @@ const KIND: Record<string, string> = { transfer: 'Перевод', pay_fine: 'О
           </ul>
         </section>
 
-        <section class="mc-panel p-5 mt-6">
+        <section class="mc-panel p-4 mt-3">
           <h2 class="bk-title">Штрафы</h2>
           <p v-if="!bank.fines.length" class="bk-dim">Неоплаченных штрафов нет.</p>
           <div v-for="f in bank.fines" :key="f.id" class="bk-fine">
@@ -226,7 +226,7 @@ const KIND: Record<string, string> = { transfer: 'Перевод', pay_fine: 'О
           </template>
         </section>
 
-        <section v-if="selected" class="mc-panel p-5 mt-6">
+        <section v-if="selected" class="mc-panel p-4 mt-3">
           <h2 class="bk-title">История: {{ selected.name }}</h2>
           <p v-if="selected.co_owners.length" class="bk-dim">Совладельцы: {{ selected.co_owners.join(', ') }}</p>
           <p v-if="!selected.history.length" class="bk-dim">Операций пока нет.</p>
@@ -246,7 +246,7 @@ const KIND: Record<string, string> = { transfer: 'Перевод', pay_fine: 'О
           </div>
         </section>
 
-        <section v-if="bank.shops.length" class="mc-panel p-5 mt-6">
+        <section v-if="bank.shops.length" class="mc-panel p-4 mt-3">
           <h2 class="bk-title">Мои магазины</h2>
           <div class="art-table">
             <table>
@@ -296,7 +296,7 @@ const KIND: Record<string, string> = { transfer: 'Перевод', pay_fine: 'О
 }
 .bk-title {
   margin: 0 0 10px;
-  font-size: 24px;
+  font-size: 16px;
 }
 .bk-sub {
   margin: 14px 0 6px;

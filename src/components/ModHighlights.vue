@@ -29,15 +29,15 @@ const features = [
 </script>
 
 <template>
-  <section class="w-full max-w-5xl px-4 pt-16 pb-8">
+  <section class="w-full max-w-5xl px-4 pt-8 pb-2">
     <div class="section-head">
       <h2 class="section-title">Сердце <span class="word-hl">сервера</span></h2>
       <p class="section-sub">Ванилла, только лучше</p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
       <article v-for="item in features" :key="item.id" class="mod mc-panel">
-        <span class="mc-slot"><img :src="item.icon" alt="" class="w-12 h-12 [image-rendering:pixelated]" /></span>
+        <span class="mc-slot"><img :src="item.icon" alt="" class="w-8 h-8 [image-rendering:pixelated]" /></span>
         <div class="min-w-0">
           <h3 class="mod-title">{{ item.title }}</h3>
           <p class="mod-text">{{ item.description }}</p>
@@ -52,23 +52,21 @@ const features = [
 .mod {
   display: flex;
   align-items: flex-start;
-  gap: 18px;
-  padding: 20px;
+  gap: 12px;
+  padding: 12px;
 }
 .mod:hover {
   background: var(--panel-hi);
 }
-.mod .mc-slot {
-}
 .mod-title {
-  margin: 0 0 6px;
-  font-size: 24px;
+  margin: 0 0 2px;
+  font-size: 16px;
   line-height: 1.25;
 }
 .mod-text {
   margin: 0;
   color: var(--text-muted);
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1.45;
 }
 </style>

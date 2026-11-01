@@ -18,18 +18,19 @@
 
 /* =========================================================
    ПАЛИТРА
-   Нейтральный графит и один яркий синий акцент. Цвет не льём на фон:
-   он остаётся только на кнопках, активных вкладках и выделенных словах.
+   Цвета окон мода (NameTheme.DEFAULT) с синим акцентом: тёмный фон,
+   шапка градиентом, тонкая линия акцента под ней, плоские рамки.
    ========================================================= */
 html{
   color-scheme:dark;
-  --bg-page:#121212;--bg-void:#0C0C0C;
-  --panel:#1A1A1A;--panel-hi:#222223;--well:#141414;
-  --ink:#050505;--line:#3D3D3D;--edge-c:#2B2B2C;--head-c:#2D2D2E;
+  --bg-page:#101218;--bg-void:#0B0C10;
+  --panel:#181A20;--panel-hi:#20242E;--well:#14161C;
+  --ink:#08090C;--line:#4A5060;--edge-c:#3A4050;
+  --head-c:#2A3140;--head-lo:#1E222C;
   --blue:#186EF0;--blue-hi:#6FA3F2;--blue-lo:#1357BD;--blue-lip:#0E3F8A;
   --sky:#5C9DF5;
   --ok:#2BD948;--warn:#F2C037;--bad:#EB5A4E;
-  --text-main:#E1E5EB;--text-muted:#B3B3B3;--text-sub:#81868F;
+  --text-main:#E1E5EB;--text-muted:#A9AEB8;--text-sub:#7D828D;
   --bg-card:var(--panel);--bg-card-hover:var(--panel-hi);--border-color:var(--line);
   background-color:var(--bg-page);
 }
@@ -48,30 +49,23 @@ h1,h2,h3,h4,.font-heading{font-family:'Minecraft Ten','Noto Sans',sans-serif;fon
 .themed .dither{display:none}
 
 @layer components{
-  /* Блоки как на minecraft.net: прямые углы и сплошная рамка 2 px. */
+  /* Блоки как окна мода: плоская рамка, снаружи тёмная обводка. Без скоса и теней. */
   .mc-box{
     --edge:var(--edge-c);
     border:2px solid var(--edge);
-    box-shadow:var(--bevel,0 0 #0000);
   }
-  /* Панель как окно игры: срезанные пиксельные углы и объёмная кромка. */
   .mc-panel{
     @apply mc-box;
     background:var(--panel);
-    --edge:var(--ink);
-    --bevel:inset 2px 2px 0 0 rgba(255,255,255,.1),inset -2px -2px 0 0 rgba(0,0,0,.45);
-    clip-path:polygon(0 4px,4px 4px,4px 0,calc(100% - 4px) 0,calc(100% - 4px) 4px,100% 4px,100% calc(100% - 4px),calc(100% - 4px) calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,4px calc(100% - 4px),0 calc(100% - 4px));
+    box-shadow:0 0 0 2px var(--ink);
   }
-  /* Утопленная ячейка: поле, квитанция. Свет сверху слева наоборот, как в инвентаре. */
   .mc-well{
     @apply mc-box;
     background:var(--well);
-    --edge:var(--ink);
-    --bevel:inset 2px 2px 0 0 rgba(0,0,0,.55),inset -2px -2px 0 0 rgba(255,255,255,.1);
   }
   .mc-slot{
     @apply mc-well;
-    display:grid;place-items:center;flex:none;width:72px;height:72px;color:var(--sky);
+    display:grid;place-items:center;flex:none;width:52px;height:52px;color:var(--sky);
   }
 
   /* Кнопка как настоящая клавиша. Форма и полосы взяты у MC_Button_Hero с
@@ -80,10 +74,10 @@ h1,h2,h3,h4,.font-heading{font-family:'Minecraft Ten','Noto Sans',sans-serif;fon
      остаётся на месте, поэтому видно именно прожатие, а не сдвиг всей кнопки. */
   .mc-btn{
     --face:var(--blue);--top:var(--blue-hi);--lip:var(--blue-lo);--side:var(--blue-lip);--fg:#fff;
-    --inset:6px;--depth:6px;
+    --inset:3px;--depth:4px;
     position:relative;display:inline-flex;align-items:center;justify-content:center;gap:10px;
     margin-bottom:calc(var(--depth) + 2px);
-    padding:15px 28px;
+    padding:9px 20px;
     background:var(--face);color:var(--fg);
     border:2px solid var(--ink);border-radius:0;
     box-shadow:inset 0 calc(var(--inset)*-1) 0 var(--lip),inset 0 var(--inset) 0 var(--top),
@@ -91,8 +85,7 @@ h1,h2,h3,h4,.font-heading{font-family:'Minecraft Ten','Noto Sans',sans-serif;fon
     /* Отпускание чуть медленнее нажатия: клавиша вдавливается резко, а выходит мягко. */
     transition:transform .11s ease-out,box-shadow .11s ease-out;
     cursor:pointer;user-select:none;text-decoration:none;touch-action:manipulation;
-    font-family:'Noto Sans','Helvetica Neue',Arial,sans-serif;font-weight:800;font-size:18px;line-height:20px;
-    letter-spacing:.03em;text-transform:uppercase;
+    font-family:'Noto Sans','Helvetica Neue',Arial,sans-serif;font-weight:700;font-size:15px;line-height:20px;
   }
   /* Зона нажатия шире клавиши: иначе кнопка уезжала бы из-под курсора у нижнего
      края, и нажатие срывалось. */
@@ -111,16 +104,16 @@ h1,h2,h3,h4,.font-heading{font-family:'Minecraft Ten','Noto Sans',sans-serif;fon
   }
   .mc-btn:focus-visible{outline:2px solid #fff;outline-offset:2px}
   .mc-btn:disabled{cursor:not-allowed;opacity:.5}
-  .mc-btn--muted{--face:#2D2D2E;--top:#464747;--lip:#1E1E1F;--side:#121213;--fg:var(--text-main)}
+  .mc-btn--muted{--face:#2A3140;--top:#3A4356;--lip:#1E222C;--side:#14161C;--fg:var(--text-main)}
   .mc-btn--discord{--face:#5865F2;--top:#7E89F8;--lip:#3F4BC8;--side:#2B348F}
   .mc-btn--block{display:flex;width:100%}
-  .mc-btn--sm{--inset:4px;--depth:4px;padding:9px 16px;font-size:14px;line-height:18px}
-  .mc-btn--lg{--depth:8px;padding:20px 72px;font-size:22px;line-height:24px}
+  .mc-btn--sm{--inset:2px;--depth:3px;padding:5px 12px;font-size:13px;line-height:18px}
+  .mc-btn--lg{--inset:4px;--depth:6px;padding:12px 56px;font-size:18px;line-height:24px}
   @media (prefers-reduced-motion:reduce){.mc-btn{transition:none}}
 
   .mc-input{
     @apply mc-well;
-    display:block;width:100%;padding:12px 14px;
+    display:block;width:100%;padding:8px 10px;
     color:var(--text-main);font:inherit;border:0;outline:0;
   }
   .mc-input::placeholder{color:var(--text-sub)}
@@ -128,17 +121,23 @@ h1,h2,h3,h4,.font-heading{font-family:'Minecraft Ten','Noto Sans',sans-serif;fon
 
   /* Этикетка: тег рубрики, статус. */
   .mc-tag{
-    display:inline-flex;align-items:center;gap:6px;padding:3px 8px;background:var(--blue-lo);color:#fff;
-    font-weight:700;font-size:13px;line-height:1.2;letter-spacing:.06em;text-transform:uppercase;
+    display:inline-flex;align-items:center;gap:6px;padding:2px 6px;background:var(--blue-lo);color:#fff;
+    font-weight:700;font-size:12px;line-height:1.3;
   }
   .mc-tag--ok{background:#14632A}.mc-tag--warn{background:#7A5F12}.mc-tag--bad{background:#8A2A22}
-  .mc-tag--dim{background:#2D2D2E;color:var(--text-muted)}
+  .mc-tag--dim{background:var(--head-c);color:var(--text-muted)}
 
-  .section-head{text-align:center;margin-bottom:40px}
-  .section-title{font-size:24px;line-height:1.25;margin:0 0 6px;color:var(--text-main)}
-  .section-sub{margin:0;color:var(--text-muted);font-size:17px}
+  /* Заголовок раздела выглядит как шапка окна. */
+  .section-head{
+    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0 16px;
+    margin-bottom:12px;padding:6px 12px 8px;
+    border:2px solid var(--edge-c);box-shadow:0 0 0 2px var(--ink);
+    background:linear-gradient(180deg,var(--head-c),var(--head-lo));
+    border-bottom-color:var(--blue);
+  }
+  .section-title{font-size:16px;line-height:1.5;margin:0;color:#fff}
+  .section-sub{margin:0;color:var(--text-muted);font-size:14px}
   .word-hl{color:var(--sky)}
-  @media (min-width:640px){.section-title{font-size:32px}}
 
   .mc-link{color:var(--sky);text-decoration:underline;text-underline-offset:3px}
   .mc-link:hover{color:#fff}
@@ -161,8 +160,8 @@ h1,h2,h3,h4,.font-heading{font-family:'Minecraft Ten','Noto Sans',sans-serif;fon
 }
 @media (prefers-reduced-motion:reduce){.mc-spinner{animation:none}}
 
-/* Полоса прокрутки и выделение как в игре. */
-html{scrollbar-color:#4a4a4a #0c0c0c}
-::-webkit-scrollbar{width:12px;height:12px}
-::-webkit-scrollbar-track{background:#0c0c0c}
-::-webkit-scrollbar-thumb{background:#4a4a4a;border:2px solid #0c0c0c;box-shadow:inset 2px 2px 0 #6b6b6b,inset -2px -2px 0 #2d2d2d}
+/* Полоса прокрутки тонкая, как в списках мода. */
+html{scrollbar-color:#4a5060 #0b0c10}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:#0b0c10}
+::-webkit-scrollbar-thumb{background:#4a5060}

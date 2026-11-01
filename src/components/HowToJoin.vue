@@ -17,14 +17,13 @@ function login() {
 </script>
 
 <template>
-  <section id="stages" class="w-full max-w-5xl px-4 pt-4 pb-16 scroll-mt-20">
+  <section id="stages" class="w-full max-w-5xl px-4 pt-0 pb-10 scroll-mt-20">
     <ol class="steps">
       <li class="step mc-panel">
         <div class="step-top">
           <span class="mc-slot step-num">1</span>
           <div>
             <span class="mc-tag">Этап: вход</span>
-            <p class="step-kick">Первым делом</p>
           </div>
         </div>
         <h3 class="step-title">Привязка Discord</h3>
@@ -42,7 +41,6 @@ function login() {
           <span class="mc-slot step-num">2</span>
           <div>
             <span class="mc-tag">Этап: доступ</span>
-            <p class="step-kick">Билет на борт</p>
           </div>
         </div>
         <h3 class="step-title">Покупка проходки</h3>
@@ -55,7 +53,6 @@ function login() {
           <span class="mc-slot step-num">3</span>
           <div>
             <span class="mc-tag">Этап: в полёт</span>
-            <p class="step-kick">Финал подготовки</p>
           </div>
         </div>
         <h3 class="step-title">Mistraly Launcher</h3>
@@ -70,8 +67,8 @@ function login() {
 .steps {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 30px;
-  margin: 24px 0 0;
+  gap: 24px;
+  margin: 12px 0 0;
   padding: 0;
   list-style: none;
 }
@@ -79,45 +76,41 @@ function login() {
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: 20px;
+  padding: 12px;
 }
 /* Пунктир из блоков между этапами, как связи в дереве достижений. */
 .step:not(:last-child)::after {
   content: '';
   position: absolute;
-  top: 56px;
+  top: 34px;
   left: 100%;
-  width: 30px;
-  height: 6px;
-  margin-left: 3px;
-  background: repeating-linear-gradient(90deg, var(--sky) 0 6px, transparent 6px 12px);
+  width: 24px;
+  height: 4px;
+  margin-left: 2px;
+  background: repeating-linear-gradient(90deg, var(--sky) 0 4px, transparent 4px 8px);
 }
 .step-top {
   display: flex;
   align-items: center;
-  gap: 14px;
-  margin-bottom: 16px;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 .step-num {
   font-family: 'Minecraft Ten', 'Noto Sans', sans-serif;
-  font-size:32px;
+  width: 40px;
+  height: 40px;
+  font-size: 24px;
   color: var(--sky);
 }
-.step-kick {
-  margin: 6px 0 0;
-  color: var(--text-muted);
-  font-size: 15px;
-  line-height: 1.2;
-}
 .step-title {
-  margin: 0 0 8px;
-  font-size: 24px;
+  margin: 0 0 4px;
+  font-size: 16px;
 }
 .step-text {
   flex: 1;
-  margin: 0 0 16px;
+  margin: 0 0 12px;
   color: var(--text-muted);
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1.45;
 }
 .step .mc-btn {
@@ -129,11 +122,11 @@ function login() {
   }
   .step:not(:last-child)::after {
     top: 100%;
-    left: 46px;
-    width: 6px;
-    height: 30px;
-    margin: 3px 0 0;
-    background: repeating-linear-gradient(180deg, var(--sky) 0 6px, transparent 6px 12px);
+    left: 30px;
+    width: 4px;
+    height: 24px;
+    margin: 2px 0 0;
+    background: repeating-linear-gradient(180deg, var(--sky) 0 4px, transparent 4px 8px);
   }
 }
 </style>

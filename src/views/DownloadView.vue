@@ -5,7 +5,7 @@ import LauncherDownload from '../components/LauncherDownload.vue'
 <template>
   <!-- Отдельная страница загрузки. Раньше блок жил внизу главной, и кнопки
        «Скачать лаунчер» прокручивали к нему длинную страницу. -->
-  <main class="w-full flex-1 flex flex-col items-center justify-start text-[var(--text-main)] pt-14 sm:pt-20">
+  <main class="w-full flex-1 flex flex-col items-center justify-start text-[var(--text-main)] pt-6">
     <LauncherDownload />
   </main>
 </template>

@@ -25,17 +25,16 @@ function scrollToContent() {
       <p class="hero-lead">Ванилла плюс: привычный Minecraft с продуманными улучшениями, свой лаунчер и закрытое сообщество без гриферов и лишнего мусора.</p>
     </div>
 
-    <div class="dither dither--bar" aria-hidden="true" />
     <div class="bar">
       <div class="bar-in">
         <div class="bar-side">
-          <span class="mc-slot bar-slot"><Gamepad :size="24" /></span>
+          <span class="mc-slot bar-slot"><Gamepad :size="20" /></span>
           <div class="min-w-0">
             <div class="bar-title">Mistraly</div>
             <div class="bar-note">Minecraft 26.3 · NeoForge</div>
           </div>
         </div>
-        <button class="mc-btn mc-btn--lg bar-play" @click="scrollToContent">ИГРАТЬ</button>
+        <button class="mc-btn mc-btn--lg" @click="scrollToContent">ИГРАТЬ</button>
         <div class="bar-side bar-side--end">
           <router-link to="/download" class="mc-btn mc-btn--muted mc-btn--sm">
             <Download :size="24" />
@@ -48,8 +47,8 @@ function scrollToContent() {
 
   <ModHighlights />
   <FaqSection />
-  <section id="how-to-play" class="w-full max-w-5xl px-4 pt-8">
-    <div class="section-head" style="margin-bottom:8px">
+  <section id="how-to-play" class="w-full max-w-5xl px-4 pt-6">
+    <div class="section-head" style="margin-bottom:0">
       <h2 class="section-title">Но как <a href="#stages" class="word-hl" @click.prevent="scrollToContent">поиграть</a>-то?</h2>
       <p class="section-sub">3 телодвижения</p>
     </div>
@@ -64,14 +63,14 @@ function scrollToContent() {
   display: flex;
   flex-direction: column;
   width: 100%;
-  min-height: calc(100vh - 64px);
+  min-height: min(620px, calc(100vh - 48px));
   overflow: hidden;
 }
 .hero-art {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(18, 18, 18, 0.45) 0%, rgba(18, 18, 18, 0.2) 45%, rgba(18, 18, 18, 0.6) 100%),
+    linear-gradient(180deg, rgba(16, 18, 24, 0.45) 0%, rgba(16, 18, 24, 0.2) 45%, rgba(16, 18, 24, 0.7) 100%),
     url(/images/shots/lake.webp) center 35% / cover no-repeat;
 }
 .hero-in {
@@ -87,33 +86,26 @@ function scrollToContent() {
 /* Размеры кратны 8, иначе пиксели шрифта станут разной ширины. Тень нужна
    только для читаемости на светлом небе. */
 .hero-title {
-  margin: 0 0 24px;
+  margin: 0 0 16px;
   color: #fff;
-  font-size: 120px;
+  font-size: 80px;
   line-height: 1;
   text-shadow: 0 6px 0 rgba(5, 5, 5, 0.6);
 }
 .hero-lead {
   max-width: 620px;
   margin: 0;
-  padding: 8px 16px;
-  background: rgba(12, 12, 12, 0.72);
+  padding: 6px 12px;
+  background: rgba(8, 9, 12, 0.72);
   color: #fff;
-  font-size: 19px;
+  font-size: 16px;
   line-height: 1.45;
 }
 
-.dither--bar {
-  position: relative;
-  flex: none;
-  height: 32px;
-  background-image: url(/images/ui/dither-panel.png);
-  background-size: 16px 32px;
-}
 .bar {
   position: relative;
-  background: var(--panel);
-  box-shadow: 0 3px 0 0 var(--ink);
+  background: linear-gradient(180deg, var(--head-c), var(--head-lo));
+  box-shadow: inset 0 2px 0 0 var(--blue), 0 2px 0 0 var(--ink);
 }
 .bar-in {
   display: grid;
@@ -122,10 +114,7 @@ function scrollToContent() {
   gap: 24px;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 16px 12px;
-}
-.bar-play {
-  margin-top: -14px;
+  padding: 12px 16px;
 }
 .bar-side {
   display: flex;
@@ -137,34 +126,26 @@ function scrollToContent() {
   justify-content: flex-end;
 }
 .bar-slot {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
 }
 .bar-title {
   font-family: 'Noto Sans', 'Helvetica Neue', Arial, sans-serif;
   font-weight: 700;
-  font-size:16px;
+  font-size: 15px;
   line-height: 1.2;
 }
 .bar-note {
   color: var(--text-muted);
-  font-size: 15px;
+  font-size: 13px;
 }
 
-@media (max-width: 860px) {
-  .hero-title {
-    font-size: 80px;
-  }
-}
 @media (max-width: 640px) {
   .hero {
-    min-height: calc(100vh - 56px - 64px);
+    min-height: calc(100vh - 48px - 56px);
   }
   .hero-title {
     font-size: 48px;
-  }
-  .hero-lead {
-    font-size: 17px;
   }
   .bar-in {
     grid-template-columns: 1fr;
@@ -172,7 +153,7 @@ function scrollToContent() {
     gap: 12px;
     text-align: center;
   }
-  .bar-play {
+  .bar-in > .mc-btn {
     order: -1;
     width: 100%;
     padding-left: 12px;

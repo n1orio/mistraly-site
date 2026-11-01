@@ -100,15 +100,15 @@ function isActive(tab: { to: string; exact?: boolean }) {
   top: 0;
   z-index: 50;
   width: 100%;
-  background: var(--bg-void);
-  box-shadow: inset 0 -2px 0 0 var(--edge-c);
+  background: linear-gradient(180deg, var(--head-c), var(--head-lo));
+  box-shadow: inset 0 -2px 0 0 var(--blue), 0 2px 0 0 var(--ink);
 }
 .top-in {
   display: flex;
   align-items: stretch;
-  gap: 28px;
+  gap: 24px;
   max-width: 1200px;
-  height: 64px;
+  height: 48px;
   margin: 0 auto;
   padding: 0 16px;
 }
@@ -119,13 +119,13 @@ function isActive(tab: { to: string; exact?: boolean }) {
   gap: 10px;
   color: #fff;
   font-family: 'Minecraft Ten', 'Noto Sans', sans-serif;
-  font-size: 24px;
+  font-size: 16px;
   text-decoration: none;
 }
 .brand-icon {
   /* Рисунок 16×16: только целый масштаб и без сглаживания. */
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
   image-rendering: pixelated;
 }
 .tabs {
@@ -139,32 +139,31 @@ function isActive(tab: { to: string; exact?: boolean }) {
   display: flex;
   align-items: center;
   gap: 8px;
-  height: 44px;
+  height: 32px;
   margin-left: -2px;
-  padding: 0 14px;
-  background: rgba(255, 255, 255, 0.05);
+  padding: 0 10px;
+  background: rgba(8, 9, 12, 0.4);
   border: 2px solid var(--ink);
-  box-shadow: inset 2px 2px 0 rgba(0, 0, 0, 0.5), inset -2px -2px 0 rgba(255, 255, 255, 0.08);
   color: var(--text-muted);
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
 }
 .tab-img {
-  width: 24px;
-  height: 24px;
+  width: 16px;
+  height: 16px;
   image-rendering: pixelated;
 }
 .tab:hover {
   color: #fff;
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.08);
 }
 .tab.is-active {
   z-index: 1;
   color: #fff;
-  background: rgba(255, 255, 255, 0.08);
-  box-shadow: inset 0 0 0 2px var(--ink), 0 0 0 3px #e8e8e8, 0 0 0 5px var(--ink);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 2px #e8e8e8, 0 0 0 4px var(--ink);
 }
 .tab:focus-visible,
 .me:focus-visible {
@@ -181,10 +180,10 @@ function isActive(tab: { to: string; exact?: boolean }) {
   align-items: center;
   gap: 10px;
   max-width: 200px;
-  padding: 6px 10px;
+  padding: 4px 8px;
   color: var(--text-main);
   font-weight: 600;
-  font-size:16px;
+  font-size: 14px;
   text-decoration: none;
 }
 .me:hover,
@@ -216,7 +215,7 @@ function isActive(tab: { to: string; exact?: boolean }) {
 @media (max-width: 640px) {
   .top-in {
     justify-content: space-between;
-    height: 56px;
+    height: 48px;
   }
   .me-name {
     max-width: 120px;
@@ -228,9 +227,9 @@ function isActive(tab: { to: string; exact?: boolean }) {
     bottom: 0;
     z-index: 50;
     gap: 0;
-    height: 64px;
-    background: var(--bg-void);
-    box-shadow: inset 0 2px 0 0 var(--edge-c);
+    height: 56px;
+    background: var(--head-lo);
+    box-shadow: inset 0 2px 0 0 var(--blue);
   }
   .tab {
     flex: 1;
@@ -245,7 +244,8 @@ function isActive(tab: { to: string; exact?: boolean }) {
     display: inline;
   }
   .tab {
-    height: 56px;
+    height: 54px;
+    margin-top: 2px;
     margin-left: 0;
   }
   .tab.is-active {

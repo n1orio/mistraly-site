@@ -138,7 +138,7 @@ const updated = computed(() => {
   display: flex;
   align-items: center;
   margin: 0 0 4px;
-  font-size: 24px;
+  font-size: 16px;
   line-height: 1.2;
 }
 .gp-h {

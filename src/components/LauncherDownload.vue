@@ -147,13 +147,13 @@ const features = [
 </script>
 
 <template>
-  <section id="launcher" class="w-full max-w-5xl mx-auto px-4 pt-10 pb-24 scroll-mt-24">
+  <section id="launcher" class="w-full max-w-5xl mx-auto px-4 pt-0 pb-12 scroll-mt-24">
     <div class="section-head">
       <h2 class="section-title">Скачать <span class="word-hl">лаунчер</span></h2>
       <p class="section-sub">Один файл — и больше ничего ставить не нужно</p>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-stretch">
       <!-- Загрузка -->
       <div class="lg:col-span-6">
         <div class="dl-card mc-panel h-full">
@@ -292,7 +292,7 @@ const features = [
   color: #fff;
 }
 .fp-card {
-  padding: 24px;
+  padding: 14px;
 }
 .fp-card code {
   font-family: ui-monospace, 'JetBrains Mono', monospace;

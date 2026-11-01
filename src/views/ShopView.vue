@@ -114,7 +114,7 @@ function handlePassClick() {
 </script>
 
 <template>
-  <main class="w-full flex-1 flex flex-col items-center justify-start text-[var(--text-main)] px-4 pt-14 pb-16 sm:pt-20 sm:pb-20">
+  <main class="w-full flex-1 flex flex-col items-center justify-start text-[var(--text-main)] px-4 pt-6 pb-12">
     <div class="w-full max-w-5xl">
       <div class="section-head">
         <h1 class="section-title">Магазин <span class="word-hl">сервера</span></h1>
@@ -202,7 +202,7 @@ function handlePassClick() {
 }
 .item-price {
   font-family: 'Minecraft Ten', 'Noto Sans', sans-serif;
-  font-size: 24px;
+  font-size: 16px;
   color: var(--sky);
 }
 .item-text {
@@ -249,7 +249,7 @@ function handlePassClick() {
 }
 .pass-title {
   margin: 0 0 8px;
-  font-size: 24px;
+  font-size: 16px;
   line-height: 1.25;
 }
 .pass-text {
@@ -260,7 +260,7 @@ function handlePassClick() {
 .pass-price {
   margin-bottom: 16px;
   font-family: 'Minecraft Ten', 'Noto Sans', sans-serif;
-  font-size: 32px;
+  font-size: 24px;
   color: var(--sky);
 }
 </style>

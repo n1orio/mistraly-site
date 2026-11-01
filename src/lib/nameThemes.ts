@@ -60,6 +60,7 @@ const PAGE_VARS = (t: NameTheme): Record<string, string> => ({
   '--line': t.line,
   '--edge-c': t.line,
   '--head-c': t.top,
+  '--head-lo': t.bottom,
   '--sky': t.heading,
   '--blue': t.border,
   '--blue-hi': t.accent,

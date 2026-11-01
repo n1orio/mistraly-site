@@ -40,8 +40,9 @@
 }
 .portlet-title {
   margin-bottom: 4px;
-  padding: 5px 10px;
-  background: var(--head-c);
+  padding: 4px 10px 6px;
+  background: linear-gradient(180deg, var(--head-c), var(--head-lo));
+  box-shadow: inset 0 -2px 0 0 var(--blue);
   color: #fff;
   font-weight: 700;
   font-size: 13px;
@@ -110,7 +111,7 @@
 }
 .wiki-tabs a {
   padding: 8px 16px;
-  background: #1e1e1f;
+  background: var(--head-lo);
   color: var(--sky);
   font-weight: 700;
   font-size: 13px;
@@ -121,7 +122,7 @@
 }
 .wiki-tabs a.is-on {
   background: var(--panel);
-  box-shadow: inset 0 3px 0 var(--blue);
+  box-shadow: inset 0 -2px 0 var(--blue);
   color: #fff;
 }
 .wiki-search {
@@ -199,8 +200,6 @@
 }
 .wiki-content {
   background: var(--panel);
-  border: 2px solid var(--edge-c);
-  border-top: 4px solid #3d3d3d;
 }
 .wiki-sheet {
   padding: 18px 24px 22px;
@@ -220,9 +219,9 @@
 }
 .wiki-title {
   margin: 0 0 12px;
-  padding-bottom: 6px;
-  border-bottom: 2px solid var(--line);
-  font-size: 32px;
+  padding-bottom: 4px;
+  border-bottom: 2px solid var(--edge-c);
+  font-size: 24px;
   line-height: 1.2;
 }
 .wiki-lead {
@@ -443,10 +442,10 @@
   border-color: var(--ok);
 }
 .art-h2 {
-  margin: 22px 0 10px;
-  padding-bottom: 4px;
-  border-bottom: 2px solid var(--line);
-  font-size: 24px;
+  margin: 20px 0 8px;
+  padding-bottom: 2px;
+  border-bottom: 2px solid var(--edge-c);
+  font-size: 16px;
   line-height: 1.25;
 }
 .art-h3 {
@@ -1047,17 +1046,17 @@ a.art-author:hover {
   margin: 0 2px;
 }
 
-.wiki-content {
-  background: var(--panel);
-  border: 2px solid var(--ink);
-  box-shadow: inset 2px 2px 0 rgba(255, 255, 255, 0.08), inset -2px -2px 0 rgba(0, 0, 0, 0.45);
-}
+.wiki-content,
 .portlet {
-  border: 2px solid var(--ink);
-  box-shadow: inset 2px 2px 0 rgba(255, 255, 255, 0.08), inset -2px -2px 0 rgba(0, 0, 0, 0.45);
+  border: 2px solid var(--edge-c);
+  box-shadow: 0 0 0 2px var(--ink);
 }
 .art-card {
-  background: rgba(0, 0, 0, 0.3);
-  border: 2px solid var(--ink);
-  border-left: 6px solid var(--blue);
+  background: var(--panel-hi);
+  border: 2px solid var(--edge-c);
+  border-left: 4px solid var(--blue);
+}
+
+.art-ul .log-dim {
+  margin-left: 6px;
 }

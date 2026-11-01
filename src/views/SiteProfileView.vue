@@ -154,7 +154,7 @@ function statusBadge(status: string) {
 </script>
 
 <template>
-  <main class="w-full flex-1 flex flex-col items-center text-[var(--text-main)] px-4 pt-8 pb-16">
+  <main class="w-full flex-1 flex flex-col items-center text-[var(--text-main)] px-4 pt-6 pb-12">
     <div class="w-full max-w-6xl">
       <PlayerProfile v-if="game" :name="game.name" :data="game.data" :updated="game.updated_at" own>
         <template #actions>
@@ -163,9 +163,9 @@ function statusBadge(status: string) {
             <span>Выйти</span>
           </button>
         </template>
-        <div class="grid grid-cols-1 xl:grid-cols-2 gap-5 items-stretch">
-          <div class="flex flex-col gap-5 min-w-0">
-            <div class="mc-panel p-5">
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-3 items-stretch">
+          <div class="flex flex-col gap-3 min-w-0">
+            <div class="mc-panel p-4">
           <div class="flex justify-between items-center mb-2">
             <span class="font-bold text-[17px]">3D скин игрока</span>
             <span class="text-[14px] text-[var(--text-sub)]">Вращайте мышью</span>
@@ -203,9 +203,9 @@ function statusBadge(status: string) {
           </div>
             </div>
             <!-- Журнал покупок: забирает остаток высоты колонки -->
-          <section class="mc-panel p-6 flex-1">
+          <section class="mc-panel p-4 flex-1">
             <div class="flex items-center justify-between mb-4">
-              <h2 class="sub-title !text-[24px]">Журнал покупок</h2>
+              <h2 class="sub-title ">Журнал покупок</h2>
               <router-link to="/shop" class="mc-link inline-flex items-center gap-1">Магазин</router-link>
             </div>
 
@@ -238,7 +238,7 @@ function statusBadge(status: string) {
             <span>Выйти</span>
           </button>
         </div>
-        <section class="mc-panel p-6 max-w-xl">
+        <section class="mc-panel p-4 max-w-xl">
           <p class="m-0 mb-4 text-[var(--text-muted)]">Профиль появится после первого входа на сервер.</p>
           <button v-if="!hasPass" class="mc-btn" @click="buyPass">Купить Mistraly Pass →</button>
         </section>
@@ -250,7 +250,7 @@ function statusBadge(status: string) {
 <style scoped>
 .sub-title {
   margin: 0;
-  font-size: 24px;
+  font-size: 16px;
   line-height: 1.2;
 }
 .file {

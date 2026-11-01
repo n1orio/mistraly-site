@@ -108,7 +108,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <main class="w-full flex-1 flex flex-col items-center justify-start text-[var(--text-main)] px-4 sm:px-6 lg:px-8 pt-14 pb-20 sm:pt-20">
+  <main class="w-full flex-1 flex flex-col items-center justify-start text-[var(--text-main)] px-4 sm:px-6 lg:px-8 pt-6 pb-12">
     <div class="w-full max-w-[1400px]">
       <div class="section-head">
         <h1 class="section-title">Свод <span class="word-hl">правил</span></h1>
@@ -116,7 +116,7 @@ onUnmounted(() => {
       </div>
 
       <!-- Глобальный поиск -->
-      <div class="relative w-full max-w-2xl mx-auto mb-10">
+      <div class="relative w-full max-w-2xl mx-auto mb-3">
         <label class="search mc-input">
           <Search :size="24" class="shrink-0 text-[var(--sky)]" />
           <input
@@ -150,7 +150,7 @@ onUnmounted(() => {
       </div>
 
       <!-- Три колонки: боковые равной ширины держат ленту правил по центру экрана -->
-      <div class="w-full flex justify-center items-start gap-8 relative">
+      <div class="w-full flex justify-center items-start gap-3 relative">
         <aside class="hidden xl:flex flex-col gap-2 w-64 shrink-0 sticky top-24">
           <div class="side-head">Разделы кодекса</div>
           <button v-for="chap in rulesData" :key="chap.id" type="button" class="toc" @click="scrollTo(chap.id)">
@@ -159,7 +159,7 @@ onUnmounted(() => {
           </button>
         </aside>
 
-        <div class="w-full max-w-3xl flex-1 flex flex-col gap-8 min-w-0">
+        <div class="w-full max-w-3xl flex-1 flex flex-col gap-3 min-w-0">
           <section v-for="chap in rulesData" :id="chap.id" :key="chap.id" class="chapter mc-panel scroll-mt-24">
             <header class="chapter-head">
               <span class="mc-slot chapter-icon"><component :is="chap.icon" :size="24" /></span>
@@ -341,7 +341,7 @@ onUnmounted(() => {
   flex: 1;
   min-width: 0;
   margin: 0;
-  font-size: 24px;
+  font-size: 16px;
   line-height: 1.2;
 }
 @media (max-width: 640px) {
@@ -349,7 +349,7 @@ onUnmounted(() => {
     padding: 14px;
   }
   .chapter-title {
-    font-size: 24px;
+    font-size: 16px;
   }
 }
 .rule {

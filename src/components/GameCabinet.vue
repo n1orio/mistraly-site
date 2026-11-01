@@ -125,7 +125,7 @@ const rows = computed(() => SETTINGS[settingsTab.value])
 </script>
 
 <template>
-  <section class="mc-panel p-5">
+  <section class="mc-panel p-4">
     <p v-if="empty" class="gc-note">{{ empty }}</p>
     <template v-else-if="prefs">
       <h2 class="gc-title">Личный кабинет</h2>
@@ -200,7 +200,7 @@ const rows = computed(() => SETTINGS[settingsTab.value])
 <style scoped>
 .gc-title {
   margin: 0 0 8px;
-  font-size: 24px;
+  font-size: 16px;
 }
 .gc-title--next {
   margin-top: 22px;

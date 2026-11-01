@@ -107,15 +107,15 @@ const content = computed(() => selected.value.content ?? [])
 </script>
 
 <template>
-  <section id="faq" class="w-full max-w-5xl mx-auto px-4 py-8">
+  <section id="faq" class="w-full max-w-5xl mx-auto px-4 py-6">
     <div class="section-head">
       <h2 class="section-title">Частые <span class="word-hl">вопросы</span></h2>
       <p class="section-sub">Поможем разобраться</p>
     </div>
 
-    <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+    <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-3 items-start">
       <!-- Слева темы, как список установок в лаунчере -->
-      <div class="lg:col-span-5 flex flex-col gap-3">
+      <div class="lg:col-span-5 flex flex-col gap-1">
         <button
           v-for="(item, idx) in faqs"
           :key="item.id"
@@ -125,7 +125,7 @@ const content = computed(() => selected.value.content ?? [])
           :class="{ 'is-active': selectedIndex === idx }"
           @click="select(idx)"
         >
-          <span class="q-icon"><component :is="item.icon" :size="24" /></span>
+          <span class="q-icon"><component :is="item.icon" :size="20" /></span>
           <span class="min-w-0">
             <span class="q-tag">{{ item.tag }}</span>
             <span class="q-title">{{ item.menuTitle }}</span>
@@ -140,7 +140,7 @@ const content = computed(() => selected.value.content ?? [])
           <p v-if="selected.desc" class="answer-text">{{ selected.desc }}</p>
 
           <!-- Системные требования -->
-          <div v-if="selected.isSpecs && specs" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+          <div v-if="selected.isSpecs && specs" class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
             <div v-for="tier in [specs.min, specs.rec]" :key="tier.title" class="spec mc-well">
               <span class="spec-title">{{ tier.title }}</span>
               <ul>
@@ -165,15 +165,13 @@ const content = computed(() => selected.value.content ?? [])
 
 <style scoped>
 .q {
-  /* Список тянется на высоту ответа, поэтому рядом с ним нет пустоты. */
-  flex: 1;
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 10px 14px;
+  gap: 10px;
+  padding: 6px 10px;
   background: var(--panel);
   color: var(--text-main);
-  border: 2px solid var(--ink);
+  border: 2px solid var(--edge-c);
   text-align: left;
   cursor: pointer;
 }
@@ -184,8 +182,9 @@ const content = computed(() => selected.value.content ?? [])
   background: var(--panel-hi);
 }
 .q.is-active {
-  background: var(--blue);
-  box-shadow: inset 6px 0 0 0 var(--sky);
+  background: var(--panel-hi);
+  box-shadow: inset 4px 0 0 0 var(--blue);
+  padding-left: 14px;
 }
 .q:focus-visible {
   outline: 3px solid #fff;
@@ -195,8 +194,8 @@ const content = computed(() => selected.value.content ?? [])
   display: grid;
   place-items: center;
   flex: none;
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   background: var(--well);
   color: var(--sky);
 }
@@ -204,37 +203,33 @@ const content = computed(() => selected.value.content ?? [])
   display: block;
   color: var(--sky);
   font-weight: 700;
-  font-size: 12px;
-  letter-spacing: 0.08em;
-}
-.q.is-active .q-tag {
-  color: #fff;
+  font-size: 11px;
 }
 .q-title {
   font-family: 'Noto Sans', 'Helvetica Neue', Arial, sans-serif;
   font-weight: 700;
   display: block;
-  font-size:16px;
+  font-size: 14px;
   line-height: 1.25;
 }
 
 .answer {
-  height: 100%;
-  padding: 24px;
+  padding: 14px;
 }
 .answer-title {
-  margin: 14px 0 10px;
-  font-size: 24px;
+  margin: 8px 0 6px;
+  font-size: 16px;
   line-height: 1.3;
 }
 .answer-text {
   margin: 0 0 10px;
   color: var(--text-muted);
+  font-size: 14px;
   line-height: 1.5;
 }
 .spec {
-  padding: 14px;
-  font-size: 15px;
+  padding: 10px;
+  font-size: 14px;
   color: var(--text-muted);
 }
 .spec-title {
@@ -257,8 +252,8 @@ const content = computed(() => selected.value.content ?? [])
 .spec p {
   margin: 0;
   padding-top: 8px;
-  border-top: 3px solid var(--panel);
-  font-size: 14px;
+  border-top: 2px solid var(--edge-c);
+  font-size: 13px;
   line-height: 1.35;
 }
 </style>
