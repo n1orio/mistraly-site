@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
-"""Собирает вики сайта из исходников мода Mistraly.
+"""Собирает базовые статьи вики из исходников мода Mistraly.
 
     python3 scripts/gen-wiki.py /home/nio/mistraly-season-2/mistraly
 
 Тексты механик берутся из внутриигровой вики (mistraly.wiki.*.text в ru_ru.json),
-названия, рецепты и текстуры — оттуда же, поэтому цифры на сайте совпадают с игрой.
+названия, рецепты и текстуры — оттуда же, поэтому цифры совпадают с игрой.
 Страницы про предметы написаны здесь в том же формате, что и игровые:
-    # заголовок        • пункт списка        > подсказка
-    @ a > b*6 + c      цепочка предметов     R id   рецепт    I a b c   ряд предметов
-    T шапка | шапка    таблица (строки тоже начинаются с T)
-На выходе src/data/wiki-data.json и картинки в public/images/wiki.
+    # заголовок    • пункт списка    > подсказка    @ a > b*6 + c  цепочка
+    R id  рецепт   I a b c  ряд предметов   T a | b  таблица
+Всё это переводится в разметку вики (см. статью «Форматирование»), и на выходе
+получаются src/data/wiki-data.json и картинки в public/images/wiki.
+Правки игроков живут в базе бэкенда и поверх этих статей, пересборка их не трогает.
 """
 import glob
-import html
 import json
 import os
 import re
@@ -123,96 +123,39 @@ GROUPS = [
     ('Блоки', 'atm', 'atm shop'),
 ]
 
-items_used = set()
+def inline(text):
+    """§-разметку игры в разметку вики."""
+    text = re.sub(r'§[0-9a-f](.*?)§r', r'==\1==', text.replace('%%', '%'))
+    return re.sub(r'(^|\s)!(?=\w)', r'\1\\!', text)
 
 
-def item(i):
-    items_used.add(i)
-    return {'id': i, 'name': name(i), 'icon': icons.get(i), 'page': PAGE_OF.get(i)}
-
-
-# Ссылки в тексте: первое упоминание на странице ведёт на статью о нём.
-LINKS = [
-    (r'[Бб]анкомат\w*', 'atm'), (r'[Сс]овладельц\w*', 'co-owners'), (r'[Шш]траф\w*', 'fines'),
-    (r'[Мм]агазин\w*', 'shops'), (r'[Рр]ын[оа]к\w*', 'shops'), (r'[Мм]огил\w*', 'death'),
-    (r'[Тт]очил\w*', 'ores'), (r'[Лл]ичн\w+ кабинет\w*', 'cabinet'), (r'[Нн]астройк\w*', 'settings'),
-    (r'[Пп]ерево[дв]\w*', 'transfers'), (r'\bPlus\b', 'plus'), (r'[Мм]ист\w*', 'mist'), (r'[Пп]рофил\w*', 'profile'),
-    (r'[Дд]остижени\w*', 'achievements'), (r'[Аа]ртефакт\w*', 'death'),
-]
-COLORS = {'b': 'hl', '6': 'gold', 'c': 'bad', 'a': 'good', '9': 'hl', 'f': 'plain'}
-
-
-def inline(text, seen, own):
-    """§-разметку игры в HTML. Текст экранируется, ссылки только на свои статьи."""
-    out, cls = [], None
-    for chunk in re.split(r'(§.)', text.replace('%%', '%')):
-        if chunk.startswith('§'):
-            c = chunk[1]
-            cls = None if c == 'r' else COLORS.get(c)
-            continue
-        if not chunk:
-            continue
-        piece = html.escape(chunk)
-        for pat, slug in LINKS:
-            if slug == own or slug in seen:
-                continue
-            m = re.search(rf'(?<![\w/"=]){pat}', piece)
-            if m:
-                seen.add(slug)
-                piece = f'{piece[:m.start()]}<a href="/wiki/{slug}" data-wiki>{m.group(0)}</a>{piece[m.end():]}'
-                break
-        out.append(f'<span class="w-{cls}">{piece}</span>' if cls else piece)
-    return ''.join(out)
-
-
-def flow_step(s):
-    s = s.strip()
-    count = 1
-    if '*' in s:
-        s, c = s.split('*')
-        count = int(c)
-    return {**item(s), 'count': count}
-
-
-def parse(text, own):
-    blocks, seen, used = [], set(), {}
+def to_markup(text):
+    out, in_table = [], False
     for raw in text.replace('\r', '').split('\n'):
         line = raw.strip()
+        table = line.startswith('T ')
+        if in_table and not table:
+            out.append('')
+        in_table = table
         if not line:
             continue
         if line.startswith('# '):
-            title = line[2:]
-            sid = f's{len([b for b in blocks if b["t"] == "h"]) + 1}'
-            blocks.append({'t': 'h', 'text': title, 'id': sid})
+            out += ['', line, '']
         elif line.startswith('• '):
-            if not blocks or blocks[-1]['t'] != 'ul':
-                blocks.append({'t': 'ul', 'items': []})
-            blocks[-1]['items'].append(inline(line[2:], seen, own))
+            out.append('- ' + inline(line[2:]))
         elif line.startswith('> '):
-            blocks.append({'t': 'tip', 'html': inline(line[2:], seen, own)})
+            out += ['', '> ' + inline(line[2:]), '']
         elif line.startswith('@ '):
-            stages = [[flow_step(x) for x in part.split('+')] for part in line[2:].split('>')]
-            blocks.append({'t': 'flow', 'stages': stages})
+            out += ['', f'<flow/{line[2:]}>', '']
         elif line.startswith('R '):
-            rid = line[2:].strip()
-            for r in recipes.get(rid, []):
-                if id(r) in used:
-                    continue
-                used[id(r)] = True
-                blocks.append({'t': 'recipe', 'kind': r['kind'],
-                               'slots': [item(x) if x else None for x in r['slots']],
-                               'result': {**item(r['result']['id']), 'count': r['result']['count']}})
+            out.append(f'<recipes/{line[2:].strip()}>')
         elif line.startswith('I '):
-            blocks.append({'t': 'items', 'items': [item(x) for x in line[2:].split()]})
-        elif line.startswith('T '):
-            row = [c.strip() for c in line[2:].split('|')]
-            if not blocks or blocks[-1]['t'] != 'table':
-                blocks.append({'t': 'table', 'head': row, 'rows': []})
-            else:
-                blocks[-1]['rows'].append(row)
+            out.append(f'<items/{line[2:].strip()}>')
+        elif table:
+            out.append('| ' + line[2:].strip() + ' |')
         else:
-            blocks.append({'t': 'p', 'html': inline(line, seen, own)})
-    return blocks
+            out += ['', inline(line), '']
+    return re.sub(r'\n{3,}', '\n\n', '\n'.join(out)).strip()
 
 
 def game(key):
@@ -261,6 +204,24 @@ T R на предмете | Показывает рецепт
 T U на предмете | Показывает, где используется предмет
 T L | Открывает меню достижений
 T Shift+ПКМ по игроку | Открывает его профиль
+'''),
+    dict(slug='punishments', title='Система наказаний', cat='Основы', icon=None,
+         lead='За нарушение правил администрация выдаёт предупреждения, мьюты и баны. Предупреждения копятся, и третье подряд приводит к бану.',
+         info=[('Варн держится', '1 месяц'), ('3 варна', 'бан на неделю'), ('После бана', 'варны сбрасываются')],
+         see=['fines', 'chat'],
+         text='''# Варны
+Варн — это предупреждение за нарушение правил.
+• Варн держится §b1 месяц§r, потом снимается сам.
+• §c3 варна§r — бан на неделю.
+• После бана варны сбрасываются.
+# Другие наказания
+T Наказание | Что значит
+T Варн | Предупреждение, держится 1 месяц
+T Мьют | Запрет писать в чат
+T Штраф | Оплата мистами в Банке
+T Бан | Запрет заходить на сервер
+Какое наказание выдать и на какой срок, решает администрация. Список нарушений есть в [правилах](/rules).
+> Не согласны с наказанием? Откройте тикет в Discord.
 '''),
     dict(slug='settings', title='Настройки', cat='Основы', icon=None,
          lead='Настройки открываются кнопкой над инвентарём. Здесь выбирают, какие уведомления получать и кто может писать в личные сообщения.',
@@ -465,24 +426,36 @@ CAT_TEXT = {
     'Снаряжение': 'Костяные и мясные инструменты, броня и ножи.',
 }
 
+FORMATTING = open('scripts/wiki-formatting.md', encoding='utf-8').read().strip()
+
 pages = []
 for p in PAGES:
-    blocks = parse(p['text'], p['slug'])
-    plain = re.sub(r'<[^>]+>', ' ', ' '.join(
-        b.get('text') or b.get('html') or ' '.join(b.get('items', []) if b['t'] == 'ul' else []) for b in blocks))
-    pages.append({
-        'slug': p['slug'], 'title': p['title'], 'cat': p['cat'],
-        'icon': icons.get(p['icon']) if p['icon'] else None,
-        'lead': p['lead'], 'info': p['info'], 'see': p['see'], 'blocks': blocks,
-        'search': f"{p['title']} {p['lead']} {plain}".lower(),
-    })
-titles = {p['slug'] for p in pages}
-for p in pages:
-    missing = [s for s in p['see'] if s not in titles]
+    head = []
+    if p['icon']:
+        head.append(f"<icon/{p['icon']}>")
+    head += [f'<info/{k}/{v}>' for k, v in p['info']]
+    source = '\n'.join(head) + '\n\n' + p['lead'] + '\n\n' + to_markup(p['text'])
+    if p['see']:
+        source += '\n\n<see/' + ' '.join(p['see']) + '>'
+    pages.append({'slug': p['slug'], 'title': p['title'], 'cat': p['cat'], 'source': source})
+pages.append({'slug': 'formatting', 'title': 'Форматирование и разметка', 'cat': 'Основы', 'source': FORMATTING})
+
+known = {p['slug'] for p in pages}
+for p in PAGES:
+    missing = [s for s in p['see'] if s not in known]
     assert not missing, (p['slug'], missing)
 
-groups = [{'title': t, 'page': s, 'items': [item(f'mistraly:{i}') for i in ids.split()]} for t, s, ids in GROUPS]
+items = {i: {'name': name(i), 'icon': icons.get(i), 'page': PAGE_OF.get(i)}
+         for i in set(VANILLA) | set(icons)}
+for rs in recipes.values():
+    for r in rs:
+        for x in r['slots'] + [r['result']['id']]:
+            if x and x not in items:
+                items[x] = {'name': name(x), 'icon': icons.get(x), 'page': PAGE_OF.get(x)}
 
-data = {'pages': pages, 'cats': [{'name': c, 'text': CAT_TEXT[c]} for c in CATS], 'groups': groups}
-json.dump(data, open(OUT_JSON, 'w'), ensure_ascii=False, indent=0)
-print(len(pages), 'статей,', len(os.listdir(OUT_IMG)), 'картинок')
+groups = [{'title': t, 'page': s, 'items': [f'mistraly:{i}' for i in ids.split()]} for t, s, ids in GROUPS]
+
+data = {'pages': pages, 'cats': [{'name': c, 'text': CAT_TEXT[c]} for c in CATS],
+        'groups': groups, 'items': items, 'recipes': recipes}
+json.dump(data, open(OUT_JSON, 'w', encoding='utf-8'), ensure_ascii=False, indent=0)
+print(len(pages), 'статей,', len(items), 'предметов,', len(os.listdir(OUT_IMG)), 'картинок')

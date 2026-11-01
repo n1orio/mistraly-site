@@ -14,9 +14,11 @@ import {
   Upload,
   Rocket,
   Save,
-  Ticket
+  Ticket,
+  BookOpen
 } from '../lib/icons'
 import PromoAdmin from '../components/PromoAdmin.vue'
+import WikiAdmin from '../components/WikiAdmin.vue'
 import AuthorStats from '../components/AuthorStats.vue'
 import { myAuthorStats, type AuthorStats as AuthorStatsData } from '../api/promo'
 import { useAuthStore } from '../stores/auth'
@@ -50,7 +52,7 @@ import {
 
 const auth = useAuthStore()
 
-type Tab = 'users' | 'audit' | 'stats' | 'builds' | 'promo'
+type Tab = 'users' | 'audit' | 'stats' | 'builds' | 'promo' | 'wiki'
 const tab = ref<Tab>('users')
 
 const users = ref<AdminUser[]>([])
@@ -420,6 +422,9 @@ watch(tab, async (t) => {
         <button :class="{ on: tab === 'promo' }" @click="tab = 'promo'">
           <Ticket :size="16" /> Промокоды
         </button>
+        <button :class="{ on: tab === 'wiki' }" @click="tab = 'wiki'">
+          <BookOpen :size="16" /> Вики
+        </button>
       </nav>
 
       <p v-if="notice" class="ok"><Check :size="16" /> {{ notice }}</p>
@@ -633,6 +638,10 @@ watch(tab, async (t) => {
       </section>
 
       <!-- Сборки -->
+      <section v-else-if="tab === 'wiki'">
+        <WikiAdmin />
+      </section>
+
       <section v-else-if="tab === 'promo'">
         <PromoAdmin :users="users" />
       </section>

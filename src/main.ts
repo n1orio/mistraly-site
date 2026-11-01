@@ -67,9 +67,7 @@ const routes: RouteRecordRaw[] = [
   },
   { path: '/offer', name: 'Offer', component: () => import('./views/OfferView.vue') },
   { path: '/rules', name: 'Rules', component: () => import('./views/RulesView.vue') },
-  { path: '/wiki', name: 'Wiki', component: () => import('./views/WikiView.vue') },
-  { path: '/wiki/category/:cat', name: 'WikiCategory', component: () => import('./views/WikiView.vue') },
-  { path: '/wiki/:slug', name: 'WikiPage', component: () => import('./views/WikiView.vue') },
+  { path: '/wiki/:rest(.*)*', name: 'Wiki', component: () => import('./views/WikiView.vue') },
   { path: '/download', name: 'Download', component: () => import('./views/DownloadView.vue') },
   // Документы, обязательные для модерации платёжного шлюза
   { path: '/contacts', name: 'Contacts', component: () => import('./views/ContactsView.vue') },
