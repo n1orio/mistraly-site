@@ -5,7 +5,6 @@ import { usePurchaseStore } from '../stores/purchase'
 import HowToJoin from '../components/HowToJoin.vue'
 import ModHighlights from '../components/ModHighlights.vue'
 import FaqSection from '../components/FaqSection.vue'
-import LoreBrokerSection from '../components/LoreBrokerSection.vue'
 import { Download, Gamepad } from '../lib/icons'
 import { scrollToSection } from '../lib/scroll'
 const route = useRoute(); const purchase = usePurchaseStore()
@@ -23,7 +22,7 @@ function scrollToContent() {
     <div class="hero-art" aria-hidden="true" />
     <div class="hero-in">
       <h1 class="hero-title">MISTRALY</h1>
-      <p class="hero-lead">Физика полетов, дирижабли, кастомный лаунчер и закрытое сообщество без гриферов и лишнего мусора.</p>
+      <p class="hero-lead">Ванилла плюс: привычный Minecraft с продуманными улучшениями, свой лаунчер и закрытое сообщество без гриферов и лишнего мусора.</p>
     </div>
 
     <div class="dither dither--bar" aria-hidden="true" />
@@ -33,7 +32,7 @@ function scrollToContent() {
           <span class="mc-slot bar-slot"><Gamepad :size="24" /></span>
           <div class="min-w-0">
             <div class="bar-title">Mistraly</div>
-            <div class="bar-note">Minecraft 1.21.1 · NeoForge</div>
+            <div class="bar-note">Minecraft 26.3 · NeoForge</div>
           </div>
         </div>
         <button class="mc-btn mc-btn--lg bar-play" @click="scrollToContent">ИГРАТЬ</button>
@@ -45,7 +44,7 @@ function scrollToContent() {
         </div>
       </div>
       <ul class="facts" aria-label="О сервере">
-        <li><span>Модов</span> 140+</li>
+        <li><span>Формат</span> ванилла плюс</li>
         <li><span>Вход</span> через лаунчер</li>
       </ul>
     </div>
@@ -60,7 +59,6 @@ function scrollToContent() {
     </div>
   </section>
   <HowToJoin />
-  <LoreBrokerSection feature-image="/images/shots/bay.webp" />
 </main>
 </template>
 

@@ -41,7 +41,8 @@ function isActive(tab: { to: string; exact?: boolean }) {
   <header class="top">
     <div class="top-in">
       <router-link to="/" class="brand" aria-label="Mistraly, на главную">
-        MISTRALY
+        <img src="/icons/server.png" alt="" class="brand-icon" width="32" height="32" />
+        <span>MISTRALY</span>
       </router-link>
 
       <!-- Вкладки как в лаунчере: активная подчёркнута яркой полосой -->
@@ -98,10 +99,17 @@ function isActive(tab: { to: string; exact?: boolean }) {
   display: flex;
   align-items: center;
   flex: none;
+  gap: 10px;
   color: #fff;
   font-family: 'Minecraft Ten', 'Noto Sans', sans-serif;
   font-size: 24px;
   text-decoration: none;
+}
+.brand-icon {
+  /* Рисунок 16×16: только целый масштаб и без сглаживания. */
+  width: 32px;
+  height: 32px;
+  image-rendering: pixelated;
 }
 .tabs {
   display: flex;

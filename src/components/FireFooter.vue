@@ -189,7 +189,7 @@ onMounted(() => {
 
       <footer class="foot w-full">
         <div class="max-w-6xl mx-auto px-4 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[15px]">
-          <div>© Mistraly • Minecraft 1.21.1</div>
+          <div>© Mistraly • Minecraft 26.3</div>
           <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
             <router-link to="/offer">Оферта</router-link>
             <router-link to="/refund">Возврат</router-link>

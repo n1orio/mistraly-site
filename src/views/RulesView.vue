@@ -123,7 +123,7 @@ onUnmounted(() => {
             v-model="searchQuery"
             type="text"
             aria-label="Поиск по правилам"
-            placeholder="Быстрый поиск по всем правилам (читы, твинк, дирижабль, чат)..."
+            placeholder="Быстрый поиск по всем правилам (читы, твинк, приват, чат)..."
           />
           <button v-if="searchQuery" type="button" aria-label="Очистить" class="search-x" @click="searchQuery = ''">
             <X :size="24" />

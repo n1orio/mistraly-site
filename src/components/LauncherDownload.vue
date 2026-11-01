@@ -140,7 +140,7 @@ onMounted(async () => {
 
 const features = [
   { icon: Download, title: 'Сборка и обновления', text: 'Скачивает модпак и ставит обновления перед запуском — сверяя контрольные суммы.' },
-  { icon: Coffee, title: 'Java и NeoForge сами', text: 'Нет Java 21 — скачает. Minecraft 1.21.1 и NeoForge тоже поставит сам.' },
+  { icon: Coffee, title: 'Java и NeoForge сами', text: 'Нет нужной Java — скачает. Minecraft 26.3 и NeoForge тоже поставит сам.' },
   { icon: Rocket, title: 'Сразу на сервер', text: 'Вход через Discord, а после загрузки игра подключается к Mistraly без ввода адреса.' },
   { icon: ShieldCheck, title: 'Понятные ошибки', text: 'Упала игра — покажет причину и хвост лога. «Проверить файлы» чинит битую установку.' },
 ]
