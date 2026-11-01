@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { Home, ShoppingBag, ScrollText, Download, Discord, BookOpen } from '../lib/icons'
+import { api, unwrap } from '../api/client'
 import { useAuthStore } from '../stores/auth'
 import { loadPlayerThemes } from '../lib/nameThemes'
 import NameTag from './NameTag.vue'
@@ -11,7 +12,23 @@ loadPlayerThemes()
 const auth = useAuthStore()
 
 // Раньше здесь стояла заглушка 'Nio' — любой посетитель видел чужой ник.
-const username = computed(() => auth.user?.username || auth.discord?.discord_username || '')
+const gameName = ref('')
+const username = computed(() => gameName.value || auth.user?.username || auth.discord?.discord_username || '')
+
+// Имя аккаунта может отличаться от ника в игре, а цвет и иконка темы привязаны к нику.
+watch(
+  () => auth.isAuthenticated,
+  async (on) => {
+    gameName.value = ''
+    if (!on) return
+    try {
+      gameName.value = (await unwrap<{ nickname: string } | null>(api.get('/user/nickname')))?.nickname ?? ''
+    } catch {
+      /* останется имя аккаунта */
+    }
+  },
+  { immediate: true }
+)
 
 /** Аватар Discord, если он есть; иначе первая буква ника. */
 const avatarUrl = computed(() => {
