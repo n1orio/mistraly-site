@@ -17,11 +17,12 @@ function light(rgb: number) {
   return (mix((rgb >> 16) & 255) << 16) | (mix((rgb >> 8) & 255) << 8) | mix(rgb & 255)
 }
 
-export type AccountLook = { bar: string; text: string; cls: string }
+export type AccountLook = { kind: 'dye' | 'gold' | 'glitch'; bar: string; text: string; tint: string }
 
 export function accountLook(id: number): AccountLook {
-  if (id === GOLD) return { bar: '#ffd84a', text: '#ffd84a', cls: 'acc-gold' }
-  if (id === GLITCH) return { bar: '#ff2a3c', text: '#ff2a3c', cls: 'acc-glitch' }
+  if (id === GOLD) return { kind: 'gold', bar: '#ffd84a', text: '#ffd84a', tint: 'transparent' }
+  if (id === GLITCH) return { kind: 'glitch', bar: '#ff2a3c', text: '#ffffff', tint: 'transparent' }
   const rgb = DYES[id] ?? DYES[0]
-  return { bar: hex(rgb), text: hex(light(rgb)), cls: '' }
+  // Прозрачность 0x30 как у заливки карточки в BankUi.card.
+  return { kind: 'dye', bar: hex(rgb), text: hex(light(rgb)), tint: `${hex(rgb)}30` }
 }

@@ -107,15 +107,15 @@ const content = computed(() => selected.value.content ?? [])
 </script>
 
 <template>
-  <section id="faq" class="w-full max-w-5xl mx-auto px-4 py-16">
+  <section id="faq" class="w-full max-w-5xl mx-auto px-4 py-8">
     <div class="section-head">
       <h2 class="section-title">Частые <span class="word-hl">вопросы</span></h2>
       <p class="section-sub">Поможем разобраться</p>
     </div>
 
-    <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
       <!-- Слева темы, как список установок в лаунчере -->
-      <div class="lg:col-span-5 flex flex-col gap-2">
+      <div class="lg:col-span-5 flex flex-col gap-3">
         <button
           v-for="(item, idx) in faqs"
           :key="item.id"
@@ -165,6 +165,8 @@ const content = computed(() => selected.value.content ?? [])
 
 <style scoped>
 .q {
+  /* Список тянется на высоту ответа, поэтому рядом с ним нет пустоты. */
+  flex: 1;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -217,10 +219,8 @@ const content = computed(() => selected.value.content ?? [])
 }
 
 .answer {
+  height: 100%;
   padding: 24px;
-  /* Вкладка с характеристиками выше остальных: без запаса страница
-     прыгала бы при переключении вопросов. */
-  min-height: 340px;
 }
 .answer-title {
   margin: 14px 0 10px;
@@ -260,10 +260,5 @@ const content = computed(() => selected.value.content ?? [])
   border-top: 3px solid var(--panel);
   font-size: 14px;
   line-height: 1.35;
-}
-@media (min-width: 640px) {
-  .answer {
-    min-height: 640px;
-  }
 }
 </style>

@@ -153,10 +153,10 @@ const features = [
       <p class="section-sub">Один файл — и больше ничего ставить не нужно</p>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-start">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
       <!-- Загрузка -->
       <div class="lg:col-span-6">
-        <div class="dl-card mc-panel">
+        <div class="dl-card mc-panel h-full">
           <span class="mc-tag dl-tag">Mistraly Launcher{{ release ? ' ' + release.version : '' }}</span>
           <div v-if="loading" class="dl-loading" aria-label="Загрузка">
             <span class="mc-spinner" />
@@ -217,6 +217,15 @@ const features = [
         </div>
       </div>
 
+      <!-- Что умеет -->
+      <ul class="lg:col-span-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <li v-for="f in features" :key="f.title" class="feat mc-panel">
+          <span class="mc-slot feat-icon"><component :is="f.icon" :size="18" /></span>
+          <span class="feat-title font-heading">{{ f.title }}</span>
+          <span class="feat-text">{{ f.text }}</span>
+        </li>
+      </ul>
+
       <!-- Flatpak: быстрая установка на любом Linux -->
       <div v-if="flatpak" id="flatpak" class="lg:col-span-12 fp-card mc-panel scroll-mt-24">
         <div class="flex items-center gap-3 mb-2">
@@ -245,15 +254,6 @@ const features = [
           тогда заработают обновления; игра и сборка в <code>~/.mistraly</code> останутся.
         </p>
       </div>
-
-      <!-- Что умеет -->
-      <ul class="lg:col-span-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <li v-for="f in features" :key="f.title" class="feat mc-panel">
-          <span class="mc-slot feat-icon"><component :is="f.icon" :size="18" /></span>
-          <span class="feat-title font-heading">{{ f.title }}</span>
-          <span class="feat-text">{{ f.text }}</span>
-        </li>
-      </ul>
     </div>
   </section>
 </template>
@@ -265,7 +265,6 @@ const features = [
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  min-height: 250px;
   padding: 44px 24px 24px;
 }
 .dl-tag {

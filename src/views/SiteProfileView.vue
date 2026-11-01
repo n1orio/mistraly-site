@@ -4,14 +4,8 @@ import SkinViewer3D from '../components/SkinViewer3D.vue'
 import GameCabinet from '../components/GameCabinet.vue'
 import PlayerProfile, { type GameProfile } from '../components/PlayerProfile.vue'
 import NameTag from '../components/NameTag.vue'
-import { loadPlayerThemes, usePageTheme } from '../lib/nameThemes'
-import {
-  Download,
-  LogOut,
-  Upload,
-  ShieldCheck,
-  Check
-} from '../lib/icons'
+import { loadPlayerThemes, setPlayerTheme, usePageTheme } from '../lib/nameThemes'
+import { LogOut, Upload, Check } from '../lib/icons'
 import { usePurchaseStore } from '../stores/purchase'
 import { useAuthStore } from '../stores/auth'
 import { api, unwrap, errorMessage } from '../api/client'
@@ -130,6 +124,12 @@ function onVariantChanged(v: 'default' | 'slim') {
   if (auth.user) auth.user.skin_variant = v
 }
 
+function onTheme(id: string) {
+  if (!game.value) return
+  game.value.data.theme = id
+  setPlayerTheme(game.value.name, id)
+}
+
 async function logout() {
   await auth.logout()
   window.location.assign('/')
@@ -154,27 +154,18 @@ function statusBadge(status: string) {
 </script>
 
 <template>
-  <main class="w-full flex-1 flex flex-col items-center text-[var(--text-main)] px-4 pt-12 pb-16 sm:pt-16">
-    <div class="w-full max-w-5xl">
-      <div class="flex items-center justify-between gap-4 pb-6">
-        <div class="flex items-center gap-3 min-w-0 flex-wrap">
-          <span class="mc-tag">Профиль</span>
-          <h1 class="section-title !m-0 truncate">
-            <NameTag :name="game?.name || user?.username || auth.discord?.discord_username || 'Игрок'" :theme="game?.data.theme" :size="32" />
-          </h1>
-          <span v-if="user?.role === 'admin'" class="mc-tag mc-tag--bad">Admin</span>
-        </div>
-        <button class="mc-btn mc-btn--muted mc-btn--sm shrink-0" @click="logout">
-          <LogOut :size="24" />
-          <span>Выйти</span>
-        </button>
-      </div>
-
-      <PlayerProfile v-if="game" :name="game.name" :data="game.data" :updated="game.updated_at" />
-
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        <!-- Стенд скина -->
-        <div class="lg:col-span-5 mc-panel p-5">
+  <main class="w-full flex-1 flex flex-col items-center text-[var(--text-main)] px-4 pt-8 pb-16">
+    <div class="w-full max-w-6xl">
+      <PlayerProfile v-if="game" :name="game.name" :data="game.data" :updated="game.updated_at" own>
+        <template #actions>
+          <button class="mc-btn mc-btn--muted mc-btn--sm shrink-0" @click="logout">
+            <LogOut :size="24" />
+            <span>Выйти</span>
+          </button>
+        </template>
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-5 items-stretch">
+          <div class="flex flex-col gap-5 min-w-0">
+            <div class="mc-panel p-5">
           <div class="flex justify-between items-center mb-2">
             <span class="font-bold text-[17px]">3D скин игрока</span>
             <span class="text-[14px] text-[var(--text-sub)]">Вращайте мышью</span>
@@ -210,52 +201,9 @@ function statusBadge(status: string) {
 
             <p v-if="statusMsg" class="text-[15px] text-[var(--ok)] text-center m-0">{{ statusMsg }}</p>
           </div>
-        </div>
-
-        <div class="lg:col-span-7 flex flex-col gap-6">
-          <!-- Доступ на сервер -->
-          <section class="mc-panel p-6">
-            <div class="flex items-start justify-between gap-3 flex-wrap mb-4">
-              <div>
-                <span class="text-[14px] font-bold text-[var(--text-sub)] block">Статус аккаунта</span>
-                <h2 class="sub-title">Доступ на сервер</h2>
-              </div>
-              <span class="mc-tag" :class="hasPass ? 'mc-tag--ok' : 'mc-tag--warn'">
-                {{ hasPass ? 'Проходка активна' : 'Нет проходки' }}
-              </span>
             </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
-              <div class="mc-well p-3">
-                <span class="text-[14px] text-[var(--text-sub)] block">Никнейм в игре</span>
-                <router-link v-if="linkedNickname?.nickname" :to="`/wiki/user/${encodeURIComponent(linkedNickname.nickname)}`" class="mc-link font-bold">{{ linkedNickname.nickname }}</router-link>
-                <strong v-else>Не привязан</strong>
-              </div>
-              <div class="mc-well p-3">
-                <span class="text-[14px] text-[var(--text-sub)] block">Discord</span>
-                <strong class="flex items-center gap-1.5">
-                  <ShieldCheck :size="24" class="text-[var(--sky)]" />
-                  {{ auth.discord?.discord_username || 'Привязан' }}
-                </strong>
-              </div>
-            </div>
-
-            <router-link v-if="hasPass" to="/download" class="mc-btn mc-btn--block">
-              <Download :size="24" />
-              Скачать Mistraly Launcher
-            </router-link>
-            <button v-else class="mc-btn mc-btn--block" @click="buyPass">Купить Mistraly Pass →</button>
-          </section>
-
-          <router-link to="/bank" class="mc-btn mc-btn--block">
-            <img src="/images/wiki/chat/bank.png" alt="" class="w-6 h-6 [image-rendering:pixelated]" />
-            Открыть банк
-          </router-link>
-
-          <GameCabinet :name="linkedNickname?.nickname || user?.username || ''" />
-
-          <!-- Журнал покупок -->
-          <section class="mc-panel p-6">
+            <!-- Журнал покупок: забирает остаток высоты колонки -->
+          <section class="mc-panel p-6 flex-1">
             <div class="flex items-center justify-between mb-4">
               <h2 class="sub-title !text-[24px]">Журнал покупок</h2>
               <router-link to="/shop" class="mc-link inline-flex items-center gap-1">Магазин</router-link>
@@ -277,8 +225,24 @@ function statusBadge(status: string) {
               </div>
             </div>
           </section>
+          </div>
+          <GameCabinet :name="game.name" @theme="onTheme" />
         </div>
-      </div>
+      </PlayerProfile>
+
+      <template v-else>
+        <div class="flex items-center justify-between gap-4 pb-6">
+          <h1 class="section-title !m-0 truncate">{{ user?.username || auth.discord?.discord_username || 'Игрок' }}</h1>
+          <button class="mc-btn mc-btn--muted mc-btn--sm shrink-0" @click="logout">
+            <LogOut :size="24" />
+            <span>Выйти</span>
+          </button>
+        </div>
+        <section class="mc-panel p-6 max-w-xl">
+          <p class="m-0 mb-4 text-[var(--text-muted)]">Профиль появится после первого входа на сервер.</p>
+          <button v-if="!hasPass" class="mc-btn" @click="buyPass">Купить Mistraly Pass →</button>
+        </section>
+      </template>
     </div>
   </main>
 </template>

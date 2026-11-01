@@ -17,7 +17,7 @@ function login() {
 </script>
 
 <template>
-  <section id="stages" class="w-full max-w-5xl px-4 pt-8 pb-24 scroll-mt-20">
+  <section id="stages" class="w-full max-w-5xl px-4 pt-4 pb-16 scroll-mt-20">
     <ol class="steps">
       <li class="step mc-panel">
         <div class="step-top">

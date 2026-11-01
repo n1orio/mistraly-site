@@ -48,7 +48,7 @@ function scrollToContent() {
 
   <ModHighlights />
   <FaqSection />
-  <section id="how-to-play" class="w-full max-w-5xl px-4 pt-20">
+  <section id="how-to-play" class="w-full max-w-5xl px-4 pt-8">
     <div class="section-head" style="margin-bottom:8px">
       <h2 class="section-title">Но как <a href="#stages" class="word-hl" @click.prevent="scrollToContent">поиграть</a>-то?</h2>
       <p class="section-sub">3 телодвижения</p>

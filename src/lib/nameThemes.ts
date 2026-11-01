@@ -44,6 +44,10 @@ export function loadPlayerThemes() {
     })
 }
 
+export function setPlayerTheme(nick: string, theme: string) {
+  playerThemes.value = { ...playerThemes.value, [nick.toLowerCase()]: theme }
+}
+
 export const themeOfPlayer = (nick: string) => themeOf(playerThemes.value[nick.toLowerCase()])
 export const iconUrl = (t: NameTheme) => `/images/wiki/chat/${t.icon}.png`
 

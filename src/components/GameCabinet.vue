@@ -21,6 +21,7 @@ type Prefs = {
 }
 
 const props = defineProps<{ name: string }>()
+const emit = defineEmits<{ theme: [id: string] }>()
 
 
 const STATS = [
@@ -117,6 +118,7 @@ function pickTheme(id: string) {
   if (!prefs.value || locked(id)) return
   prefs.value.theme = id
   currentTheme.value = id
+  emit('theme', id)
   save()
 }
 const rows = computed(() => SETTINGS[settingsTab.value])

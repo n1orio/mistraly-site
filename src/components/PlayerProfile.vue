@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { headHtml } from '../lib/wikiMarkup'
 import { themeOf } from '../lib/nameThemes'
-import { accountLook } from '../lib/accountColors'
+import AccountCard from './AccountCard.vue'
 import NameTag from './NameTag.vue'
 
 /** Профиль с игрового сервера: те же разделы, что и в игре, скрытое сюда не приходит. */
@@ -15,7 +15,7 @@ export type GameProfile = {
   shops: { id: number; goods: Item; price: number; stock: number; dimension: string; x: number; y: number; z: number; closed: boolean }[]
 }
 
-const props = defineProps<{ name: string; data: GameProfile; updated: string }>()
+const props = defineProps<{ name: string; data: GameProfile; updated: string; own?: boolean }>()
 
 const theme = computed(() => themeOf(props.data.theme))
 
@@ -54,28 +54,25 @@ const updated = computed(() => {
     :style="{ '--gp': theme.accent, '--gp-top': theme.top, '--gp-bottom': theme.bottom, '--gp-head': theme.heading }"
   >
     <div class="gp-top">
-      <span v-html="headHtml(name, 96)"></span>
-      <div class="min-w-0">
-        <h1 class="gp-name"><NameTag :name="name" :theme="data.theme" :size="24" /></h1>
-        <p class="gp-tags">
-          <span class="gp-theme">{{ theme.label }}</span>
+      <span v-html="headHtml(name, 64)"></span>
+      <div class="min-w-0 flex-1">
+        <h1 class="gp-name">
+          <NameTag :name="name" :theme="data.theme" :size="24" />
           <span v-if="data.plus" class="gp-plus">PLUS</span>
-        </p>
+        </h1>
         <p class="gp-note">Статистика из игры, обновлено {{ updated }}</p>
       </div>
+      <slot name="actions" />
     </div>
 
     <div class="gp-grid">
       <div class="gp-main">
-        <section v-if="data.accounts.length">
+        <section v-if="!own && data.accounts.length">
           <h2 class="gp-h">Счета</h2>
-          <div v-for="a in data.accounts" :key="a.id" class="gp-acc" :style="{ borderLeftColor: accountLook(a.color).bar }">
-            <b :class="accountLook(a.color).cls" :style="{ color: accountLook(a.color).text }">{{ a.name }}</b>
-            <small v-if="a.description">{{ a.description }}</small>
-          </div>
+          <AccountCard v-for="a in data.accounts" :key="a.id" :name="a.name" :description="a.description" :color="a.color" :tag="`#${a.id}`" />
         </section>
 
-        <section v-if="data.shops.length">
+        <section v-if="!own && data.shops.length">
           <h2 class="gp-h">Магазины</h2>
           <div class="art-table">
             <table>
@@ -137,22 +134,9 @@ const updated = computed(() => {
 .gp-side .gp-h {
   margin-top: 0;
 }
-.gp-acc {
-  margin-bottom: 6px;
-  padding: 8px 12px;
-  background: var(--well);
-  border: 2px solid var(--edge-c);
-  border-left-width: 6px;
-}
-.gp-acc b {
-  display: inline-block;
-}
-.gp-acc small {
-  display: block;
-  color: var(--text-muted);
-  font-size: 13px;
-}
 .gp-name {
+  display: flex;
+  align-items: center;
   margin: 0 0 4px;
   font-size: 24px;
   line-height: 1.2;
@@ -162,21 +146,16 @@ const updated = computed(() => {
   color: var(--gp-head);
   font-size: 16px;
 }
-.gp-tags {
-  display: flex;
-  gap: 6px;
-  margin: 0 0 4px;
-}
-.gp-theme,
 .gp-plus {
-  padding: 2px 8px;
-  background: #2d2d2e;
-  font-weight: 700;
-  font-size: 13px;
-}
-.gp-plus {
+  margin-left: 8px;
+  padding: 2px 6px;
   background: #ffd84a;
   color: #1c170c;
+  font-family: 'Noto Sans', sans-serif;
+  font-weight: 800;
+  font-size: 12px;
+  text-shadow: none;
+  vertical-align: middle;
 }
 .gp-note {
   margin: 0;

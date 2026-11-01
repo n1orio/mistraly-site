@@ -29,7 +29,7 @@ const features = [
 </script>
 
 <template>
-  <section class="w-full max-w-5xl px-4 pt-24 pb-16">
+  <section class="w-full max-w-5xl px-4 pt-16 pb-8">
     <div class="section-head">
       <h2 class="section-title">Сердце <span class="word-hl">сервера</span></h2>
       <p class="section-sub">Ванилла, только лучше</p>

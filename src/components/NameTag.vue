@@ -21,7 +21,8 @@ const px = computed(() => props.size ?? 16)
   align-items: center;
   gap: 5px;
   min-width: 0;
-  font-weight: 700;
+  /* Вес от родителя: у шрифта заголовков одно начертание, жирность его ломает. */
+  font-weight: inherit;
 }
 .name-tag img {
   flex: none;

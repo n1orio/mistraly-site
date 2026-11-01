@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Собирает базовые статьи вики из исходников мода Mistraly.
 
-    python3 scripts/gen-wiki.py /home/nio/mistraly-season-2/mistraly
+    python3 scripts/gen-wiki.py /home/nio/mistraly-season-2/mistraly путь/к/client.jar
 
 Тексты механик берутся из внутриигровой вики (mistraly.wiki.*.text в ru_ru.json),
 названия, рецепты и текстуры — оттуда же, поэтому цифры совпадают с игрой.
@@ -13,11 +13,13 @@
 Правки игроков живут в базе бэкенда и поверх этих статей, пересборка их не трогает.
 """
 import glob
+import io
 import json
 import os
 import re
 import shutil
 import sys
+import zipfile
 
 from PIL import Image
 
@@ -44,13 +46,13 @@ VANILLA = {
     '#minecraft:copper_tool_materials': 'Медный слиток', '#mistraly:bone_tool_materials': 'Кость',
     '#mistraly:flint_tool_materials': 'Кремень',
 }
-# Картинки ванильных предметов не копируем: на сайте нет файлов игры.
 BLOCK_ICONS = {'atm': 'atm_front', 'shop': 'shop_side', 'mist_ore': 'mist_ore', 'deepslate_mist_ore': 'deepslate_mist_ore'}
 
 os.makedirs(OUT_IMG, exist_ok=True)
 for f in glob.glob(f'{OUT_IMG}/*.png'):
     os.remove(f)
 shutil.rmtree(f'{OUT_IMG}/assets', ignore_errors=True)
+shutil.rmtree(f'{OUT_IMG}/vanilla', ignore_errors=True)
 
 
 def copy_icon(src, name):
@@ -68,6 +70,39 @@ for f in glob.glob(f'{RES}/assets/mistraly/textures/item/*.png'):
 for n, tex in BLOCK_ICONS.items():
     copy_icon(f'{RES}/assets/mistraly/textures/block/{tex}.png', n)
     icons[f'mistraly:{n}'] = f'/images/wiki/{n}.png'
+
+
+# Ванильные предметы в рецептах: иконки берём из клиента игры.
+VANILLA_ICONS = {
+    'minecraft:stick': 'item/stick', 'minecraft:bone': 'item/bone', 'minecraft:iron_ingot': 'item/iron_ingot',
+    'minecraft:gold_ingot': 'item/gold_ingot', 'minecraft:diamond': 'item/diamond', 'minecraft:emerald': 'item/emerald',
+    'minecraft:lapis_lazuli': 'item/lapis_lazuli', 'minecraft:redstone': 'item/redstone',
+    'minecraft:glass_pane': 'block/glass', 'minecraft:raw_iron': 'item/raw_iron', 'minecraft:raw_gold': 'item/raw_gold',
+    'minecraft:raw_copper': 'item/raw_copper', 'minecraft:iron_nugget': 'item/iron_nugget',
+    'minecraft:gold_nugget': 'item/gold_nugget', 'minecraft:copper_nugget': 'item/copper_nugget',
+    'minecraft:coal': 'item/coal', 'minecraft:grindstone': 'block/grindstone_side',
+    'minecraft:diamond_ore': 'block/diamond_ore', 'minecraft:iron_ore': 'block/iron_ore',
+    'minecraft:coal_ore': 'block/coal_ore',
+    'minecraft:netherite_upgrade_smithing_template': 'item/netherite_upgrade_smithing_template',
+    '#minecraft:wool': 'block/white_wool', '#minecraft:planks': 'block/oak_planks', '#minecraft:meat': 'item/beef',
+    '#minecraft:netherite_tool_materials': 'item/netherite_ingot', '#minecraft:iron_tool_materials': 'item/iron_ingot',
+    '#minecraft:gold_tool_materials': 'item/gold_ingot', '#minecraft:diamond_tool_materials': 'item/diamond',
+    '#minecraft:copper_tool_materials': 'item/copper_ingot', '#mistraly:bone_tool_materials': 'item/bone',
+    '#mistraly:flint_tool_materials': 'item/flint',
+}
+client = zipfile.ZipFile(sys.argv[2])
+os.makedirs(f'{OUT_IMG}/vanilla', exist_ok=True)
+for key, tex in VANILLA_ICONS.items():
+    img = Image.open(io.BytesIO(client.read(f'assets/minecraft/textures/{tex}.png'))).convert('RGBA')
+    if img.height > img.width:
+        img = img.crop((0, 0, img.width, img.width))
+    file = tex.replace('/', '_')
+    img.save(f'{OUT_IMG}/vanilla/{file}.png', optimize=True)
+    icons[key] = f'/images/wiki/vanilla/{file}.png'
+# Сундук нарисован на развёртке модели: вырезаем его перед.
+chest = Image.open(io.BytesIO(client.read('assets/minecraft/textures/entity/chest/normal.png'))).convert('RGBA')
+chest.crop((14, 19, 28, 33)).resize((16, 16), Image.NEAREST).save(f'{OUT_IMG}/vanilla/chest.png', optimize=True)
+icons['minecraft:chest'] = '/images/wiki/vanilla/chest.png'
 
 
 def name(i):

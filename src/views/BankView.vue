@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { api, errorMessage, unwrap } from '../api/client'
-import { accountLook } from '../lib/accountColors'
+import AccountCard from '../components/AccountCard.vue'
 
 /**
  * Банк сервера: те же счета, история и штрафы, что в игре. Деньги живут на игровом
@@ -148,15 +148,16 @@ const KIND: Record<string, string> = { transfer: 'Перевод', pay_fine: 'О
               :key="a.id"
               type="button"
               class="bk-acc"
-              :class="{ 'is-on': selected?.id === a.id }"
               @click="selectedId = a.id"
             >
-              <i :style="{ background: accountLook(a.color).bar }"></i>
-              <span class="min-w-0">
-                <b :class="accountLook(a.color).cls" :style="{ color: accountLook(a.color).text }">{{ a.name }}</b>
-                <small>{{ a.primary ? 'основной · ' : '' }}{{ a.mine ? `№${a.id}` : `владелец ${a.owner}` }}</small>
-              </span>
-              <strong>{{ money(a.balance) }}</strong>
+              <AccountCard
+                :name="a.name"
+                :description="a.description"
+                :color="a.color"
+                :balance="a.balance"
+                :selected="selected?.id === a.id"
+                :tag="`${a.primary ? 'основной · ' : ''}${a.mine ? `#${a.id}` : `владелец ${a.owner}`}`"
+              />
             </button>
             <p class="bk-dim">Счетов можно открыть: {{ bank.max_accounts }}. Пополнение и снятие только в банкомате.</p>
           </section>
@@ -285,7 +286,7 @@ const KIND: Record<string, string> = { transfer: 'Перевод', pay_fine: 'О
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
   gap: 24px;
-  align-items: start;
+  align-items: stretch;
 }
 .bk-head {
   display: flex;
@@ -315,31 +316,15 @@ const KIND: Record<string, string> = { transfer: 'Перевод', pay_fine: 'О
   border-left: 4px solid var(--bad);
 }
 .bk-acc {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  display: block;
   width: 100%;
-  margin-bottom: 6px;
-  padding: 10px 12px;
-  background: var(--well);
-  border: 2px solid var(--edge-c);
+  padding: 0;
+  background: none;
+  border: 0;
   color: inherit;
   font: inherit;
-  text-align: left;
   cursor: pointer;
 }
-.bk-acc.is-on {
-  border-color: var(--blue);
-}
-.bk-acc i {
-  flex: none;
-  width: 14px;
-  height: 14px;
-}
-.bk-acc span {
-  flex: 1;
-}
-.bk-acc small,
 .bk-fine small {
   display: block;
   color: var(--text-sub);

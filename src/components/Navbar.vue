@@ -39,13 +39,17 @@ function startAuth() {
     `&redirect_uri=${redirect}&response_type=code&scope=identify`
 }
 
-const tabs = [
+const baseTabs = [
   { to: '/', label: 'Главная', icon: Home, exact: true },
   { to: '/shop', label: 'Магазин', icon: ShoppingBag },
   { to: '/wiki', label: 'Вики', icon: BookOpen },
   { to: '/rules', label: 'Правила', icon: ScrollText },
   { to: '/download', label: 'Скачать', icon: Download },
 ]
+// Банк есть только у вошедшего игрока, поэтому вкладка появляется после входа.
+const tabs = computed(() =>
+  auth.isAuthenticated ? [...baseTabs.slice(0, 2), { to: '/bank', label: 'Банк', bank: true }, ...baseTabs.slice(2)] : baseTabs
+)
 
 function isActive(tab: { to: string; exact?: boolean }) {
   return tab.exact ? route.path === tab.to : route.path.startsWith(tab.to)
@@ -69,7 +73,8 @@ function isActive(tab: { to: string; exact?: boolean }) {
           class="tab"
           :class="{ 'is-active': isActive(tab) }"
         >
-          <component :is="tab.icon" :size="24" />
+          <img v-if="'bank' in tab" src="/images/wiki/chat/bank.png" alt="" class="tab-img" />
+          <component :is="tab.icon" v-else :size="24" />
           <span>{{ tab.label }}</span>
         </router-link>
       </nav>
@@ -145,6 +150,11 @@ function isActive(tab: { to: string; exact?: boolean }) {
   font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
+}
+.tab-img {
+  width: 24px;
+  height: 24px;
+  image-rendering: pixelated;
 }
 .tab:hover {
   color: #fff;
