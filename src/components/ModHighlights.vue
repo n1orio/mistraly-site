@@ -29,13 +29,12 @@ const features = [
 </script>
 
 <template>
-  <section class="w-full max-w-5xl px-4 pt-8 pb-2">
+  <section class="w-full max-w-5xl px-4 pt-14 pb-2">
     <div class="section-head">
       <h2 class="section-title">Сердце <span class="word-hl">сервера</span></h2>
-      <p class="section-sub">Ванилла, только лучше</p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
       <article v-for="item in features" :key="item.id" class="mod mc-panel">
         <span class="mc-slot"><img :src="item.icon" alt="" class="w-8 h-8 [image-rendering:pixelated]" /></span>
         <div class="min-w-0">
@@ -52,14 +51,14 @@ const features = [
 .mod {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  padding: 12px;
+  gap: 16px;
+  padding: 16px;
 }
 .mod:hover {
   background: var(--panel-hi);
 }
 .mod-title {
-  margin: 0 0 2px;
+  margin: 0 0 6px;
   font-size: 16px;
   line-height: 1.25;
 }

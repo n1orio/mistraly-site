@@ -130,13 +130,12 @@ h1,h2,h3,h4,.font-heading{font-family:'Minecraft Ten','Noto Sans',sans-serif;fon
   /* Заголовок раздела выглядит как шапка окна. */
   .section-head{
     display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0 16px;
-    margin-bottom:12px;padding:6px 12px 8px;
+    margin-bottom:16px;padding:6px 12px 8px;
     border:2px solid var(--edge-c);box-shadow:0 0 0 2px var(--ink);
     background:linear-gradient(180deg,var(--head-c),var(--head-lo));
     border-bottom-color:var(--blue);
   }
   .section-title{font-size:16px;line-height:1.5;margin:0;color:#fff}
-  .section-sub{margin:0;color:var(--text-muted);font-size:14px}
   .word-hl{color:var(--sky)}
 
   .mc-link{color:var(--sky);text-decoration:underline;text-underline-offset:3px}

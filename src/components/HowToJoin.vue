@@ -17,7 +17,7 @@ function login() {
 </script>
 
 <template>
-  <section id="stages" class="w-full max-w-5xl px-4 pt-0 pb-10 scroll-mt-20">
+  <section id="stages" class="w-full max-w-5xl px-4 pt-0 pb-14 scroll-mt-20">
     <ol class="steps">
       <li class="step mc-panel">
         <div class="step-top">
@@ -67,8 +67,8 @@ function login() {
 .steps {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 24px;
-  margin: 12px 0 0;
+  gap: 32px;
+  margin: 16px 0 0;
   padding: 0;
   list-style: none;
 }
@@ -76,15 +76,15 @@ function login() {
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: 12px;
+  padding: 16px;
 }
 /* Пунктир из блоков между этапами, как связи в дереве достижений. */
 .step:not(:last-child)::after {
   content: '';
   position: absolute;
-  top: 34px;
+  top: 38px;
   left: 100%;
-  width: 24px;
+  width: 32px;
   height: 4px;
   margin-left: 2px;
   background: repeating-linear-gradient(90deg, var(--sky) 0 4px, transparent 4px 8px);
@@ -92,8 +92,8 @@ function login() {
 .step-top {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 .step-num {
   font-family: 'Minecraft Ten', 'Noto Sans', sans-serif;
@@ -103,12 +103,12 @@ function login() {
   color: var(--sky);
 }
 .step-title {
-  margin: 0 0 4px;
+  margin: 0 0 8px;
   font-size: 16px;
 }
 .step-text {
   flex: 1;
-  margin: 0 0 12px;
+  margin: 0 0 16px;
   color: var(--text-muted);
   font-size: 14px;
   line-height: 1.45;
@@ -122,9 +122,9 @@ function login() {
   }
   .step:not(:last-child)::after {
     top: 100%;
-    left: 30px;
+    left: 34px;
     width: 4px;
-    height: 24px;
+    height: 32px;
     margin: 2px 0 0;
     background: repeating-linear-gradient(180deg, var(--sky) 0 4px, transparent 4px 8px);
   }

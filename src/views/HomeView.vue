@@ -25,6 +25,7 @@ function scrollToContent() {
       <p class="hero-lead">Ванилла плюс: привычный Minecraft с продуманными улучшениями, свой лаунчер и закрытое сообщество без гриферов и лишнего мусора.</p>
     </div>
 
+    <div class="dither dither--bar" aria-hidden="true" />
     <div class="bar">
       <div class="bar-in">
         <div class="bar-side">
@@ -34,7 +35,7 @@ function scrollToContent() {
             <div class="bar-note">Minecraft 26.3 · NeoForge</div>
           </div>
         </div>
-        <button class="mc-btn mc-btn--lg" @click="scrollToContent">ИГРАТЬ</button>
+        <button class="mc-btn mc-btn--lg bar-play" @click="scrollToContent">ИГРАТЬ</button>
         <div class="bar-side bar-side--end">
           <router-link to="/download" class="mc-btn mc-btn--muted mc-btn--sm">
             <Download :size="24" />
@@ -47,10 +48,9 @@ function scrollToContent() {
 
   <ModHighlights />
   <FaqSection />
-  <section id="how-to-play" class="w-full max-w-5xl px-4 pt-6">
+  <section id="how-to-play" class="w-full max-w-5xl px-4 pt-14">
     <div class="section-head" style="margin-bottom:0">
       <h2 class="section-title">Но как <a href="#stages" class="word-hl" @click.prevent="scrollToContent">поиграть</a>-то?</h2>
-      <p class="section-sub">3 телодвижения</p>
     </div>
   </section>
   <HowToJoin />
@@ -63,7 +63,7 @@ function scrollToContent() {
   display: flex;
   flex-direction: column;
   width: 100%;
-  min-height: min(620px, calc(100vh - 48px));
+  min-height: min(680px, calc(100vh - 64px));
   overflow: hidden;
 }
 .hero-art {
@@ -86,7 +86,7 @@ function scrollToContent() {
 /* Размеры кратны 8, иначе пиксели шрифта станут разной ширины. Тень нужна
    только для читаемости на светлом небе. */
 .hero-title {
-  margin: 0 0 16px;
+  margin: 0 0 32px;
   color: #fff;
   font-size: 80px;
   line-height: 1;
@@ -102,10 +102,17 @@ function scrollToContent() {
   line-height: 1.45;
 }
 
+.dither--bar {
+  position: relative;
+  flex: none;
+  height: 32px;
+  background-image: url(/images/ui/dither-panel.png);
+  background-size: 16px 32px;
+}
 .bar {
   position: relative;
-  background: linear-gradient(180deg, var(--head-c), var(--head-lo));
-  box-shadow: inset 0 2px 0 0 var(--blue), 0 2px 0 0 var(--ink);
+  background: var(--panel);
+  box-shadow: 0 2px 0 0 var(--ink);
 }
 .bar-in {
   display: grid;
@@ -114,7 +121,10 @@ function scrollToContent() {
   gap: 24px;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 12px 16px;
+  padding: 0 16px 16px;
+}
+.bar-play {
+  margin-top: -14px;
 }
 .bar-side {
   display: flex;
@@ -142,7 +152,7 @@ function scrollToContent() {
 
 @media (max-width: 640px) {
   .hero {
-    min-height: calc(100vh - 48px - 56px);
+    min-height: calc(100vh - 56px - 64px);
   }
   .hero-title {
     font-size: 48px;
@@ -153,7 +163,7 @@ function scrollToContent() {
     gap: 12px;
     text-align: center;
   }
-  .bar-in > .mc-btn {
+  .bar-play {
     order: -1;
     width: 100%;
     padding-left: 12px;

@@ -150,7 +150,6 @@ const features = [
   <section id="launcher" class="w-full max-w-5xl mx-auto px-4 pt-0 pb-12 scroll-mt-24">
     <div class="section-head">
       <h2 class="section-title">Скачать <span class="word-hl">лаунчер</span></h2>
-      <p class="section-sub">Один файл — и больше ничего ставить не нужно</p>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-stretch">

@@ -126,7 +126,6 @@ const KIND: Record<string, string> = { transfer: 'Перевод', pay_fine: 'О
     <div class="w-full max-w-5xl mx-auto">
       <div class="section-head">
         <h1 class="section-title bk-h1"><img src="/images/wiki/chat/bank.png" alt="" />Банк <span class="word-hl">сервера</span></h1>
-        <p class="section-sub">Те же счета и штрафы, что в игре</p>
       </div>
 
       <p v-if="problem" class="mc-panel p-4 text-center">{{ problem }}</p>

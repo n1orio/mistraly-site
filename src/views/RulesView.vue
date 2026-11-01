@@ -112,7 +112,6 @@ onUnmounted(() => {
     <div class="w-full max-w-[1400px]">
       <div class="section-head">
         <h1 class="section-title">Свод <span class="word-hl">правил</span></h1>
-        <p class="section-sub max-w-lg mx-auto">{{ rulesMeta.subtitle }}</p>
       </div>
 
       <!-- Глобальный поиск -->

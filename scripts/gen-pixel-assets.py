@@ -24,6 +24,6 @@ def dither(name, rows, colour):
 
 
 
-dither('dither-page', 12, (18, 18, 18))   # --bg-page
-dither('dither-panel', 8, (26, 26, 26))   # --panel
-dither('dither-void', 12, (12, 12, 12))    # тёмная полоса лора
+dither('dither-page', 12, (16, 18, 24))   # --bg-page
+dither('dither-panel', 8, (24, 26, 32))   # --panel
+dither('dither-void', 12, (11, 12, 16))    # тёмная полоса лора

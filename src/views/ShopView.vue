@@ -118,9 +118,6 @@ function handlePassClick() {
     <div class="w-full max-w-5xl">
       <div class="section-head">
         <h1 class="section-title">Магазин <span class="word-hl">сервера</span></h1>
-        <p class="section-sub max-w-2xl mx-auto">
-          Официальные цифровые предметы, проходки и сопутствующие услуги сервера Mistraly.
-        </p>
       </div>
 
       <div v-if="loading" class="text-center mb-16"><span class="mc-spinner" aria-label="Загружаем товары" /></div>

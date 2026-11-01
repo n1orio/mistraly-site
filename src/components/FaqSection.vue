@@ -107,15 +107,14 @@ const content = computed(() => selected.value.content ?? [])
 </script>
 
 <template>
-  <section id="faq" class="w-full max-w-5xl mx-auto px-4 py-6">
+  <section id="faq" class="w-full max-w-5xl mx-auto px-4 pt-14 pb-0">
     <div class="section-head">
       <h2 class="section-title">Частые <span class="word-hl">вопросы</span></h2>
-      <p class="section-sub">Поможем разобраться</p>
     </div>
 
-    <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-3 items-start">
+    <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
       <!-- Слева темы, как список установок в лаунчере -->
-      <div class="lg:col-span-5 flex flex-col gap-1">
+      <div class="lg:col-span-5 flex flex-col gap-2">
         <button
           v-for="(item, idx) in faqs"
           :key="item.id"
@@ -140,7 +139,7 @@ const content = computed(() => selected.value.content ?? [])
           <p v-if="selected.desc" class="answer-text">{{ selected.desc }}</p>
 
           <!-- Системные требования -->
-          <div v-if="selected.isSpecs && specs" class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
+          <div v-if="selected.isSpecs && specs" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
             <div v-for="tier in [specs.min, specs.rec]" :key="tier.title" class="spec mc-well">
               <span class="spec-title">{{ tier.title }}</span>
               <ul>
@@ -168,7 +167,7 @@ const content = computed(() => selected.value.content ?? [])
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 6px 10px;
+  padding: 10px 12px;
   background: var(--panel);
   color: var(--text-main);
   border: 2px solid var(--edge-c);
@@ -184,7 +183,7 @@ const content = computed(() => selected.value.content ?? [])
 .q.is-active {
   background: var(--panel-hi);
   box-shadow: inset 4px 0 0 0 var(--blue);
-  padding-left: 14px;
+  padding-left: 16px;
 }
 .q:focus-visible {
   outline: 3px solid #fff;
@@ -214,10 +213,10 @@ const content = computed(() => selected.value.content ?? [])
 }
 
 .answer {
-  padding: 14px;
+  padding: 20px;
 }
 .answer-title {
-  margin: 8px 0 6px;
+  margin: 12px 0 10px;
   font-size: 16px;
   line-height: 1.3;
 }
@@ -228,7 +227,7 @@ const content = computed(() => selected.value.content ?? [])
   line-height: 1.5;
 }
 .spec {
-  padding: 10px;
+  padding: 14px;
   font-size: 14px;
   color: var(--text-muted);
 }
