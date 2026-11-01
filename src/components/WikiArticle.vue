@@ -2,11 +2,12 @@
 import { computed, ref } from 'vue'
 import WikiBlocks from './WikiBlocks.vue'
 import { buildToc, headHtml } from '../lib/wikiMarkup'
-import { pages, render, type WikiPage } from '../stores/wiki'
+import { pageIcon, pages, render, type WikiPage } from '../stores/wiki'
 
 const props = defineProps<{ page: WikiPage; source?: string; note?: string }>()
 
 const parsed = computed(() => render(props.source ?? props.page.source, props.page.slug))
+const icon = computed(() => pageIcon({ ...props.page, source: props.source ?? props.page.source }))
 const toc = computed(() => buildToc(parsed.value.blocks))
 const tocOpen = ref(true)
 
@@ -26,11 +27,18 @@ function when(iso: string | null) {
 <template>
   <article class="wiki-sheet">
     <p v-if="note" class="art-note">{{ note }}</p>
-    <h1 class="wiki-title">{{ page.title }}</h1>
+    <h1 class="wiki-title wiki-title--icon">
+      <img v-if="icon.img" :src="icon.img" alt="" />
+      <component :is="icon.icon" v-else :size="36" />
+      {{ page.title }}
+    </h1>
 
     <aside v-if="parsed.info.length || parsed.icon" class="infobox" :aria-label="`Кратко: ${page.title}`">
       <div class="infobox-name">{{ page.title }}</div>
-      <div v-if="parsed.icon" class="infobox-art"><img :src="parsed.icon" alt="" /></div>
+      <div class="infobox-art">
+        <img v-if="parsed.icon" :src="parsed.icon" alt="" />
+        <component :is="icon.icon" v-else :size="96" />
+      </div>
       <dl>
         <template v-for="row in parsed.info" :key="row.key">
           <dt>{{ row.key }}</dt>

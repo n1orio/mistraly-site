@@ -43,10 +43,6 @@ function scrollToContent() {
           </router-link>
         </div>
       </div>
-      <ul class="facts" aria-label="О сервере">
-        <li><span>Формат</span> ванилла плюс</li>
-        <li><span>Вход</span> через лаунчер</li>
-      </ul>
     </div>
   </section>
 
@@ -153,21 +149,6 @@ function scrollToContent() {
 .bar-note {
   color: var(--text-muted);
   font-size: 15px;
-}
-.facts {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 4px 28px;
-  margin: 0;
-  padding: 7px 16px 8px;
-  background: var(--well);
-  color: var(--text-main);
-  font-size: 15px;
-  list-style: none;
-}
-.facts span {
-  color: var(--text-sub);
 }
 
 @media (max-width: 860px) {

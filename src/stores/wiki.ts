@@ -1,7 +1,11 @@
-import { computed, ref } from 'vue'
+import { computed, ref, type Component } from 'vue'
 import { api, unwrap } from '../api/client'
 import base from '../data/wiki-data.json'
 import { parseWiki, type Ctx, type Parsed } from '../lib/wikiMarkup'
+import {
+  Anchor, BookOpen, Check, Cog, Compass, CreditCard, Home, Key, MessageSquare, Monitor, ScrollText, Shield, Sparkles, Swords,
+  Terminal, Users, Wallet,
+} from '../lib/icons'
 
 /**
  * Статьи вики: базовые лежат в сайте, правки игроков приходят с бэкенда и
@@ -108,6 +112,38 @@ function leadOf(source: string): string {
 }
 
 export const leadText = leadOf
+
+const CAT_ICONS: Record<string, Component> = {
+  Основы: BookOpen,
+  Экономика: Wallet,
+  Игрок: Users,
+  Добыча: Compass,
+  Снаряжение: Swords,
+}
+const PAGE_ICONS: Record<string, Component> = {
+  start: Home,
+  chat: MessageSquare,
+  commands: Terminal,
+  settings: Cog,
+  punishments: Shield,
+  formatting: ScrollText,
+  transfers: CreditCard,
+  'co-owners': Users,
+  fines: Key,
+  profile: Users,
+  cabinet: Monitor,
+  plus: Sparkles,
+  achievements: Check,
+  death: Anchor,
+}
+
+export const catIcon = (name: string): Component => CAT_ICONS[name] ?? BookOpen
+
+/** Иконка статьи: предмет из её сноски, а если его нет — значок темы. */
+export function pageIcon(page: Pick<WikiPage, 'slug' | 'cat' | 'source'>): { img: string | null; icon: Component } {
+  const id = /^<icon\/([a-z0-9_:]+)>/m.exec(page.source)?.[1]
+  return { img: id ? itemById(id)?.icon ?? null : null, icon: PAGE_ICONS[page.slug] ?? catIcon(page.cat) }
+}
 
 export function render(source: string, slug: string): Parsed {
   return parseWiki(source, ctxFor(slug))

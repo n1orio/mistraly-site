@@ -88,7 +88,7 @@
 "slug": "achievements",
 "title": "Достижения",
 "cat": "Игрок",
-"source": "<info/Как открыть/кнопка с кубком или L>\n<info/Всего/3>\n\nВанильные достижения на сервере заменены своими целями сезона.\n\nКнопка с кубком над инвентарём показывает все достижения и прогресс по ним.\n\n# Как это работает\n\n- Полученное достижение видит весь сервер.\n- Чужие достижения можно скрыть в Настройках → Чат.\n\n> Ванильных достижений на сервере нет: клавиша L открывает это же меню.\n\n# Список достижений\n\n| Название | Что сделать |\n| Ебанк | Открыть счёт в банке |\n| Молодой миллионер | Заработать 999 999 мистов |\n| Темщик | Поставить 8 магазинов |\n\n<see/bank shops>"
+"source": "<info/Как открыть/кнопка с кубком или L>\n<info/Всего/3>\n\nВанильные достижения на сервере заменены своими целями сервера.\n\nКнопка с кубком над инвентарём показывает все достижения и прогресс по ним.\n\n# Как это работает\n\n- Полученное достижение видит весь сервер.\n- Чужие достижения можно скрыть в Настройках → Чат.\n\n> Ванильных достижений на сервере нет: клавиша L открывает это же меню.\n\n# Список достижений\n\n| Название | Что сделать |\n| Ебанк | Открыть счёт в банке |\n| Молодой миллионер | Заработать 999 999 мистов |\n| Темщик | Поставить 8 магазинов |\n\n<see/bank shops>"
 },
 {
 "slug": "death",
@@ -255,63 +255,78 @@
 }
 ],
 "items": {
-"mistraly:meat_axe": {
-"name": "Мясной топор",
-"icon": "/images/wiki/meat_axe.png",
-"page": "meat-gear"
+"mistraly:mist_shard": {
+"name": "Осколок миста",
+"icon": "/images/wiki/mist_shard.png",
+"page": "mist"
+},
+"minecraft:chest": {
+"name": "Сундук",
+"icon": null,
+"page": null
 },
 "#mistraly:flint_tool_materials": {
 "name": "Кремень",
 "icon": null,
 "page": null
 },
-"minecraft:iron_ore": {
-"name": "Железная руда",
-"icon": null,
-"page": null
+"mistraly:meat_axe": {
+"name": "Мясной топор",
+"icon": "/images/wiki/meat_axe.png",
+"page": "meat-gear"
 },
-"mistraly:diamond_knife": {
-"name": "Алмазный нож",
-"icon": "/images/wiki/diamond_knife.png",
-"page": "knives"
-},
-"minecraft:diamond_ore": {
-"name": "Алмазная руда",
-"icon": null,
-"page": null
-},
-"mistraly:bone_boots": {
-"name": "Костяные ботинки",
-"icon": "/images/wiki/bone_boots.png",
-"page": "bone-gear"
+"mistraly:raw_copper_nugget": {
+"name": "Самородок сырой меди",
+"icon": "/images/wiki/raw_copper_nugget.png",
+"page": "nuggets"
 },
 "minecraft:diamond": {
 "name": "Алмаз",
 "icon": null,
 "page": null
 },
-"mistraly:shop": {
-"name": "Магазин",
-"icon": "/images/wiki/shop.png",
-"page": "shops"
+"minecraft:raw_iron": {
+"name": "Сырое железо",
+"icon": null,
+"page": null
+},
+"#minecraft:gold_tool_materials": {
+"name": "Золотой слиток",
+"icon": null,
+"page": null
+},
+"mistraly:bone_leggings": {
+"name": "Костяные поножи",
+"icon": "/images/wiki/bone_leggings.png",
+"page": "bone-gear"
+},
+"minecraft:copper_nugget": {
+"name": "Медный самородок",
+"icon": null,
+"page": null
 },
 "mistraly:bone_pickaxe": {
 "name": "Костяная кирка",
 "icon": "/images/wiki/bone_pickaxe.png",
 "page": "bone-gear"
 },
-"minecraft:raw_gold": {
-"name": "Сырое золото",
+"minecraft:iron_nugget": {
+"name": "Железный самородок",
 "icon": null,
 "page": null
 },
-"mistraly:coal_lump": {
-"name": "Кусок угля",
-"icon": "/images/wiki/coal_lump.png",
-"page": "nuggets"
+"#minecraft:copper_tool_materials": {
+"name": "Медный слиток",
+"icon": null,
+"page": null
 },
-"minecraft:iron_ingot": {
-"name": "Железный слиток",
+"minecraft:diamond_ore": {
+"name": "Алмазная руда",
+"icon": null,
+"page": null
+},
+"minecraft:raw_copper": {
+"name": "Сырая медь",
 "icon": null,
 "page": null
 },
@@ -320,30 +335,20 @@
 "icon": null,
 "page": null
 },
-"mistraly:rough_diamond_shard": {
-"name": "Неогранённый осколок алмаза",
-"icon": "/images/wiki/rough_diamond_shard.png",
-"page": "gems"
-},
-"#minecraft:meat": {
-"name": "Любое мясо",
-"icon": null,
-"page": null
-},
-"minecraft:bone": {
-"name": "Кость",
-"icon": null,
-"page": null
-},
-"mistraly:rough_diamond": {
-"name": "Неогранённый алмаз",
-"icon": "/images/wiki/rough_diamond.png",
-"page": "gems"
-},
-"mistraly:unactive_meat_trim": {
-"name": "Неактивное мясное улучшение",
-"icon": "/images/wiki/unactive_meat_trim.png",
+"mistraly:meat_hoe": {
+"name": "Мясная мотыга",
+"icon": "/images/wiki/meat_hoe.png",
 "page": "meat-gear"
+},
+"mistraly:rough_emerald_shard": {
+"name": "Неогранённый осколок изумруда",
+"icon": "/images/wiki/rough_emerald_shard.png",
+"page": "gems"
+},
+"mistraly:deepslate_mist_ore": {
+"name": "Глубинносланцевая мистовая руда",
+"icon": "/images/wiki/deepslate_mist_ore.png",
+"page": "mist"
 },
 "mistraly:meat_shovel": {
 "name": "Мясная лопата",
@@ -355,13 +360,28 @@
 "icon": null,
 "page": null
 },
-"minecraft:chest": {
-"name": "Сундук",
+"mistraly:bone_hoe": {
+"name": "Костяная мотыга",
+"icon": "/images/wiki/bone_hoe.png",
+"page": "bone-gear"
+},
+"mistraly:raw_mist": {
+"name": "Сырой мист",
+"icon": "/images/wiki/raw_mist.png",
+"page": "mist"
+},
+"#mistraly:bone_tool_materials": {
+"name": "Кость",
 "icon": null,
 "page": null
 },
-"#minecraft:copper_tool_materials": {
-"name": "Медный слиток",
+"mistraly:rough_diamond": {
+"name": "Неогранённый алмаз",
+"icon": "/images/wiki/rough_diamond.png",
+"page": "gems"
+},
+"minecraft:gold_ingot": {
+"name": "Золотой слиток",
 "icon": null,
 "page": null
 },
@@ -370,153 +390,48 @@
 "icon": "/images/wiki/rough_emerald.png",
 "page": "gems"
 },
-"mistraly:bone_shovel": {
-"name": "Костяная лопата",
-"icon": "/images/wiki/bone_shovel.png",
-"page": "bone-gear"
-},
-"minecraft:redstone": {
-"name": "Редстоун",
-"icon": null,
-"page": null
-},
-"minecraft:gold_nugget": {
-"name": "Золотой самородок",
-"icon": null,
-"page": null
-},
-"#mistraly:bone_tool_materials": {
+"minecraft:bone": {
 "name": "Кость",
 "icon": null,
 "page": null
-},
-"mistraly:lapis_lazuli_shard": {
-"name": "Осколок лазурита",
-"icon": "/images/wiki/lapis_lazuli_shard.png",
-"page": "gems"
-},
-"mistraly:meat_trim": {
-"name": "Мясное улучшение",
-"icon": "/images/wiki/meat_trim.png",
-"page": "meat-gear"
-},
-"mistraly:deepslate_mist_ore": {
-"name": "Глубинносланцевая мистовая руда",
-"icon": "/images/wiki/deepslate_mist_ore.png",
-"page": "mist"
-},
-"mistraly:rough_lazurite": {
-"name": "Необработанный лазурит",
-"icon": "/images/wiki/rough_lazurite.png",
-"page": "gems"
-},
-"mistraly:meat_sword": {
-"name": "Мясной меч",
-"icon": "/images/wiki/meat_sword.png",
-"page": "meat-gear"
-},
-"minecraft:iron_nugget": {
-"name": "Железный самородок",
-"icon": null,
-"page": null
-},
-"mistraly:raw_gold_nugget": {
-"name": "Самородок сырого золота",
-"icon": "/images/wiki/raw_gold_nugget.png",
-"page": "nuggets"
-},
-"mistraly:flint_knife": {
-"name": "Кремнёвый нож",
-"icon": "/images/wiki/flint_knife.png",
-"page": "knives"
-},
-"mistraly:netherite_knife": {
-"name": "Незеритовый нож",
-"icon": "/images/wiki/netherite_knife.png",
-"page": "knives"
-},
-"mistraly:rough_lazurite_shard": {
-"name": "Осколок необработанного лазурита",
-"icon": "/images/wiki/rough_lazurite_shard.png",
-"page": "gems"
-},
-"#minecraft:wool": {
-"name": "Любая шерсть",
-"icon": null,
-"page": null
-},
-"minecraft:raw_copper": {
-"name": "Сырая медь",
-"icon": null,
-"page": null
-},
-"mistraly:raw_mist": {
-"name": "Сырой мист",
-"icon": "/images/wiki/raw_mist.png",
-"page": "mist"
-},
-"minecraft:gold_ingot": {
-"name": "Золотой слиток",
-"icon": null,
-"page": null
-},
-"minecraft:emerald": {
-"name": "Изумруд",
-"icon": null,
-"page": null
-},
-"mistraly:raw_copper_nugget": {
-"name": "Самородок сырой меди",
-"icon": "/images/wiki/raw_copper_nugget.png",
-"page": "nuggets"
-},
-"minecraft:coal_ore": {
-"name": "Угольная руда",
-"icon": null,
-"page": null
-},
-"mistraly:diamond_shard": {
-"name": "Осколок алмаза",
-"icon": "/images/wiki/diamond_shard.png",
-"page": "gems"
 },
 "mistraly:mist_ore": {
 "name": "Мистовая руда",
 "icon": "/images/wiki/mist_ore.png",
 "page": "mist"
 },
-"mistraly:bone_axe": {
-"name": "Костяной топор",
-"icon": "/images/wiki/bone_axe.png",
-"page": "bone-gear"
+"minecraft:gold_nugget": {
+"name": "Золотой самородок",
+"icon": null,
+"page": null
+},
+"mistraly:netherite_knife": {
+"name": "Незеритовый нож",
+"icon": "/images/wiki/netherite_knife.png",
+"page": "knives"
+},
+"minecraft:lapis_lazuli": {
+"name": "Лазурит",
+"icon": null,
+"page": null
+},
+"#minecraft:wool": {
+"name": "Любая шерсть",
+"icon": null,
+"page": null
 },
 "mistraly:iron_knife": {
 "name": "Железный нож",
 "icon": "/images/wiki/iron_knife.png",
 "page": "knives"
 },
-"minecraft:glass_pane": {
-"name": "Стеклянная панель",
-"icon": null,
-"page": null
+"mistraly:mist": {
+"name": "Мист",
+"icon": "/images/wiki/mist.png",
+"page": "mist"
 },
-"minecraft:copper_nugget": {
-"name": "Медный самородок",
-"icon": null,
-"page": null
-},
-"mistraly:meat_hoe": {
-"name": "Мясная мотыга",
-"icon": "/images/wiki/meat_hoe.png",
-"page": "meat-gear"
-},
-"minecraft:coal": {
-"name": "Уголь",
-"icon": null,
-"page": null
-},
-"minecraft:raw_iron": {
-"name": "Сырое железо",
+"minecraft:coal_ore": {
+"name": "Угольная руда",
 "icon": null,
 "page": null
 },
@@ -525,103 +440,78 @@
 "icon": "/images/wiki/meat_pickaxe.png",
 "page": "meat-gear"
 },
-"mistraly:emerald_shard": {
-"name": "Осколок изумруда",
-"icon": "/images/wiki/emerald_shard.png",
-"page": "gems"
-},
 "mistraly:atm": {
 "name": "Банкомат",
 "icon": "/images/wiki/atm.png",
 "page": "atm"
-},
-"#minecraft:planks": {
-"name": "Любые доски",
-"icon": null,
-"page": null
 },
 "mistraly:bone_sword": {
 "name": "Костяной меч",
 "icon": "/images/wiki/bone_sword.png",
 "page": "bone-gear"
 },
-"mistraly:golden_knife": {
-"name": "Золотой нож",
-"icon": "/images/wiki/golden_knife.png",
-"page": "knives"
+"minecraft:emerald": {
+"name": "Изумруд",
+"icon": null,
+"page": null
 },
-"mistraly:rough_emerald_shard": {
-"name": "Неогранённый осколок изумруда",
-"icon": "/images/wiki/rough_emerald_shard.png",
+"minecraft:raw_gold": {
+"name": "Сырое золото",
+"icon": null,
+"page": null
+},
+"mistraly:rough_lazurite": {
+"name": "Необработанный лазурит",
+"icon": "/images/wiki/rough_lazurite.png",
 "page": "gems"
 },
-"#minecraft:gold_tool_materials": {
-"name": "Золотой слиток",
-"icon": null,
-"page": null
-},
-"minecraft:netherite_upgrade_smithing_template": {
-"name": "Шаблон незеритового улучшения",
-"icon": null,
-"page": null
-},
-"mistraly:raw_mist_shard": {
-"name": "Сырой осколок миста",
-"icon": "/images/wiki/raw_mist_shard.png",
-"page": "mist"
-},
-"#minecraft:netherite_tool_materials": {
-"name": "Незеритовый слиток",
-"icon": null,
-"page": null
-},
-"mistraly:mist_shard": {
-"name": "Осколок миста",
-"icon": "/images/wiki/mist_shard.png",
-"page": "mist"
-},
-"mistraly:raw_iron_nugget": {
-"name": "Самородок сырого железа",
-"icon": "/images/wiki/raw_iron_nugget.png",
+"mistraly:raw_gold_nugget": {
+"name": "Самородок сырого золота",
+"icon": "/images/wiki/raw_gold_nugget.png",
 "page": "nuggets"
+},
+"mistraly:meat_trim": {
+"name": "Мясное улучшение",
+"icon": "/images/wiki/meat_trim.png",
+"page": "meat-gear"
+},
+"#minecraft:meat": {
+"name": "Любое мясо",
+"icon": null,
+"page": null
+},
+"mistraly:diamond_shard": {
+"name": "Осколок алмаза",
+"icon": "/images/wiki/diamond_shard.png",
+"page": "gems"
+},
+"mistraly:bone_axe": {
+"name": "Костяной топор",
+"icon": "/images/wiki/bone_axe.png",
+"page": "bone-gear"
 },
 "mistraly:bone_helmet": {
 "name": "Костяной шлем",
 "icon": "/images/wiki/bone_helmet.png",
 "page": "bone-gear"
 },
-"mistraly:bone_hoe": {
-"name": "Костяная мотыга",
-"icon": "/images/wiki/bone_hoe.png",
-"page": "bone-gear"
-},
-"mistraly:mist": {
-"name": "Мист",
-"icon": "/images/wiki/mist.png",
-"page": "mist"
-},
-"mistraly:bone_chestplate": {
-"name": "Костяной нагрудник",
-"icon": "/images/wiki/bone_chestplate.png",
-"page": "bone-gear"
-},
-"mistraly:copper_knife": {
-"name": "Медный нож",
-"icon": "/images/wiki/copper_knife.png",
-"page": "knives"
-},
-"mistraly:bone_leggings": {
-"name": "Костяные поножи",
-"icon": "/images/wiki/bone_leggings.png",
-"page": "bone-gear"
-},
-"minecraft:grindstone": {
-"name": "Точило",
+"minecraft:netherite_upgrade_smithing_template": {
+"name": "Шаблон незеритового улучшения",
 "icon": null,
 "page": null
 },
-"minecraft:lapis_lazuli": {
-"name": "Лазурит",
+"#minecraft:planks": {
+"name": "Любые доски",
+"icon": null,
+"page": null
+},
+"mistraly:rough_diamond_shard": {
+"name": "Неогранённый осколок алмаза",
+"icon": "/images/wiki/rough_diamond_shard.png",
+"page": "gems"
+},
+"minecraft:coal": {
+"name": "Уголь",
 "icon": null,
 "page": null
 },
@@ -629,6 +519,116 @@
 "name": "Палка",
 "icon": null,
 "page": null
+},
+"mistraly:unactive_meat_trim": {
+"name": "Неактивное мясное улучшение",
+"icon": "/images/wiki/unactive_meat_trim.png",
+"page": "meat-gear"
+},
+"mistraly:bone_boots": {
+"name": "Костяные ботинки",
+"icon": "/images/wiki/bone_boots.png",
+"page": "bone-gear"
+},
+"minecraft:glass_pane": {
+"name": "Стеклянная панель",
+"icon": null,
+"page": null
+},
+"mistraly:copper_knife": {
+"name": "Медный нож",
+"icon": "/images/wiki/copper_knife.png",
+"page": "knives"
+},
+"mistraly:golden_knife": {
+"name": "Золотой нож",
+"icon": "/images/wiki/golden_knife.png",
+"page": "knives"
+},
+"mistraly:coal_lump": {
+"name": "Кусок угля",
+"icon": "/images/wiki/coal_lump.png",
+"page": "nuggets"
+},
+"#minecraft:netherite_tool_materials": {
+"name": "Незеритовый слиток",
+"icon": null,
+"page": null
+},
+"minecraft:grindstone": {
+"name": "Точило",
+"icon": null,
+"page": null
+},
+"mistraly:raw_iron_nugget": {
+"name": "Самородок сырого железа",
+"icon": "/images/wiki/raw_iron_nugget.png",
+"page": "nuggets"
+},
+"mistraly:meat_sword": {
+"name": "Мясной меч",
+"icon": "/images/wiki/meat_sword.png",
+"page": "meat-gear"
+},
+"mistraly:raw_mist_shard": {
+"name": "Сырой осколок миста",
+"icon": "/images/wiki/raw_mist_shard.png",
+"page": "mist"
+},
+"minecraft:iron_ingot": {
+"name": "Железный слиток",
+"icon": null,
+"page": null
+},
+"minecraft:redstone": {
+"name": "Редстоун",
+"icon": null,
+"page": null
+},
+"minecraft:iron_ore": {
+"name": "Железная руда",
+"icon": null,
+"page": null
+},
+"mistraly:bone_chestplate": {
+"name": "Костяной нагрудник",
+"icon": "/images/wiki/bone_chestplate.png",
+"page": "bone-gear"
+},
+"mistraly:shop": {
+"name": "Магазин",
+"icon": "/images/wiki/shop.png",
+"page": "shops"
+},
+"mistraly:diamond_knife": {
+"name": "Алмазный нож",
+"icon": "/images/wiki/diamond_knife.png",
+"page": "knives"
+},
+"mistraly:lapis_lazuli_shard": {
+"name": "Осколок лазурита",
+"icon": "/images/wiki/lapis_lazuli_shard.png",
+"page": "gems"
+},
+"mistraly:flint_knife": {
+"name": "Кремнёвый нож",
+"icon": "/images/wiki/flint_knife.png",
+"page": "knives"
+},
+"mistraly:rough_lazurite_shard": {
+"name": "Осколок необработанного лазурита",
+"icon": "/images/wiki/rough_lazurite_shard.png",
+"page": "gems"
+},
+"mistraly:bone_shovel": {
+"name": "Костяная лопата",
+"icon": "/images/wiki/bone_shovel.png",
+"page": "bone-gear"
+},
+"mistraly:emerald_shard": {
+"name": "Осколок изумруда",
+"icon": "/images/wiki/emerald_shard.png",
+"page": "gems"
 }
 },
 "recipes": {

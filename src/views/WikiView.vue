@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Search, X } from '../lib/icons'
+import { Clock, History, Home, Package, Plus, ScrollText, Search, X } from '../lib/icons'
 import { api, errorMessage, unwrap } from '../api/client'
 import { headHtml } from '../lib/wikiMarkup'
 import { useAuthStore } from '../stores/auth'
-import { cats, groups, itemById, leadText, loadPages, pages, type Revision, type RevisionFull } from '../stores/wiki'
+import { catIcon, cats, groups, itemById, leadText, loadPages, pageIcon, pages, type Revision, type RevisionFull } from '../stores/wiki'
 import WikiArticle from '../components/WikiArticle.vue'
 import WikiBlocks from '../components/WikiBlocks.vue'
 import WikiEditor from '../components/WikiEditor.vue'
+import PlayerProfile, { type GameProfile } from '../components/PlayerProfile.vue'
 
 /**
  * Вики в раскладке minecraft.wiki: боковые блоки, вкладки над статьёй и поиск.
@@ -78,6 +79,7 @@ function onBodyClick(e: MouseEvent) {
 const list = ref<Revision[]>([])
 const old = ref<RevisionFull | null>(null)
 const player = ref<{ username: string; role: string; created_at: string; edits: Revision[] } | null>(null)
+const game = ref<{ name: string; data: GameProfile; updated_at: string } | null>(null)
 const loadError = ref('')
 const busy = ref(false)
 
@@ -94,12 +96,20 @@ async function fetchKind() {
   list.value = []
   old.value = null
   player.value = null
+  game.value = null
   try {
     if (kind.value === 'history') list.value = await unwrap(api.get(`/wiki/pages/${slug.value}/history`))
     else if (kind.value === 'recent') list.value = await unwrap(api.get('/wiki/recent'))
     else if (kind.value === 'my' && auth.isAuthenticated) list.value = await unwrap(api.get('/wiki/my-edits'))
     else if (kind.value === 'rev') old.value = await unwrap(api.get(`/wiki/revisions/${parts.value[2]}`))
-    else if (kind.value === 'user') player.value = await unwrap(api.get(`/wiki/users/${encodeURIComponent(parts.value[1] ?? '')}`))
+    else if (kind.value === 'user') {
+      const name = encodeURIComponent(parts.value[1] ?? '')
+      // Игрок мог ещё ни разу не зайти на сервер: тогда покажем только вики.
+      unwrap<{ name: string; data: GameProfile; updated_at: string }>(api.get(`/players/${name}`))
+        .then((p) => (game.value = p))
+        .catch(() => {})
+      player.value = await unwrap(api.get(`/wiki/users/${name}`))
+    }
   } catch (e) {
     loadError.value = errorMessage(e, 'Не удалось загрузить данные')
   }
@@ -165,17 +175,19 @@ function login() {
           <nav aria-label="Разделы вики">
             <div class="portlet">
               <div class="portlet-title">Вики</div>
-              <router-link to="/wiki">Заглавная</router-link>
-              <router-link to="/wiki/recent">Свежие правки</router-link>
-              <router-link to="/wiki/items">Все предметы</router-link>
-              <router-link to="/wiki/formatting">Форматирование</router-link>
-              <router-link to="/wiki/new">Создать статью</router-link>
-              <router-link to="/wiki/my">Мои правки</router-link>
+              <router-link to="/wiki" class="portlet-link"><Home :size="12" />Заглавная</router-link>
+              <router-link to="/wiki/recent" class="portlet-link"><Clock :size="12" />Свежие правки</router-link>
+              <router-link to="/wiki/items" class="portlet-link"><Package :size="12" />Все предметы</router-link>
+              <router-link to="/wiki/formatting" class="portlet-link"><ScrollText :size="12" />Форматирование</router-link>
+              <router-link to="/wiki/new" class="portlet-link"><Plus :size="12" />Создать статью</router-link>
+              <router-link to="/wiki/my" class="portlet-link"><History :size="12" />Мои правки</router-link>
             </div>
             <div class="portlet">
               <div class="portlet-title">Разделы</div>
               <template v-for="c in cats" :key="c.name">
-                <router-link :to="`/wiki/category/${c.name}`" :class="{ 'is-cat': openCat === c.name }">{{ c.name }}</router-link>
+                <router-link :to="`/wiki/category/${c.name}`" class="portlet-link" :class="{ 'is-cat': openCat === c.name }">
+                  <component :is="catIcon(c.name)" :size="12" />{{ c.name }}
+                </router-link>
                 <template v-if="openCat === c.name">
                   <router-link
                     v-for="p in catPages(c.name)"
@@ -184,6 +196,8 @@ function login() {
                     class="portlet-sub"
                     :class="{ 'is-on': slug === p.slug }"
                   >
+                    <img v-if="pageIcon(p).img" :src="pageIcon(p).img!" alt="" class="wiki-mini-img" />
+                    <component :is="pageIcon(p).icon" v-else :size="12" />
                     {{ p.title }}
                   </router-link>
                 </template>
@@ -301,14 +315,15 @@ function login() {
 
           <div v-else-if="kind === 'user'" class="wiki-sheet">
             <template v-if="player">
-              <div class="player-head">
+              <PlayerProfile v-if="game" :name="game.name" :data="game.data" :updated="game.updated_at" />
+              <div v-else class="player-head">
                 <span v-html="headHtml(player.username, 96)"></span>
                 <div>
                   <h1 class="wiki-title">{{ player.username }}</h1>
-                  <p class="wiki-lead">Участник с {{ when(player.created_at).split(',')[0] }}. Принятых правок: {{ player.edits.length }}.</p>
+                  <p class="wiki-lead">Участник с {{ when(player.created_at).split(',')[0] }}. На сервер ещё не заходил.</p>
                 </div>
               </div>
-              <h2 class="art-h2">Вклад в вики</h2>
+              <h2 class="art-h2">Вклад в вики: {{ player.edits.length }}</h2>
               <p v-if="!player.edits.length" class="art-p">Правок пока нет.</p>
               <ul v-else class="art-ul">
                 <li v-for="r in player.edits" :key="r.id">
@@ -333,11 +348,15 @@ function login() {
           </div>
 
           <div v-else-if="kind === 'category' && catPages(catName).length" class="wiki-sheet">
-            <h1 class="wiki-title">Категория: {{ catName }}</h1>
+            <h1 class="wiki-title wiki-title--icon"><component :is="catIcon(catName)" :size="36" />Категория: {{ catName }}</h1>
             <p class="wiki-lead">В этой категории статей: {{ catPages(catName).length }}.</p>
             <ul class="wiki-catlist">
               <li v-for="p in catPages(catName)" :key="p.slug">
-                <router-link :to="`/wiki/${p.slug}`">{{ p.title }}</router-link>
+                <router-link :to="`/wiki/${p.slug}`" class="portal-link">
+                  <img v-if="pageIcon(p).img" :src="pageIcon(p).img!" alt="" class="wiki-mini-img" />
+                  <component :is="pageIcon(p).icon" v-else :size="12" />
+                  {{ p.title }}
+                </router-link>
                 <p>{{ leadText(p.source) }}</p>
               </li>
             </ul>
@@ -352,19 +371,25 @@ function login() {
           <div v-else class="wiki-sheet">
             <h1 class="wiki-title">Добро пожаловать в вики Mistraly</h1>
             <p class="wiki-lead">
-              Здесь собрано всё про второй сезон сервера: экономика, механики, предметы и рецепты. Статей: {{ pages.length }}.
+              Здесь собрано всё про сервер Mistraly: экономика, механики, предметы и рецепты. Статей: {{ pages.length }}.
               Вики пишут сами игроки: нажмите «Править» на любой странице, а после проверки ваш ник появится среди авторов.
             </p>
             <div class="wiki-portals">
               <section v-for="c in cats" :key="c.name" class="wiki-portal">
-                <h2><router-link :to="`/wiki/category/${c.name}`">{{ c.name }}</router-link></h2>
+                <h2><component :is="catIcon(c.name)" :size="24" /><router-link :to="`/wiki/category/${c.name}`">{{ c.name }}</router-link></h2>
                 <p>{{ c.text }}</p>
                 <ul>
-                  <li v-for="p in catPages(c.name)" :key="p.slug"><router-link :to="`/wiki/${p.slug}`">{{ p.title }}</router-link></li>
+                  <li v-for="p in catPages(c.name)" :key="p.slug">
+                    <router-link :to="`/wiki/${p.slug}`" class="portal-link">
+                      <img v-if="pageIcon(p).img" :src="pageIcon(p).img!" alt="" class="wiki-mini-img" />
+                      <component :is="pageIcon(p).icon" v-else :size="12" />
+                      {{ p.title }}
+                    </router-link>
+                  </li>
                 </ul>
               </section>
               <section class="wiki-portal">
-                <h2>Участие</h2>
+                <h2><Plus :size="24" />Участие</h2>
                 <p>Как помочь вики.</p>
                 <ul>
                   <li><router-link to="/wiki/formatting">Форматирование и разметка</router-link></li>
@@ -443,6 +468,29 @@ function login() {
 .portlet a.is-cat {
   color: #fff;
   font-weight: 700;
+}
+.portlet-link,
+.portlet-sub,
+.portal-link {
+  display: flex !important;
+  align-items: center;
+  gap: 6px;
+}
+.wiki-mini-img {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  image-rendering: pixelated;
+}
+.wiki-title--icon {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.wiki-title--icon img {
+  width: 40px;
+  height: 40px;
+  image-rendering: pixelated;
 }
 .portlet-sub {
   padding-left: 20px !important;
@@ -607,6 +655,9 @@ function login() {
   border: 2px solid #2b2b2c;
 }
 .wiki-portal h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin: 0;
   padding: 6px 12px;
   background: #2d2d2e;
@@ -1318,5 +1369,14 @@ a.art-author:hover {
     display: block;
     overflow-x: auto;
   }
+}
+</style>
+<style>
+.infobox-art svg {
+  color: var(--sky);
+}
+.wiki-title--icon svg {
+  flex: none;
+  color: var(--sky);
 }
 </style>

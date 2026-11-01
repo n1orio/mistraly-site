@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import SkinViewer3D from '../components/SkinViewer3D.vue'
+import GameSettings from '../components/GameSettings.vue'
 import {
   Download,
   LogOut,
@@ -209,7 +210,8 @@ function statusBadge(status: string) {
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
               <div class="mc-well p-3">
                 <span class="text-[14px] text-[var(--text-sub)] block">Никнейм в игре</span>
-                <strong>{{ linkedNickname?.nickname || 'Не привязан' }}</strong>
+                <router-link v-if="linkedNickname?.nickname" :to="`/wiki/user/${encodeURIComponent(linkedNickname.nickname)}`" class="mc-link font-bold">{{ linkedNickname.nickname }}</router-link>
+                <strong v-else>Не привязан</strong>
               </div>
               <div class="mc-well p-3">
                 <span class="text-[14px] text-[var(--text-sub)] block">Discord</span>
@@ -226,6 +228,8 @@ function statusBadge(status: string) {
             </router-link>
             <button v-else class="mc-btn mc-btn--block" @click="buyPass">Купить Mistraly Pass →</button>
           </section>
+
+          <GameSettings />
 
           <!-- Журнал покупок -->
           <section class="mc-panel p-6">
