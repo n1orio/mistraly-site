@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, markRaw } from 'vue'
-import { Cpu, MessageSquare, ShieldCheck, Sparkles, AlertTriangle } from '../lib/icons'
+import { Cpu, MessageSquare, Radio, ShieldCheck, Sparkles, AlertTriangle } from '../lib/icons'
 
 const selectedIndex = ref(0)
 const sheet = ref<HTMLElement | null>(null)
@@ -81,8 +81,20 @@ const faqs = [
     ]
   },
   {
-    id: 'chat',
+    id: 'voice',
     tag: 'СВЯЗЬ',
+    menuTitle: 'Голосовой чат',
+    title: 'Есть ли голосовой чат прямо в игре?',
+    icon: markRaw(Radio),
+    content: [
+      'Да, голосовой чат встроен в сборку: ничего отдельно ставить не нужно.',
+      'Он работает по расстоянию: вас слышат игроки поблизости, и чем дальше собеседник, тем тише голос.',
+      'Говорить голосом необязательно: текстовый чат никуда не делся, а принуждать к голосовому запрещено правилами.'
+    ]
+  },
+  {
+    id: 'chat',
+    tag: 'ЧАТ',
     menuTitle: 'Как работает чат',
     title: 'Как устроен чат в игре?',
     icon: markRaw(MessageSquare),
