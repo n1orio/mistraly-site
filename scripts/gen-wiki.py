@@ -508,6 +508,7 @@ for f in sorted(glob.glob(f'{ASSET_ROOT}/**/*.png', recursive=True)):
 data = {'pages': pages, 'assets': assets, 'cats': [{'name': c, 'text': CAT_TEXT[c]} for c in CATS],
         'groups': groups, 'items': items, 'recipes': recipes}
 json.dump(data, open(OUT_JSON, 'w', encoding='utf-8'), ensure_ascii=False, indent=0)
-# Базовые статьи для вики в игре: мод забирает их с сайта вместе с правками игроков.
-json.dump({'pages': pages}, open('public/wiki-pages.json', 'w', encoding='utf-8'), ensure_ascii=False)
+# Данные для вики в игре: мод забирает их с сайта вместе с правками игроков.
+json.dump({'pages': pages, 'cats': data['cats'], 'groups': groups, 'recipes': recipes},
+          open('public/wiki-pages.json', 'w', encoding='utf-8'), ensure_ascii=False)
 print(len(pages), 'статей,', len(items), 'предметов,', len(os.listdir(OUT_IMG)), 'картинок')
