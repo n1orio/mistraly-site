@@ -83,7 +83,7 @@ function isActive(tab: { to: string; exact?: boolean }) {
   z-index: 50;
   width: 100%;
   background: var(--bg-void);
-  box-shadow: 0 3px 0 0 var(--ink), inset 0 -3px 0 0 var(--panel);
+  box-shadow: inset 0 -2px 0 0 #2B2B2C;
 }
 .top-in {
   display: flex;
@@ -135,8 +135,8 @@ function isActive(tab: { to: string; exact?: boolean }) {
   right: 0;
   bottom: 0;
   height: 6px;
-  background: var(--sky);
-  box-shadow: inset 0 3px 0 0 #C5EEFF;
+  background: var(--blue);
+  box-shadow: inset 0 3px 0 0 var(--blue-hi);
 }
 .tab:focus-visible,
 .me:focus-visible {
@@ -176,7 +176,6 @@ function isActive(tab: { to: string; exact?: boolean }) {
   height: 32px;
   overflow: hidden;
   background: var(--blue-lo);
-  box-shadow: 0 0 0 3px var(--ink);
 }
 .me-face img {
   width: 100%;
@@ -213,7 +212,7 @@ function isActive(tab: { to: string; exact?: boolean }) {
     gap: 0;
     height: 64px;
     background: var(--bg-void);
-    box-shadow: 0 -3px 0 0 var(--ink), inset 0 3px 0 0 var(--panel);
+    box-shadow: inset 0 2px 0 0 #2B2B2C;
   }
   .tab {
     flex: 1;

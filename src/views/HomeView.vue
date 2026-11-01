@@ -77,7 +77,7 @@ function scrollToContent() {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(11, 26, 62, 0.25) 0%, rgba(11, 26, 62, 0.05) 45%, rgba(11, 26, 62, 0.45) 100%),
+    linear-gradient(180deg, rgba(18, 18, 18, 0.45) 0%, rgba(18, 18, 18, 0.2) 45%, rgba(18, 18, 18, 0.6) 100%),
     url(/images/shots/lake.webp) center 35% / cover no-repeat;
 }
 .hero-in {
@@ -97,13 +97,13 @@ function scrollToContent() {
   color: #fff;
   font-size: 120px;
   line-height: 1;
-  text-shadow: 0 6px 0 rgba(5, 11, 30, 0.6);
+  text-shadow: 0 6px 0 rgba(5, 5, 5, 0.6);
 }
 .hero-lead {
   max-width: 620px;
   margin: 0;
   padding: 8px 16px;
-  background: rgba(6, 13, 34, 0.72);
+  background: rgba(12, 12, 12, 0.72);
   color: #fff;
   font-size: 19px;
   line-height: 1.45;

@@ -73,7 +73,7 @@ const hints: Record<string, string> = {
 <template>
   <div
     v-if="store.open"
-    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#050B1E]/85"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#050505]/85"
     @click.self="store.close"
   >
     <div class="w-full max-w-md relative">

@@ -56,6 +56,6 @@ a {
   font-size: 14px;
 }
 a:hover {
-  background: #4c95ff;
+  background: var(--blue-hi);
 }
 </style>

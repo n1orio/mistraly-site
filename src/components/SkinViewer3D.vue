@@ -66,7 +66,7 @@ async function boot() {
       height: host.clientHeight || 320,
       // Непрозрачный тёмный фон: подложка карточки почти чёрная, и на
       // ней светлая модель читалась бы плохо.
-      background: '#1A1811',
+      background: '#141414',
       // Только два формата, как и задумано игрой: classic (обычные
       // руки) и slim (тонкие).
       //
@@ -339,7 +339,7 @@ onBeforeUnmount(destroyViewer)
 }
 
 .skin3d-btn:hover {
-  background: #4c95ff;
+  background: var(--blue-hi);
 }
 
 @media (prefers-reduced-motion: reduce) {

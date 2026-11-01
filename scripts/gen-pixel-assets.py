@@ -23,6 +23,6 @@ def dither(name, rows, colour):
     img.save(f'{OUT}/{name}.png', optimize=True)
 
 
-dither('dither-page', 12, (11, 26, 62))   # --bg-page
-dither('dither-panel', 8, (18, 42, 92))   # --panel
-dither('dither-void', 12, (6, 13, 34))    # тёмная полоса лора
+dither('dither-page', 12, (18, 18, 18))   # --bg-page
+dither('dither-panel', 8, (26, 26, 26))   # --panel
+dither('dither-void', 12, (12, 12, 12))    # тёмная полоса лора

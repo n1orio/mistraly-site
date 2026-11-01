@@ -18,20 +18,19 @@
 
 /* =========================================================
    ПАЛИТРА
-   Синяя, тема одна. --ink — контур всех пиксельных блоков, как чёрная
-   обводка кнопок официального лаунчера.
+   Нейтральный графит и один яркий синий акцент. Цвет не льём на фон:
+   он остаётся только на кнопках, активных вкладках и выделенных словах.
    ========================================================= */
 html{
   color-scheme:dark;
-  --bg-page:#0B1A3E;--bg-void:#060D22;
-  --panel:#122A5C;--panel-hi:#1A3A78;--well:#0A1736;
-  --ink:#050B1E;--line:#2A4F9A;
-  --blue:#2F80FF;--blue-hi:#7CBBFF;--blue-lo:#1450C4;--blue-lip:#0D347F;
-  --sky:#6FD0FF;
-  --ok:#5BE39A;--warn:#FFD166;--bad:#FF7A85;
-  --text-main:#EEF5FF;--text-muted:#B3C7E8;--text-sub:#84A0CC;
+  --bg-page:#121212;--bg-void:#0C0C0C;
+  --panel:#1A1A1A;--panel-hi:#222223;--well:#141414;
+  --ink:#050505;--line:#3D3D3D;
+  --blue:#186EF0;--blue-hi:#6FA3F2;--blue-lo:#1357BD;--blue-lip:#0E3F8A;
+  --sky:#5C9DF5;
+  --ok:#2BD948;--warn:#F2C037;--bad:#EB5A4E;
+  --text-main:#E1E5EB;--text-muted:#B3B3B3;--text-sub:#81868F;
   --bg-card:var(--panel);--bg-card-hover:var(--panel-hi);--border-color:var(--line);
-  
   background-color:var(--bg-page);
 }
 html,body{margin:0;padding:0;width:100%;min-height:100vh;color:var(--text-main);font-family:'Noto Sans','Helvetica Neue',Arial,sans-serif;font-weight:400;font-size:16px;line-height:1.5}
@@ -47,7 +46,7 @@ h1,h2,h3,h4,.font-heading{font-family:'Minecraft Ten','Noto Sans',sans-serif;fon
 @layer components{
   /* Блоки как на minecraft.net: прямые углы и сплошная рамка 2 px. */
   .mc-box{
-    --edge:var(--ink);
+    --edge:#2B2B2C;
     border:2px solid var(--edge);
     box-shadow:var(--bevel,0 0 #0000);
   }
@@ -61,7 +60,7 @@ h1,h2,h3,h4,.font-heading{font-family:'Minecraft Ten','Noto Sans',sans-serif;fon
     @apply mc-box;
     background:var(--well);
     --edge:var(--line);
-    --bevel:inset 0 6px 0 0 rgba(0,0,0,.35);
+    --bevel:inset 0 6px 0 0 rgba(0,0,0,.3);
   }
   .mc-slot{
     @apply mc-well;
@@ -72,7 +71,7 @@ h1,h2,h3,h4,.font-heading{font-family:'Minecraft Ten','Noto Sans',sans-serif;fon
      сверху светлая полоса 6 px, снизу тёмная. Наведение затемняет заливку на
      10 %, нажатие убирает полосы и заливает кнопку тёмным. */
   .mc-btn{
-    --face:var(--blue);--top:#5B9DFF;--lip:#1A5CD1;--fg:#fff;--inset:6px;
+    --face:var(--blue);--top:var(--blue-hi);--lip:var(--blue-lo);--fg:#fff;--inset:6px;
     display:inline-flex;align-items:center;justify-content:center;gap:10px;
     padding:15px 28px;
     background:var(--face);color:var(--fg);
@@ -86,7 +85,7 @@ h1,h2,h3,h4,.font-heading{font-family:'Minecraft Ten','Noto Sans',sans-serif;fon
   .mc-btn:active:not(:disabled){background:var(--lip);box-shadow:none}
   .mc-btn:focus-visible{outline:2px solid #fff;outline-offset:2px}
   .mc-btn:disabled{cursor:not-allowed;opacity:.5}
-  .mc-btn--muted{--face:#27477F;--top:#3B609F;--lip:#1A3463;--fg:var(--text-main)}
+  .mc-btn--muted{--face:#2D2D2E;--top:#464747;--lip:#1E1E1F;--fg:var(--text-main)}
   .mc-btn--discord{--face:#5865F2;--top:#7E89F8;--lip:#3F4BC8}
   .mc-btn--block{display:flex;width:100%}
   .mc-btn--sm{--inset:4px;padding:9px 16px;font-size:14px;line-height:18px}
@@ -105,8 +104,8 @@ h1,h2,h3,h4,.font-heading{font-family:'Minecraft Ten','Noto Sans',sans-serif;fon
     display:inline-flex;align-items:center;gap:6px;padding:3px 8px;background:var(--blue-lo);color:#fff;
     font-weight:700;font-size:13px;line-height:1.2;letter-spacing:.06em;text-transform:uppercase;
   }
-  .mc-tag--ok{background:#176B45}.mc-tag--warn{background:#8A6A14}.mc-tag--bad{background:#8E2A38}
-  .mc-tag--dim{background:var(--well);color:var(--text-muted)}
+  .mc-tag--ok{background:#14632A}.mc-tag--warn{background:#7A5F12}.mc-tag--bad{background:#8A2A22}
+  .mc-tag--dim{background:#2D2D2E;color:var(--text-muted)}
 
   .section-head{text-align:center;margin-bottom:40px}
   .section-title{font-size:24px;line-height:1.25;margin:0 0 6px;color:var(--text-main)}

@@ -95,9 +95,9 @@ const FRAGMENT_SHADER = `
 
     // Жёсткая граница и три ступени цвета, без плавных переходов.
     float alpha = step(0.5, fireShape);
-    vec3 flameColor = vec3(0.078, 0.314, 0.769);                                    // основа #1450C4
-    if (fireShape < 0.74) flameColor = vec3(0.184, 0.502, 1.0);                     // #2F80FF
-    if (fireShape < 0.58) flameColor = vec3(0.435, 0.816, 1.0);                     // #6FD0FF
+    vec3 flameColor = vec3(0.075, 0.341, 0.741);                                    // основа #1357BD
+    if (fireShape < 0.74) flameColor = vec3(0.094, 0.431, 0.941);                   // #186EF0
+    if (fireShape < 0.58) flameColor = vec3(0.435, 0.639, 0.949);                   // #6FA3F2
     gl_FragColor = vec4(flameColor * alpha, alpha);
   }
 `
@@ -210,7 +210,7 @@ onMounted(() => {
   image-rendering: pixelated;
 }
 .base {
-  background: #1450C4;
+  background: var(--blue-lo);
 }
 .fire-title {
   margin: 0;
@@ -220,7 +220,7 @@ onMounted(() => {
 }
 .foot {
   background: var(--blue-lip);
-  color: #DCEBFF;
+  color: #E1E5EB;
 }
 .foot a:hover {
   color: #fff;

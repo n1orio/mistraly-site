@@ -179,7 +179,7 @@ const content = computed(() => selected.value.content ?? [])
   background: var(--panel-hi);
 }
 .q.is-active {
-  background: var(--blue-lo);
+  background: var(--blue);
   box-shadow: inset 6px 0 0 0 var(--sky);
 }
 .q:focus-visible {
@@ -203,7 +203,7 @@ const content = computed(() => selected.value.content ?? [])
   letter-spacing: 0.08em;
 }
 .q.is-active .q-tag {
-  color: #C5EEFF;
+  color: #fff;
 }
 .q-title {
   font-family: 'Noto Sans', 'Helvetica Neue', Arial, sans-serif;

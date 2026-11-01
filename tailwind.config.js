@@ -5,7 +5,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        brand: { dark: '#0B1A3E', card: '#122A5C', blue: '#2F80FF', cyan: '#6FD0FF' }
+        brand: { dark: '#121212', card: '#1A1A1A', blue: '#186EF0', cyan: '#5C9DF5' }
       },
       fontFamily: {
         sans: ['Noto Sans', 'Helvetica Neue', 'Arial', 'sans-serif'],

@@ -300,7 +300,7 @@ onUnmounted(() => {
   width: 420px;
   height: 420px;
   margin: -210px 0 0 -210px;
-  background: radial-gradient(circle, rgba(47, 128, 255, 0.26) 0%, rgba(47, 128, 255, 0.1) 40%, transparent 74%);
+  background: radial-gradient(circle, rgba(24, 110, 240, 0.26) 0%, rgba(24, 110, 240, 0.1) 40%, transparent 74%);
   filter: blur(46px);
   z-index: 0;
 }
