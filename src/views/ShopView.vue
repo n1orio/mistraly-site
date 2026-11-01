@@ -1,39 +1,30 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, markRaw } from 'vue'
-import { ShoppingBag, Gavel, Key, Globe } from 'lucide-vue-next'
-import { usePurchaseStore } from '../stores/purchase'
+import { ShoppingBag, Gavel, Key, Globe } from '../lib/icons'
+import { usePurchaseStore, isFree } from '../stores/purchase'
 import { api, unwrap, errorMessage } from '../api/client'
 import type { ShopItem } from '../stores/purchase'
 
 const purchaseStore = usePurchaseStore()
 
-const presentation: Record<string, { title: string; badge: string; icon: any; maxQty: number; accentColor: string; iconBg: string; clipPath: string }> = {
+const presentation: Record<string, { title: string; badge: string; icon: any; maxQty: number }> = {
   'service_unban': {
     title: 'Снятие блокировки',
     badge: 'Услуга',
     icon: markRaw(Gavel),
-    maxQty: 1,
-    accentColor: '#FF4444',
-    iconBg: '#2a1212',
-    clipPath: 'polygon(0% 1.5%, 100% 0%, 99% 98.5%, 1% 100%)'
+    maxQty: 1
   },
   'item_return_key': {
     title: 'Ключ возврата',
     badge: 'Предмет',
     icon: markRaw(Key),
-    maxQty: 10,
-    accentColor: '#FFCC00',
-    iconBg: '#2a2208',
-    clipPath: 'polygon(0.8% 0%, 99.5% 2%, 99% 100%, 0% 98%)'
+    maxQty: 10
   },
   'item_origin_sphere': {
     title: 'Сфера происхождения',
     badge: 'Артефакт',
     icon: markRaw(Globe),
-    maxQty: 10,
-    accentColor: '#A855F7',
-    iconBg: '#1e122b',
-    clipPath: 'polygon(0% 2%, 100% 0.5%, 98.5% 99%, 1.5% 97.5%)'
+    maxQty: 10
   }
 }
 
@@ -41,10 +32,7 @@ const fallback: (typeof presentation)[string] = {
   title: 'Товар',
   badge: 'Предмет',
   icon: markRaw(ShoppingBag),
-  maxQty: 1,
-  accentColor: '#0099FF',
-  iconBg: '#101113',
-  clipPath: 'polygon(0% 2%, 100% 0.5%, 98.5% 99%, 1.5% 97.5%)'
+  maxQty: 1
 }
 
 interface Card extends ShopItem {
@@ -53,18 +41,18 @@ interface Card extends ShopItem {
   desc: string
   icon: any
   maxQty: number
-  accentColor: string
-  iconBg: string
-  clipPath: string
 }
 
 const cards = ref<Card[]>([])
+/** Проходка с той же витрины: в сторе она грузится только при открытии модалки. */
+const pass = ref<ShopItem | null>(null)
 const loadError = ref('')
 const loading = ref(true)
 
 onMounted(async () => {
   try {
     const items = await unwrap<ShopItem[]>(api.get('/shop/items'))
+    pass.value = items.find((i) => i.item_type === 'pass') ?? null
     cards.value = items
       .filter((i) => i.item_type !== 'pass')
       .map((i) => {
@@ -75,10 +63,7 @@ onMounted(async () => {
           badge: look.badge,
           desc: i.description || '',
           icon: look.icon,
-          maxQty: look.maxQty,
-          accentColor: look.accentColor,
-          iconBg: look.iconBg,
-          clipPath: look.clipPath
+          maxQty: look.maxQty
         }
       })
   } catch (e) {
@@ -102,6 +87,23 @@ function openOrder(item: Card) {
   purchaseStore.showItem(item, qty.value[item.id] || 1)
 }
 
+function formatRub(kopecks: number): string {
+  return `${(kopecks / 100).toLocaleString('ru-RU', { maximumFractionDigits: 2 })} ₽`
+}
+
+/**
+ * Цена карточки с учётом выбранного количества.
+ *
+ * price_kopecks — источник истины: price в монетах витрины к деньгам
+ * отношения не имеет. Умножаем здесь, чтобы игрок видел итог до открытия
+ * модалки, а не после подтверждения.
+ */
+function totalRub(item: Card): string {
+  if (isFree(item)) return '0 ₽'
+  const kopecks = (item.price_kopecks ?? 0) * (qty.value[item.id] || 1)
+  return formatRub(kopecks)
+}
+
 function handlePassClick() {
   if (typeof (purchaseStore as any).showPass === 'function') {
     ;(purchaseStore as any).showPass()
@@ -112,254 +114,153 @@ function handlePassClick() {
 </script>
 
 <template>
-  <main class="w-full flex-1 flex flex-col items-center justify-start page-bg bg-[var(--bg-page)] text-[var(--text-main)] px-4 pt-28 pb-16 sm:pt-36 sm:pb-20">
+  <main class="w-full flex-1 flex flex-col items-center justify-start text-[var(--text-main)] px-4 pt-14 pb-16 sm:pt-20 sm:pb-20">
     <div class="w-full max-w-5xl">
-
-      <!-- Заголовок страницы -->
-      <div class="text-center mb-14 sm:mb-16">
-        <h2 class="font-heading text-3xl sm:text-4xl text-[var(--text-main)] tracking-tight mb-3">
-          Магазин <span class="word-hl">сервера</span>
-        </h2>
-        <p class="text-xs sm:text-sm text-[var(--text-muted)] max-w-2xl mx-auto">
+      <div class="section-head">
+        <h1 class="section-title">Магазин <span class="word-hl">сервера</span></h1>
+        <p class="section-sub max-w-2xl mx-auto">
           Официальные цифровые предметы, проходки и сопутствующие услуги сервера Mistraly.
         </p>
       </div>
 
-      <!-- Состояние загрузки витрины -->
-      <p v-if="loading" class="text-center text-sm text-zinc-500 mb-16 font-mono">Загружаем товары…</p>
-      <p v-else-if="loadError" class="text-center text-sm text-rose-400 mb-16 font-mono">{{ loadError }}</p>
+      <div v-if="loading" class="text-center mb-16"><span class="mc-spinner" aria-label="Загружаем товары" /></div>
+      <p v-else-if="loadError" class="text-center text-[var(--bad)] mb-16">{{ loadError }}</p>
 
-      <!-- Сетка товаров 3 в ряд -->
-      <div
-        v-else-if="cards.length"
-        class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-12 pt-4 mb-16"
-      >
-        <div
-          v-for="item in cards"
-          :key="item.id"
-          class="card-outer group"
-        >
-          <!-- Выносная иконка товара -->
-          <div class="popout-icon-box pointer-events-none">
-            <div
-              class="icon-hard-shadow relative z-10 w-16 h-16 sm:w-[72px] sm:h-[72px] rounded-lg flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3"
-              :style="{ backgroundColor: item.iconBg, color: item.accentColor }"
-            >
-              <component :is="item.icon" :size="28" />
+      <div v-else-if="cards.length" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <article v-for="item in cards" :key="item.id" class="item mc-panel">
+          <div class="flex items-center gap-4 mb-4">
+            <span class="mc-slot"><component :is="item.icon" :size="36" /></span>
+            <div class="min-w-0">
+              <span class="mc-tag mc-tag--dim">{{ item.badge }}</span>
+              <h2 class="item-title">{{ item.title }}</h2>
             </div>
           </div>
 
-          <!-- Карточка товара -->
-          <div
-            class="card-box p-6 sm:p-7 pt-5 pb-8 flex flex-col justify-between h-full min-h-[310px] relative"
-            :style="{ clipPath: item.clipPath, '--accent': item.accentColor }"
-          >
-            <!-- Растр Ben-Day dots -->
-            <div class="comic-dots-pattern" aria-hidden="true" />
-
-            <div class="relative z-10">
-              <!-- Верх: плашка названия -->
-              <div class="flex items-center mb-5 pl-16 sm:pl-20">
-                <span
-                  class="item-title-tag font-heading font-black text-sm sm:text-base tracking-tight px-3 py-1 inline-block text-white"
-                  :style="{ backgroundColor: item.accentColor }"
-                >
-                  {{ item.title }}
-                </span>
-              </div>
-
-              <!-- Описание -->
-              <p class="text-xs sm:text-sm text-zinc-300/80 leading-relaxed font-normal mb-4 transition-colors duration-200 group-hover:text-zinc-100">
-                {{ item.desc }}
-              </p>
-            </div>
-
-            <!-- Нижний блок: количество и кнопка покупки -->
-            <div class="relative z-10 pt-4 border-t border-white/[0.08]">
-              <div class="flex items-center justify-end mb-4">
-
-                <!-- Счетчик количества -->
-                <div v-if="item.maxQty > 1" class="flex items-center gap-1 bg-[#101113] p-1 border border-white/10">
-                  <button
-                    class="w-6 h-6 flex items-center justify-center bg-white/5 hover:bg-white/20 text-white font-bold transition text-xs cursor-pointer select-none"
-                    @click="setQty(item.id, (qty[item.id] || 1) - 1)"
-                  >
-                    −
-                  </button>
-                  <span class="w-6 text-center text-xs font-mono font-bold text-white select-none">
-                    {{ qty[item.id] || 1 }}
-                  </span>
-                  <button
-                    class="w-6 h-6 flex items-center justify-center bg-white/5 hover:bg-white/20 text-white font-bold transition text-xs cursor-pointer select-none"
-                    @click="setQty(item.id, (qty[item.id] || 1) + 1)"
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-
-              <!-- Обертка кнопки покупки -->
-              <div class="comic-btn-wrap w-full">
-                <button
-                  @click="openOrder(item)"
-                  class="comic-btn w-full py-2.5 px-4 font-heading font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer"
-                  :style="{ '--btn-bg': item.accentColor, '--btn-color': '#101113' }"
-                >
-                  <ShoppingBag :size="14" />
-                  Купить{{ item.maxQty > 1 ? ' (' + (qty[item.id] || 1) + ' шт.)' : '' }}
-                </button>
-              </div>
-            </div>
+          <!-- Цена: рубли, а не монеты витрины. Количество учитываем сразу,
+               иначе кнопка «Купить (5 шт.)» стоила бы цену одной штуки. -->
+          <div class="flex items-baseline gap-2 mb-3">
+            <span class="item-price">{{ totalRub(item) }}</span>
+            <span v-if="!item.payments_enabled" class="mc-tag mc-tag--ok">Бесплатно</span>
           </div>
-        </div>
+
+          <p class="item-text">{{ item.desc }}</p>
+
+          <div v-if="item.maxQty > 1" class="qty mc-well">
+            <button type="button" aria-label="Меньше" @click="setQty(item.id, (qty[item.id] || 1) - 1)">−</button>
+            <span>{{ qty[item.id] || 1 }}</span>
+            <button type="button" aria-label="Больше" @click="setQty(item.id, (qty[item.id] || 1) + 1)">+</button>
+          </div>
+
+          <button class="mc-btn mc-btn--block" @click="openOrder(item)">
+            <ShoppingBag :size="24" />
+            Купить{{ item.maxQty > 1 ? ' (' + (qty[item.id] || 1) + ' шт.)' : '' }}
+          </button>
+        </article>
       </div>
 
-      <!-- Пустое состояние -->
-      <p v-else class="text-center text-sm text-zinc-500 mb-16 font-mono">Товары временно недоступны.</p>
+      <p v-else class="text-center text-[var(--text-muted)] mb-16">Товары временно недоступны.</p>
 
       <!-- Блок покупки проходки -->
-      <div class="mt-8 p-8 border border-white/10 bg-gradient-to-b from-[#18191c] to-[#111214] text-center relative" style="filter: drop-shadow(8px 8px 0px rgba(0,0,0,0.5));">
-        <h3 class="font-heading font-black text-xl sm:text-2xl text-white tracking-tight mb-2 uppercase">
-          Главный доступ на сервер
-        </h3>
-        <p class="text-xs sm:text-sm text-[var(--text-muted)] max-w-md mx-auto mb-6">
+      <section class="pass mc-panel">
+        <h2 class="pass-title">Главный доступ на сервер</h2>
+        <p class="pass-text">
           Пропуск Mistraly Pass открывает доступ к серверу, лаунчеру на Rust и закрытому сообществу.
           Бессрочный, покупается один раз.
         </p>
-        <!-- v-if: при действующей проходке повторная оплата не нужна, -->
-        <!-- поэтому и кнопки не показываем. -->
-        <div v-if="!purchaseStore.hasActivePass" class="comic-btn-wrap inline-flex">
-          <button
-            @click="handlePassClick"
-            class="comic-btn font-heading font-black text-sm uppercase tracking-wider px-8 py-3.5 inline-flex items-center justify-center gap-2 cursor-pointer"
-            :style="{ '--btn-bg': '#0099FF', '--btn-color': '#FFFFFF' }"
-          >
-            Оформить проходку →
-          </button>
+        <!-- Цена проходки берётся с витрины: price в монетах — не рубли. -->
+        <div v-if="!purchaseStore.hasActivePass" class="pass-price">
+          <!-- Приём оплаты выключен — проходка бесплатна, как и товары выше. -->
+          <template v-if="!pass">{{ loading ? '…' : '' }}</template>
+          <template v-else-if="isFree(pass)">Бесплатно</template>
+          <template v-else>{{ formatRub(pass.price_kopecks ?? 0) }}</template>
         </div>
-        <p v-else class="text-xs font-semibold text-emerald-400">
-          Проходка уже оформлена — доступ бессрочный.
-        </p>
-      </div>
 
+        <!-- При действующей проходке повторная оплата не нужна. -->
+        <button v-if="!purchaseStore.hasActivePass" class="mc-btn" @click="handlePassClick">
+          Оформить проходку →
+        </button>
+        <p v-else class="text-[var(--ok)] m-0">Проходка уже оформлена — доступ бессрочный.</p>
+      </section>
     </div>
   </main>
 </template>
 
 <style scoped>
-/* Фирменный стиль выделения слова в заголовке */
-.word-hl {
-  display: inline-block;
-  color: #181611;
-  background: #FFCC00;
-  font-weight: 400;
-  padding: 0 0.28em;
-  margin: 0 0.04em;
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
-  transform: rotate(-1.5deg);
-  cursor: default;
-  user-select: none;
+.item {
+  display: flex;
+  flex-direction: column;
+  padding: 18px;
 }
-
-/* Карточка товара с жесткой тенью */
-.card-outer {
-  position: relative;
-  filter: drop-shadow(8px 8px 0px rgba(0, 0, 0, 0.45));
-  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
-              filter 0.22s ease;
+.item .mc-slot {
 }
-
-.card-outer:hover {
-  transform: translate(-3px, -4px);
-  filter: drop-shadow(13px 13px 0px rgba(0, 0, 0, 0.65));
+.item-title {
+  font-family: 'Noto Sans', 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 700;
+  margin: 6px 0 0;
+  font-size: 17px;
+  line-height: 1.25;
 }
-
-.card-box {
-  background: linear-gradient(180deg, #18191c 0%, #111214 100%);
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
+.item-price {
+  font-family: 'Minecraft Ten', 'Noto Sans', sans-serif;
+  font-size: 24px;
+  color: var(--sky);
 }
-
-.comic-dots-pattern {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0;
-  background-image: radial-gradient(var(--accent) 1.5px, transparent 1.5px);
-  background-size: 9px 9px;
-  background-position: 0 0;
-  transition: opacity 0.25s ease;
-  z-index: 1;
+.item-text {
+  flex: 1;
+  margin: 0 0 14px;
+  color: var(--text-muted);
+  font-size: 16px;
+  line-height: 1.45;
 }
-
-.group:hover .comic-dots-pattern {
-  opacity: 0.06;
-}
-
-/* Вылет иконки за край */
-.popout-icon-box {
-  position: absolute;
-  top: -16px;
-  left: -12px;
-  z-index: 20;
+.qty {
   display: flex;
   align-items: center;
-  justify-content: center;
+  align-self: flex-end;
+  margin: 0 0 14px;
+  padding: 3px;
 }
-
-.icon-hard-shadow {
-  box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.45);
+.qty button {
+  width: 32px;
+  height: 32px;
+  background: var(--panel-hi);
+  color: #fff;
+  border: 0;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
 }
-
-.item-title-tag {
-  transform: rotate(-1.5deg);
-  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.45);
-  user-select: none;
-  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
-              box-shadow 0.22s ease;
+.qty button:active {
+  transform: translateY(2px);
 }
-
-.group:hover .item-title-tag {
-  transform: scale(1.05) rotate(-3deg);
-  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.8);
+.qty button:hover {
+  background: var(--blue);
 }
-
-/* =========================================================
-   ГАРАНТИРОВАННАЯ ЖЕСТКАЯ ТЕНЬ КНОПОК
-   ========================================================= */
-.comic-btn-wrap {
-  position: relative;
+.qty span {
+  width: 36px;
+  text-align: center;
+  font-weight: 700;
+}
+.pass {
   display: flex;
-  filter: drop-shadow(5px 5px 0px rgba(0, 0, 0, 0.7));
-  transition: filter 0.22s ease;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 20px;
+  text-align: center;
 }
-
-.comic-btn-wrap:hover {
-  filter: drop-shadow(7px 7px 0px rgba(0, 0, 0, 0.85));
+.pass-title {
+  margin: 0 0 8px;
+  font-size: 24px;
+  line-height: 1.25;
 }
-
-.comic-btn {
-  background-color: var(--btn-bg);
-  color: var(--btn-color);
-  clip-path: polygon(0% 12%, 100% 0%, 100% 100%, 0% 88%);
-  transform: rotate(-1.2deg);
-  border: none;
-  user-select: none;
-  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
-              background-color 0.2s ease,
-              color 0.2s ease;
+.pass-text {
+  max-width: 480px;
+  margin: 0 0 16px;
+  color: var(--text-muted);
 }
-
-/* При наведении: растет, становится БЕЛОЙ, текст черный */
-.comic-btn:hover {
-  transform: scale(1.04) rotate(-1.2deg);
-  background-color: #FFFFFF !important;
-  color: #0d0e10 !important;
-}
-
-.comic-btn:active {
-  transform: scale(0.96) rotate(-1.2deg);
+.pass-price {
+  margin-bottom: 16px;
+  font-family: 'Minecraft Ten', 'Noto Sans', sans-serif;
+  font-size: 32px;
+  color: var(--sky);
 }
 </style>

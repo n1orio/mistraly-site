@@ -1,207 +1,191 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { usePurchaseStore } from '../stores/purchase'
 import HowToJoin from '../components/HowToJoin.vue'
-import Gear3D from '../components/Gear3D.vue'
 import ModHighlights from '../components/ModHighlights.vue'
 import FaqSection from '../components/FaqSection.vue'
+import { Download, Gamepad } from '../lib/icons'
+import { scrollToSection } from '../lib/scroll'
 const route = useRoute(); const purchase = usePurchaseStore()
 onMounted(() => { if (route.query.purchase === '1') purchase.showPass() })
-const playHover = ref(false)
-const slideCount = 3
-// карусель скрыта: управляется одним флагом
-const showCarousel = ref(false)
-/** прозрачность шестерёнки: 1 наверху, 0 после ~260px скролла */
-const gearOpacity = ref(1)
-let gearRaf = 0
-function updateGearOpacity() {
- if (gearRaf) return
- gearRaf = requestAnimationFrame(() => {
-  gearRaf = 0
-  gearOpacity.value = Math.max(0, 1 - window.scrollY / 260)
- })
-}
-/** каждая буква заголовка повёрнута в свою сторону */
-const titleLetters = [
-  { char: 'M', rotate: -4, shift: 1 },
-  { char: 'I', rotate: 2, shift: -3 },
-  { char: 'S', rotate: -2, shift: 4 },
-  { char: 'T', rotate: 3, shift: -1 },
-  { char: 'R', rotate: -3, shift: 2 },
-  { char: 'A', rotate: 1, shift: -4 },
-  { char: 'L', rotate: -1, shift: 3 },
-  { char: 'Y', rotate: 4, shift: 4 },
-]
-const screenshots = ['/2026-09-27_20.07.26.png', '/2026-09-27_20.07.35.png', '/2026-09-27_20.07.54.png']
-const currentSlide = ref(0)
-let slideTimer: any
-function startSlideShow() { slideTimer = setInterval(() => { currentSlide.value = (currentSlide.value + 1) % screenshots.length }, 4000) }
-function prevSlide() { currentSlide.value = (currentSlide.value - 1 + screenshots.length) % screenshots.length }
-function nextSlide() {
- if (currentSlide.value >= screenshots.length - 1) { currentSlide.value = 0; return }
- currentSlide.value++
-}
-onMounted(() => {
-  startSlideShow()
-  updateGearOpacity()
-  window.addEventListener('scroll', updateGearOpacity, { passive: true })
-})
-onUnmounted(() => {
-  clearInterval(slideTimer)
-  window.removeEventListener('scroll', updateGearOpacity)
-  if (gearRaf) cancelAnimationFrame(gearRaf)
-})
+
 function scrollToContent() {
-  // Цель — блок этапов (#stages в HowToJoin). Раньше тут был #roadmap,
-  // но секция трекера удалена, и клик по «поиграть» ничего не делал.
-  const el = document.querySelector('#stages')
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  // Цель — блок этапов (#stages в HowToJoin).
+  scrollToSection('#stages')
 }
-
 </script>
-<template><svg style="position:absolute;width:0;height:0;pointer-events:none" aria-hidden="true">
-  <defs>
-    <filter id="torn-1" x="-10%" y="-10%" width="120%" height="120%">
-      <feTurbulence type="fractalNoise" baseFrequency="0.045 0.05" numOctaves="4" result="noise" seed="12"/>
-      <feDisplacementMap in="SourceGraphic" in2="noise" scale="9" xChannelSelector="R" yChannelSelector="G"/>
-    </filter>
-    <filter id="torn-2" x="-10%" y="-10%" width="120%" height="120%">
-      <feTurbulence type="fractalNoise" baseFrequency="0.04 0.055" numOctaves="4" result="noise" seed="48"/>
-      <feDisplacementMap in="SourceGraphic" in2="noise" scale="8" xChannelSelector="R" yChannelSelector="G"/>
-    </filter>
-    <filter id="torn-3" x="-10%" y="-10%" width="120%" height="120%">
-      <feTurbulence type="fractalNoise" baseFrequency="0.05 0.045" numOctaves="4" result="noise" seed="91"/>
-      <feDisplacementMap in="SourceGraphic" in2="noise" scale="10" xChannelSelector="R" yChannelSelector="G"/>
-    </filter>
-  </defs>
-</svg><main class="w-full flex-1 flex flex-col items-center page-bg bg-[var(--bg-page)] text-[var(--text-main)]"><section class="relative w-full overflow-hidden page-bg bg-[var(--bg-page)]" style="margin-top:-64px;padding-top:clamp(110px,24vw,260px);padding-bottom:112px;">
-  <div class="relative">
-    <div class="relative z-10 mx-auto w-full max-w-4xl px-6 pb-24 pt-4 text-center">
-      <div class="relative mb-4 mt-6 sm:mt-14 inline-block">
-        <!-- шестерня Create позади заголовка -->
-        <div class="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-[150px] md:-translate-y-[430px] -z-10 will-change-opacity" :style="{ opacity: gearOpacity }">
-          <Gear3D :size="1100" :speed="20" :dim="0.55" />
-        </div>
-        <h1 class="font-heading text-5xl sm:text-8xl md:text-9xl text-white tracking-tight leading-[1.05] relative flex justify-center" aria-label="MISTRALY">
-          <span v-for="(ch, i) in titleLetters" :key="i" aria-hidden="true"
-                class="title-letter inline-block will-change-transform"
-                :style="{ transform: 'rotate(' + ch.rotate + 'deg) translateY(' + ch.shift + 'px)' }">{{ ch.char }}</span>
-        </h1>
-      </div>
-      <p class="text-base sm:text-lg text-[var(--text-muted)] max-w-2xl mx-auto mb-10 leading-relaxed">Физика полетов, дирижабли, кастомный лаунчер и закрытое сообщество без гриферов и лишнего мусора.</p>
-      <div class="flex flex-wrap items-center justify-center gap-2">
-        <div style="display:inline-flex;filter:drop-shadow(14px 14px 0 rgba(0,0,0,0.35))"><button @click="scrollToContent" @mouseenter="playHover = true" @mouseleave="playHover = false" class="font-heading font-black text-lg sm:text-xl cursor-pointer" :style="{background: playHover ? 'white' : '#0099FF', padding: '16px 48px', clipPath: 'polygon(0% 12%,100% 0%,100% 100%,0% 88%)', transform: playHover ? 'rotate(-1.5deg) scale(1.06)' : 'rotate(-1.5deg)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', border: 'none', textAlign: 'center', color: playHover ? 'black' : 'white', transition: 'all 0.25s cubic-bezier(0.4,0,0.2,1)'}">ИГРАТЬ</button></div>
-      </div>
+<template>
+<main class="w-full flex-1 flex flex-col items-center text-[var(--text-main)]">
+  <!-- Первый экран повторяет лаунчер: большой скриншот и снизу панель запуска -->
+  <section class="hero">
+    <div class="hero-art" aria-hidden="true" />
+    <div class="hero-in">
+      <h1 class="hero-title">MISTRALY</h1>
+      <p class="hero-lead">Ванилла плюс: привычный Minecraft с продуманными улучшениями, свой лаунчер и закрытое сообщество без гриферов и лишнего мусора.</p>
     </div>
 
-    <div v-if="showCarousel" class="pb-2 pt-24 overflow-hidden">
-      <div class="mx-auto w-full min-w-0 px-2" style="max-width:2200px;">
-        <div class="relative w-full" role="region" aria-roledescription="carousel">
-
-          <div class="overflow-hidden py-4" style="-webkit-mask-image:linear-gradient(to right,transparent 0%,black 12%,black 88%,transparent 100%);mask-image:linear-gradient(to right,transparent 0%,black 12%,black 88%,transparent 100%)">
-            <div class="flex transition-transform duration-500 ease-in-out"
-                 :style="{ transform: 'translateX(calc(-' + (currentSlide * (100 / slideCount)) + '%))' }">
-
-              <!-- Основные слайды -->
-              <div v-for="(img, i) in screenshots" :key="i" role="group" aria-roledescription="slide"
-                   class="min-w-0 shrink-0 grow-0 px-2.5 transition-transform duration-300 hover:scale-[1.02] hover:z-10"
-                   style="flex-basis:33.3333%">
-                <div class="relative"
-                     :style="{
-                       filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.45)) drop-shadow(0 2px 4px rgba(0,0,0,0.3))',
-                       transform: 'rotate(' + (i % 3 === 0 ? '-1.2deg' : (i % 3 === 1 ? '1.4deg' : '-0.7deg')) + ')'
-                     }">
-                  <div class="p-2 pb-3 bg-[#f5f0e6] dark:bg-[#2B2B2B] border border-black/5 dark:border-white/5"
-                       :style="{ filter: 'url(#torn-' + ((i % 3) + 1) + ')' }">
-                    <div class="overflow-hidden bg-black/20">
-                      <img :src="img" alt="" draggable="false" loading="lazy"
-                           class="w-full aspect-video object-cover select-none block" pixel-art />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Дубликаты для бесконечного скролла -->
-              <div v-for="(img, i) in screenshots.slice(0, 4)" :key="'d'+i" role="group" aria-roledescription="slide"
-                   class="min-w-0 shrink-0 grow-0 px-2.5 transition-transform duration-300 hover:scale-[1.02] hover:z-10"
-                   style="flex-basis:33.3333%">
-                <div class="relative"
-                     :style="{
-                       filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.45)) drop-shadow(0 2px 4px rgba(0,0,0,0.3))',
-                       transform: 'rotate(' + (i % 3 === 0 ? '-1.2deg' : (i % 3 === 1 ? '1.4deg' : '-0.7deg')) + ')'
-                     }">
-                  <div class="p-2 pb-3 bg-[#f5f0e6] dark:bg-[#2B2B2B] border border-black/5 dark:border-white/5"
-                       :style="{ filter: 'url(#torn-' + ((i % 3) + 1) + ')' }">
-                    <div class="overflow-hidden bg-black/20">
-                      <img :src="img" alt="" draggable="false" loading="lazy"
-                           class="w-full aspect-video object-cover select-none block" pixel-art />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-            </div>
+    <div class="dither dither--bar" aria-hidden="true" />
+    <div class="bar">
+      <div class="bar-in">
+        <div class="bar-side">
+          <span class="mc-slot bar-slot"><Gamepad :size="24" /></span>
+          <div class="min-w-0">
+            <div class="bar-title">Mistraly</div>
+            <div class="bar-note">Minecraft 26.3 · NeoForge</div>
           </div>
-
-          <!-- Кнопки управления -->
-          <button @click="prevSlide" aria-label="Предыдущий слайд"
-                  class="absolute -left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition border border-white/20 shadow-lg cursor-pointer">
-            <ChevronLeft :size="20" />
-          </button>
-          <button @click="nextSlide" aria-label="Следующий слайд"
-                  class="absolute -right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition border border-white/20 shadow-lg cursor-pointer">
-            <ChevronRight :size="20" />
-          </button>
-
+        </div>
+        <button class="mc-btn mc-btn--lg bar-play" @click="scrollToContent">ИГРАТЬ</button>
+        <div class="bar-side bar-side--end">
+          <router-link to="/download" class="mc-btn mc-btn--muted mc-btn--sm">
+            <Download :size="24" />
+            Скачать лаунчер
+          </router-link>
         </div>
       </div>
     </div>
-  </div>
-</section>
-<ModHighlights />
-<FaqSection />
-<section id="how-to-play" class="w-full max-w-5xl px-4 pt-20 pb-10">
-  <div class="text-center mb-5">
-    <h2 class="font-heading text-2xl sm:text-3xl text-[var(--text-main)] tracking-tight mb-2">Но как <a href="#stages" class="play-cta" @click.prevent="scrollToContent">поиграть</a>-то?</h2>
-    <p class="text-xs sm:text-sm text-[var(--text-muted)]">3 телодвижения</p>
-  </div>
-</section>
-<HowToJoin />
-</main></template>
+  </section>
+
+  <ModHighlights />
+  <FaqSection />
+  <section id="how-to-play" class="w-full max-w-5xl px-4 pt-20">
+    <div class="section-head" style="margin-bottom:8px">
+      <h2 class="section-title">Но как <a href="#stages" class="word-hl" @click.prevent="scrollToContent">поиграть</a>-то?</h2>
+      <p class="section-sub">3 телодвижения</p>
+    </div>
+  </section>
+  <HowToJoin />
+</main>
+</template>
 
 <style scoped>
-/* Выделенное слово «поиграть» внутри заголовка «Но как поиграть-то?».
-   Кликабельно и ведёт к этапам (#stages), но выглядит статично: без
-   hover-эффектов, чтобы плашка не «оживала» под курсором. */
-.play-cta {
-  display: inline-block;
-  color: #181611;
-  background: #e05929;
-  font-weight: 400;
-  padding: 0 0.28em;
-  margin: 0 0.04em;
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
-  transform: rotate(-1.5deg);
-  cursor: pointer;
-  user-select: none;
+.hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: calc(100vh - 64px);
+  overflow: hidden;
+}
+.hero-art {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(18, 18, 18, 0.45) 0%, rgba(18, 18, 18, 0.2) 45%, rgba(18, 18, 18, 0.6) 100%),
+    url(/images/shots/lake.webp) center 35% / cover no-repeat;
+}
+.hero-in {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 16px 32px;
+  text-align: center;
+}
+/* Размеры кратны 8, иначе пиксели шрифта станут разной ширины. Тень нужна
+   только для читаемости на светлом небе. */
+.hero-title {
+  margin: 0 0 24px;
+  color: #fff;
+  font-size: 120px;
+  line-height: 1;
+  text-shadow: 0 6px 0 rgba(5, 5, 5, 0.6);
+}
+.hero-lead {
+  max-width: 620px;
+  margin: 0;
+  padding: 8px 16px;
+  background: rgba(12, 12, 12, 0.72);
+  color: #fff;
+  font-size: 19px;
+  line-height: 1.45;
 }
 
-/* Буквы заголовка «MISTRALY»: каждая чуть повёрнута в свою сторону. */
-.title-letter {
-  transform-origin: 50% 60%;
-  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+.dither--bar {
+  position: relative;
+  flex: none;
+  height: 32px;
+  background-image: url(/images/ui/dither-panel.png);
+  background-size: 16px 32px;
+}
+.bar {
+  position: relative;
+  background: var(--panel);
+  box-shadow: 0 3px 0 0 var(--ink);
+}
+.bar-in {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px 12px;
+}
+.bar-play {
+  margin-top: -14px;
+}
+.bar-side {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+.bar-side--end {
+  justify-content: flex-end;
+}
+.bar-slot {
+  width: 48px;
+  height: 48px;
+}
+.bar-title {
+  font-family: 'Noto Sans', 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 700;
+  font-size:16px;
+  line-height: 1.2;
+}
+.bar-note {
+  color: var(--text-muted);
+  font-size: 15px;
 }
 
-h1:hover .title-letter {
-  transform: rotate(0deg) translateY(-4px) scale(1.04);
+@media (max-width: 860px) {
+  .hero-title {
+    font-size: 80px;
+  }
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .title-letter {
-    transition: none;
+@media (max-width: 640px) {
+  .hero {
+    min-height: calc(100vh - 56px - 64px);
+  }
+  .hero-title {
+    font-size: 48px;
+  }
+  .hero-lead {
+    font-size: 17px;
+  }
+  .bar-in {
+    grid-template-columns: 1fr;
+    justify-items: stretch;
+    gap: 12px;
+    text-align: center;
+  }
+  .bar-play {
+    order: -1;
+    width: 100%;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .bar-side {
+    justify-content: center;
+  }
+  .bar-side:first-of-type {
+    display: none;
+  }
+  .bar-side--end .mc-btn {
+    flex: 1;
   }
 }
 </style>

@@ -5,11 +5,11 @@ export default {
   theme: {
     extend: {
       colors: {
-        brand: { dark: '#0A0B0E', card: '#2B2B2B', blue: '#0080FF', cyan: '#00BBFF' }
+        brand: { dark: '#121212', card: '#1A1A1A', blue: '#186EF0', cyan: '#5C9DF5' }
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        heading: ['Russo One', 'sans-serif']
+        sans: ['Noto Sans', 'Helvetica Neue', 'Arial', 'sans-serif'],
+        heading: ['Minecraft Ten', 'Noto Sans', 'sans-serif']
       }
     }
   },

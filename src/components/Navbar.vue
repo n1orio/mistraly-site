@@ -1,11 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import {
-  Home,
-  ShoppingBag,
-  ScrollText,
-} from 'lucide-vue-next'
+import { Home, ShoppingBag, ScrollText, Download, Discord, BookOpen } from '../lib/icons'
 import { useAuthStore } from '../stores/auth'
 
 const route = useRoute()
@@ -29,30 +25,12 @@ function startAuth() {
     `&redirect_uri=${redirect}&response_type=code&scope=identify`
 }
 
-// У каждой вкладки своя индивидуальная форма среза (clipPath)
 const tabs = [
-  {
-    to: '/',
-    label: 'Главная',
-    icon: Home,
-    exact: true,
-    color: '#0099FF',
-    clipPath: 'polygon(0% 0%, 100% 0%, 100% 86%, 0% 100%)' // легкий скос влево-вниз
-  },
-  {
-    to: '/shop',
-    label: 'Магазин',
-    icon: ShoppingBag,
-    color: '#FFCC00',
-    clipPath: 'polygon(0% 0%, 100% 0%, 98% 100%, 2% 88%)' // скос вправо-вниз
-  },
-  {
-    to: '/rules',
-    label: 'Правила',
-    icon: ScrollText,
-    color: '#FF4444',
-    clipPath: 'polygon(0% 0%, 100% 0%, 99% 88%, 1% 100%)' // диагональный срез
-  },
+  { to: '/', label: 'Главная', icon: Home, exact: true },
+  { to: '/shop', label: 'Магазин', icon: ShoppingBag },
+  { to: '/wiki', label: 'Вики', icon: BookOpen },
+  { to: '/rules', label: 'Правила', icon: ScrollText },
+  { to: '/download', label: 'Скачать', icon: Download },
 ]
 
 function isActive(tab: { to: string; exact?: boolean }) {
@@ -61,237 +39,205 @@ function isActive(tab: { to: string; exact?: boolean }) {
 </script>
 
 <template>
-  <header class="fixed top-0 left-0 right-0 z-50 flex items-start justify-center pointer-events-none">
-    <nav class="nav-scroll flex items-start gap-1.5 pointer-events-auto">
-      <!-- Навигационные вкладки разной формы -->
-      <router-link
-        v-for="tab in tabs"
-        :key="tab.to"
-        :to="tab.to"
-        class="nav-tab group"
-        :class="{ 'is-active': isActive(tab) }"
-        :style="{ '--accent': tab.color }"
-      >
-        <!-- Персональный срез формы для каждой кнопки (БЕЗ BORDER!) -->
-        <span
-          class="tab-shape"
-          :style="{ clipPath: tab.clipPath }"
-        />
-
-        <!-- Контент вкладки -->
-        <span class="tab-body">
-          <component :is="tab.icon" class="tab-icon shrink-0" :size="15" />
-          <span class="tab-text font-heading font-black tracking-tight">
-            {{ tab.label }}
-          </span>
-        </span>
+  <header class="top">
+    <div class="top-in">
+      <router-link to="/" class="brand" aria-label="Mistraly, на главную">
+        <img src="/icons/server.png" alt="" class="brand-icon" width="32" height="32" />
+        <span>MISTRALY</span>
       </router-link>
 
-      <!-- Тонкий разделитель -->
-      <div class="h-6 w-px bg-white/10 mx-1 mt-2 self-start" />
+      <!-- Вкладки как в лаунчере: активная подчёркнута яркой полосой -->
+      <nav class="tabs" aria-label="Разделы сайта">
+        <router-link
+          v-for="tab in tabs"
+          :key="tab.to"
+          :to="tab.to"
+          class="tab"
+          :class="{ 'is-active': isActive(tab) }"
+        >
+          <component :is="tab.icon" :size="24" />
+          <span>{{ tab.label }}</span>
+        </router-link>
+      </nav>
 
       <!-- Вход / профиль: без сессии это кнопка авторизации -->
-      <a
-        v-if="!auth.isAuthenticated"
-        href="#"
-        class="nav-tab profile-tab group"
-        :style="{ '--accent': '#5865F2' }"
-        @click.prevent="startAuth"
-      >
-        <span
-          class="tab-shape"
-          style="clip-path: polygon(0% 0%, 100% 0%, 100% 89%, 0% 100%);"
-        />
-        <span class="tab-body">
-          <span class="tab-text font-heading font-black tracking-tight">Войти</span>
-        </span>
-      </a>
-      <router-link
-        v-else
-        to="/profile"
-        class="nav-tab profile-tab group"
-        :class="{ 'is-active': route.path === '/profile' }"
-        :style="{ '--accent': '#0099FF' }"
-      >
-        <span
-          class="tab-shape"
-          style="clip-path: polygon(0% 0%, 100% 0%, 100% 89%, 0% 100%);"
-        />
-        <span class="tab-body">
-          <span class="avatar-badge font-heading font-black">
-            <img
-              v-if="avatarUrl"
-              :src="avatarUrl"
-              :alt="username"
-              class="w-full h-full object-cover"
-            />
+      <div class="who">
+        <button v-if="!auth.isAuthenticated" type="button" class="mc-btn mc-btn--discord mc-btn--sm" @click="startAuth">
+          <Discord :size="24" />
+          Войти
+        </button>
+        <router-link v-else to="/profile" class="me" :class="{ 'is-active': route.path === '/profile' }">
+          <span class="me-face">
+            <img v-if="avatarUrl" :src="avatarUrl" :alt="username" />
             <template v-else>{{ username.charAt(0) }}</template>
           </span>
-          <span class="tab-text font-heading font-black tracking-tight">
-            {{ username }}
-          </span>
-        </span>
-      </router-link>
-    </nav>
+          <span class="me-name">{{ username }}</span>
+        </router-link>
+      </div>
+    </div>
   </header>
 </template>
 
 <style scoped>
-/*
- * Позиционирование вкладок:
- * В покое подняты вверх (-7px).
- * Жесткая тень 6px 6px без блюра в стиле сайта.
- */
-.nav-tab {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  cursor: pointer;
-  user-select: none;
-  transform: translateY(-7px);
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
-              filter 0.2s ease;
-  filter: drop-shadow(6px 6px 0px rgba(0, 0, 0, 0.45));
+.top {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  width: 100%;
+  background: var(--bg-void);
+  box-shadow: inset 0 -2px 0 0 #2B2B2C;
 }
-
-/*
- * 100% ЧИСТАЯ ФОРМА:
- * Никаких border, outline или box-shadow!
- * Только сплошная заливка, чтобы видеокарта не рисовала белые пиксели по краям.
- */
-.tab-shape {
-  position: absolute;
-  inset: 0;
-  background-color: #161719;
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-  transition: background-color 0.18s ease;
-  z-index: 0;
+.top-in {
+  display: flex;
+  align-items: stretch;
+  gap: 28px;
+  max-width: 1200px;
+  height: 64px;
+  margin: 0 auto;
+  padding: 0 16px;
 }
-
-/* Содержимое вкладки */
-.tab-body {
-  position: relative;
-  z-index: 1;
+.brand {
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 13px 16px 9px 14px;
-  color: rgba(255, 255, 255, 0.65);
-  transition: color 0.18s ease;
+  flex: none;
+  gap: 10px;
+  color: #fff;
+  font-family: 'Minecraft Ten', 'Noto Sans', sans-serif;
+  font-size: 24px;
+  text-decoration: none;
 }
-
-.tab-text {
-  font-size: 13px;
+.brand-icon {
+  /* Рисунок 16×16: только целый масштаб и без сглаживания. */
+  width: 32px;
+  height: 32px;
+  image-rendering: pixelated;
+}
+.tabs {
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  flex: 1;
+}
+.tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size:16px;
+  text-decoration: none;
   white-space: nowrap;
 }
-
-.tab-icon {
-  opacity: 0.75;
-  transition: opacity 0.18s ease, transform 0.18s ease;
+.tab:hover {
+  color: #fff;
+  background: var(--panel);
 }
-
-/* =========================================
-   НАВЕДЕНИЕ (ВЫЕЗД ВНИЗ)
-   ========================================= */
-.nav-tab:hover {
-  transform: translateY(0px);
-  z-index: 10;
-  filter: drop-shadow(8px 8px 0px rgba(0, 0, 0, 0.55));
+.tab.is-active {
+  color: #fff;
 }
-
-.nav-tab:hover .tab-shape {
-  background-color: var(--accent);
+.tab.is-active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 6px;
+  background: var(--blue);
+  box-shadow: inset 0 3px 0 0 var(--blue-hi);
 }
-
-.nav-tab:hover .tab-body {
-  color: #FFFFFF;
+.tab:focus-visible,
+.me:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: -3px;
 }
-
-.nav-tab:hover .tab-icon {
-  opacity: 1;
-  transform: scale(1.08);
-}
-
-/* =========================================
-   АКТИВНАЯ ВКЛАДКА (ВСЕГДА ВЫДВИНУТА)
-   ========================================= */
-.nav-tab.is-active {
-  transform: translateY(1px);
-  z-index: 5;
-}
-
-.nav-tab.is-active .tab-shape {
-  background-color: var(--accent);
-}
-
-.nav-tab.is-active .tab-body {
-  color: #FFFFFF;
-}
-
-.nav-tab.is-active .tab-icon {
-  opacity: 1;
-}
-
-/* =========================================
-   ПРОФИЛЬ
-   ========================================= */
-.avatar-badge {
+.who {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 17px;
-  height: 17px;
-  background: rgba(255, 255, 255, 0.25);
-  border-radius: 2px;
+  flex: none;
+}
+.me {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 200px;
+  padding: 6px 10px;
+  color: var(--text-main);
+  font-weight: 600;
+  font-size:16px;
+  text-decoration: none;
+}
+.me:hover,
+.me.is-active {
+  background: var(--panel);
+}
+.me-name {
   overflow: hidden;
-  font-size: 11px;
-  line-height: 1;
-  color: #FFFFFF;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.me-face {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  overflow: hidden;
+  background: var(--blue-lo);
+}
+.me-face img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
 }
 
-/* ============================================
-   ТЕЛЕФОНЫ
-   ============================================
-   Шесть вкладок не помещались в 375px: nav был 639px шириной,
-   поэтому «Магазин» и «Загрузки» обрезались по краям экрана.
-   Ужимаем вкладки и разрешаем горизонтальную прокрутку,
-   если всё равно не влезло. */
-@media (max-width:640px) {
-  .nav-tab {
-    transform: translateY(-5px);
-    filter: drop-shadow(4px 4px 0px rgba(0, 0, 0, 0.45));
+/* Название и пять пунктов в ряд не влезают уже чем в 900 px. */
+@media (max-width: 900px) {
+  .top-in {
+    gap: 12px;
   }
-
-  .tab-body {
-    gap: 5px;
-    padding: 10px 10px 7px 9px;
-  }
-
-  .tab-text {
-    font-size: 11px;
-  }
-
-  .avatar-badge {
-    width: 14px;
-    height: 14px;
-    font-size: 9px;
-  }
-
-  /* Подстраховка: если вкладки всё же шире экрана — прокрутка,
-     иначе крайние пункты просто недоступны. */
-  .nav-scroll {
-    overflow-x: auto;
-    max-width: 100vw;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .nav-scroll::-webkit-scrollbar {
+  .tab span {
     display: none;
+  }
+}
+
+/* Телефон: сверху логотип и вход, вкладки — нижней панелью, под большой палец. */
+@media (max-width: 640px) {
+  .top-in {
+    justify-content: space-between;
+    height: 56px;
+  }
+  .me-name {
+    max-width: 120px;
+  }
+  .tabs {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    gap: 0;
+    height: 64px;
+    background: var(--bg-void);
+    box-shadow: inset 0 2px 0 0 #2B2B2C;
+  }
+  .tab {
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+    padding: 0;
+    font-weight: 700;
+    font-size: 12px;
+  }
+  .tab span {
+    display: inline;
+  }
+  .tab.is-active::after {
+    top: 0;
+    bottom: auto;
   }
 }
 </style>

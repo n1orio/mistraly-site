@@ -1,162 +1,18 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import {
-  Shield,
-  BookOpen,
-  Anchor,
-  MessageSquare,
-  Scale,
   Search,
   X,
-  AlertTriangle,
   Link as LinkIcon,
   Check,
-  ArrowUpRight,
   HelpCircle,
   Clock
-} from 'lucide-vue-next'
+} from '../lib/icons'
+import { rulesData, rulesMeta } from '../data/rules'
 
 const searchQuery = ref('')
 const copiedRuleId = ref<string | null>(null)
 const currentHash = ref('')
-
-interface RuleChapter {
-  id: string
-  title: string
-  badge: string
-  badgeColor: string
-  icon: any
-  rules: {
-    num: string
-    title: string
-    text: string
-    penalty?: string
-    isWarning?: boolean
-  }[]
-}
-
-const rulesData: RuleChapter[] = [
-  {
-    id: 'sec-general',
-    title: '1. Основные положения',
-    badge: 'БАЗА',
-    badgeColor: '#0099FF',
-    icon: Shield,
-    rules: [
-      {
-        num: '1.1',
-        title: 'Уважение и комфортная атмосфера',
-        text: 'Сервер нацелен на полу-РП игру, эстетику стимпанка и свободную инженерию. Запрещены любые формы вредительства, целенаправленной токсичности, оскорблений на национальной почве и срыва чужого игрового процесса.',
-        penalty: 'Варн / Мут от 2 часов / Бан до 3 дней'
-      },
-      {
-        num: '1.2',
-        title: 'Единство игрового профиля',
-        text: 'Одному человеку разрешено играть строго с одного аккаунта. Вход привязан к вашей учетной записи Discord. Запрещено регистрировать твинки для обхода наказаний или передавать доступ третьим лицам.',
-        penalty: 'Перманентный бан всех связанных аккаунтов'
-      },
-      {
-        num: '1.3',
-        title: 'Чит-клиенты и запрещенные модификации',
-        text: 'Категорически запрещено использование X-Ray, FreeCam, Baritone, Fly, KillAura, автокликеров для прокачки ферм в AFK и любых модификаций, дающих нечестное преимущество над другими инженерами.',
-        penalty: 'Бан навсегда без права амнистии',
-        isWarning: true
-      }
-    ]
-  },
-  {
-    id: 'sec-create',
-    title: '2. Механизмы и фабрики Create',
-    badge: 'ИНЖЕНЕРИЯ',
-    badgeColor: '#FFCC00',
-    icon: BookOpen,
-    rules: [
-      {
-        num: '2.1',
-        title: 'Оптимизация нагрузок и стабильность TPS',
-        text: 'Мир рассчитывает физику сотен шестеренок. Запрещено оставлять вхолостую работающие циклические механизмы (вечные конвейеры, помпы без резервуаров). Выключайте неиспользуемые узлы через муфты (Clutch).',
-        penalty: 'Предупреждение / Принудительный демонтаж узла'
-      },
-      {
-        num: '2.2',
-        title: 'Лаг-машины и деструктивные схемы',
-        text: 'Намеренное создание конструкций, роняющих частоту тиков сервера ниже 18 TPS, приравнивается к вредительству. Если ваш завод вызывает локальные фризы, инженер обязан оптимизировать схему.',
-        penalty: 'Удаление постройки / Бан до 7 дней',
-        isWarning: true
-      }
-    ]
-  },
-  {
-    id: 'sec-aeronautics',
-    title: '3. Воздушный флот и бои',
-    badge: 'АВИАЦИЯ',
-    badgeColor: '#22C55E',
-    icon: Anchor,
-    rules: [
-      {
-        num: '3.1',
-        title: 'Суверенитет воздушных судов',
-        text: 'Каждый собранный дирижабль считается приватной территорией его создателя. Нахождение на чужом судне без приглашения капитана дает право экипажу устранить нарушителя на месте.',
-        penalty: 'Игровой момент'
-      },
-      {
-        num: '3.2',
-        title: 'Правила воздушных сражений и пушек',
-        text: 'Сражения дирижаблей разрешены только по взаимному согласию сторон либо в нейтральной зоне открытого неба (Warzone). Запрещено обстреливать мирные верфи, доки новичков и спавн.',
-        penalty: 'Откат повреждений + Бан 3–14 дней'
-      },
-      {
-        num: '3.3',
-        title: 'Запрет таранов-камикадзе',
-        text: 'Категорически запрещено собирать неуправляемые взрывные дирижабли с целью намеренно врезаться в чужие базы или мирные поселения.',
-        penalty: 'Перманентный бан по железу',
-        isWarning: true
-      }
-    ]
-  },
-  {
-    id: 'sec-chat',
-    title: '4. Текстовая и радиосвязь',
-    badge: 'СВЯЗЬ',
-    badgeColor: '#A855F7',
-    icon: MessageSquare,
-    rules: [
-      {
-        num: '4.1',
-        title: 'Позиционный микрофон (Voice Chat)',
-        text: 'Запрещено включать саундпады, громкие посторонние шумы, бассбусты и музыку в общественных местах. Нарушение личных границ и преследование игроков с микрофоном наказывается мутом.',
-        penalty: 'Отключение голосового чата от 12 часов'
-      },
-      {
-        num: '4.2',
-        title: 'Общий чат и спам',
-        text: 'Запрещен капс, частый флуд, неадекватное поведение и реклама сторонних серверов/услуг.',
-        penalty: 'Мут от 1 часа / Бан при рекламе'
-      }
-    ]
-  },
-  {
-    id: 'sec-justice',
-    title: '5. Модерация и логирование',
-    badge: 'БЕЗОПАСНОСТЬ',
-    badgeColor: '#EF4444',
-    icon: Scale,
-    rules: [
-      {
-        num: '5.1',
-        title: 'Аудит и подача тикетов',
-        text: 'На сервере ведется поминутная история каждого блока, контейнера и выстрела. При инциденте зафиксируйте координаты и откройте тикет в Discord. Попытка обмануть состав модерации удваивает срок наказания.',
-        penalty: 'Увеличение наказания x2'
-      },
-      {
-        num: '5.2',
-        title: 'Откаты и компенсация ущерба',
-        text: 'Ущерб от гриферства или серверных сбоев восстанавливается администрацией в полном объеме (Rollback). Ресурсы возвращаются пострадавшей стороне.',
-        penalty: 'Восстановление без потерь'
-      }
-    ]
-  }
-]
 
 // Глобальный поиск
 const searchResults = computed(() => {
@@ -191,7 +47,7 @@ const searchResults = computed(() => {
           ruleNum: rule.num,
           ruleTitle: rule.title,
           matchSnippet: snippet,
-          targetId: `rule-${rule.num.replace('.', '-')}`
+          targetId: rule.anchor
         })
       }
     })
@@ -211,7 +67,7 @@ function scrollTo(id: string) {
 
 // Копирование ссылки
 function copyRuleLink(num: string) {
-  const ruleId = `rule-${num.replace('.', '-')}`
+  const ruleId = `rule-${num.replace(/\./g, '-')}`
   const url = `${window.location.origin}${window.location.pathname}#${ruleId}`
 
   navigator.clipboard.writeText(url).then(() => {
@@ -252,286 +108,325 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <main class="w-full flex-1 flex flex-col items-center justify-start page-bg bg-[var(--bg-page)] text-[var(--text-main)] px-4 sm:px-6 lg:px-8 pt-28 pb-28 sm:pt-36">
-    <div class="w-full max-w-[1500px]">
-
-      <!-- Заголовок страницы -->
-      <div class="text-center mb-10 sm:mb-12">
-        <h1 class="font-heading text-3xl sm:text-4xl text-[var(--text-main)] tracking-tight mb-2">
-          Свод <span class="word-hl">правил</span>
-        </h1>
-        <p class="text-xs sm:text-sm text-[var(--text-muted)] max-w-lg mx-auto">
-          Официальный кодекс инженеров, пилотов и исследователей сервера Mistraly.
-        </p>
+  <main class="w-full flex-1 flex flex-col items-center justify-start text-[var(--text-main)] px-4 sm:px-6 lg:px-8 pt-14 pb-20 sm:pt-20">
+    <div class="w-full max-w-[1400px]">
+      <div class="section-head">
+        <h1 class="section-title">Свод <span class="word-hl">правил</span></h1>
+        <p class="section-sub max-w-lg mx-auto">{{ rulesMeta.subtitle }}</p>
       </div>
 
-      <!-- ГЛОБАЛЬНЫЙ ПОИСК -->
+      <!-- Глобальный поиск -->
       <div class="relative w-full max-w-2xl mx-auto mb-10">
-        <div class="search-bar-wrap flex items-center bg-[#151619] border border-white/15 p-2.5 px-4 shadow-xl rounded-lg">
-          <Search :size="18" class="text-zinc-400 shrink-0 mr-3 pointer-events-none" />
+        <label class="search mc-input">
+          <Search :size="24" class="shrink-0 text-[var(--sky)]" />
           <input
             v-model="searchQuery"
             type="text"
-            placeholder="Быстрый поиск по всем правилам (читы, твинк, дирижабль, чат)..."
-            class="w-full bg-transparent text-sm font-mono text-white placeholder:text-zinc-500 outline-none"
+            aria-label="Поиск по правилам"
+            placeholder="Быстрый поиск по всем правилам (читы, твинк, приват, чат)..."
           />
-          <button
-            v-if="searchQuery"
-            @click="searchQuery = ''"
-            class="text-zinc-400 hover:text-white transition p-1 cursor-pointer"
-          >
-            <X :size="16" />
+          <button v-if="searchQuery" type="button" aria-label="Очистить" class="search-x" @click="searchQuery = ''">
+            <X :size="24" />
           </button>
-        </div>
+        </label>
 
-        <!-- Выпадающий список совпадений -->
-        <div
-          v-if="searchQuery.trim()"
-          class="absolute left-0 right-0 top-full mt-2 bg-[#17181c] border border-white/15 p-3 shadow-2xl z-40 max-h-96 overflow-y-auto space-y-2 rounded-lg text-left"
-        >
-          <div class="text-[11px] font-mono text-zinc-400 px-2 pb-1 border-b border-white/10 flex justify-between">
-            <span>НАЙДЕНО СОВПАДЕНИЙ: {{ searchResults.length }}</span>
-            <span>НАЖМИТЕ ДЛЯ ПЕРЕХОДА</span>
-          </div>
-
-          <div v-if="searchResults.length === 0" class="p-4 text-center text-xs font-mono text-zinc-500">
+        <div v-if="searchQuery.trim()" class="found mc-panel">
+          <div class="found-head">Найдено совпадений: {{ searchResults.length }}</div>
+          <div v-if="searchResults.length === 0" class="p-4 text-center text-[var(--text-muted)]">
             По запросу «{{ searchQuery }}» ничего не найдено
           </div>
-
-          <div
+          <button
             v-for="res in searchResults"
             :key="res.targetId"
+            type="button"
+            class="found-row"
             @click="selectSearchResult(res.targetId)"
-            class="p-2.5 bg-black/30 hover:bg-white/10 transition cursor-pointer border border-white/5 flex flex-col gap-1 rounded"
           >
-            <div class="flex items-center gap-2">
-              <span class="font-heading font-black text-xs text-[#0099FF]">
-                {{ res.ruleNum }} {{ res.ruleTitle }}
-              </span>
-              <span class="text-[10px] font-mono text-zinc-500">
-                ({{ res.chapterTitle }})
-              </span>
-            </div>
-            <p class="text-xs text-zinc-300 font-normal leading-relaxed">
-              {{ res.matchSnippet }}
-            </p>
-          </div>
+            <span class="found-num">{{ res.ruleNum }} {{ res.ruleTitle }}</span>
+            <span class="found-chap">{{ res.chapterTitle }}</span>
+            <span class="found-snip">{{ res.matchSnippet }}</span>
+          </button>
         </div>
       </div>
 
-      <!--
-        ИДЕАЛЬНО СБАЛАНСИРОВАННАЯ ТРЁХКОЛОНОЧНАЯ СЕТКА:
-        Слева сайдбар (260px) + ПО ЦЕНТРУ ПРАВИЛА (max-w-3xl) + Справа балансир (260px)
-        В результате центральный блок находится ТОЧНО по центру экрана!
-      -->
+      <!-- Три колонки: боковые равной ширины держат ленту правил по центру экрана -->
       <div class="w-full flex justify-center items-start gap-8 relative">
-
-        <!-- ЛЕВАЯ ПАНЕЛЬ: Оглавление глав (Sticky, 260px) -->
-        <aside class="hidden xl:flex flex-col gap-2 w-64 shrink-0 sticky top-24 select-none">
-          <div class="text-[11px] font-mono font-bold tracking-widest text-zinc-500 uppercase px-2 mb-1 text-left">
-            РАЗДЕЛЫ КОДЕКСА
-          </div>
-
-          <div
-            v-for="chap in rulesData"
-            :key="chap.id"
-            @click="scrollTo(chap.id)"
-            class="toc-btn group p-3 flex items-center justify-between bg-[#151619] hover:bg-[#1a1b1f] border border-white/5 hover:border-white/15 transition-all duration-150 cursor-pointer rounded-lg border-l-4"
-            :style="{ borderLeftColor: chap.badgeColor }"
-          >
-            <div class="flex items-center gap-2.5 min-w-0 pr-2">
-              <component :is="chap.icon" :size="15" class="shrink-0" :style="{ color: chap.badgeColor }" />
-              <span class="font-heading font-bold text-xs text-zinc-300 group-hover:text-white transition-colors truncate">
-                {{ chap.title }}
-              </span>
-            </div>
-            <ArrowUpRight :size="13" class="text-zinc-600 group-hover:text-zinc-300 transition shrink-0" />
-          </div>
+        <aside class="hidden xl:flex flex-col gap-2 w-64 shrink-0 sticky top-24">
+          <div class="side-head">Разделы кодекса</div>
+          <button v-for="chap in rulesData" :key="chap.id" type="button" class="toc" @click="scrollTo(chap.id)">
+            <component :is="chap.icon" :size="24" class="shrink-0 text-[var(--sky)]" />
+            <span class="truncate">{{ chap.title }}</span>
+          </button>
         </aside>
 
-        <!-- ЦЕНТРАЛЬНЫЙ БЛОК: Читательская лента строго по центру экрана -->
-        <div class="w-full max-w-3xl flex-1 flex flex-col gap-8">
-          <section
-            v-for="chap in rulesData"
-            :key="chap.id"
-            :id="chap.id"
-            class="chapter-card p-6 sm:p-8 bg-[#141517] border border-white/10 rounded-xl text-left"
-          >
-            <!-- Заголовок раздела -->
-            <div class="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
-              <div class="flex items-center gap-3.5">
-                <div
-                  class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 border border-white/10"
-                  :style="{ backgroundColor: chap.badgeColor + '15', color: chap.badgeColor }"
-                >
-                  <component :is="chap.icon" :size="20" />
-                </div>
-                <h2 class="font-heading font-black text-xl sm:text-2xl text-white tracking-tight">
-                  {{ chap.title }}
-                </h2>
-              </div>
+        <div class="w-full max-w-3xl flex-1 flex flex-col gap-8 min-w-0">
+          <section v-for="chap in rulesData" :id="chap.id" :key="chap.id" class="chapter mc-panel scroll-mt-24">
+            <header class="chapter-head">
+              <span class="mc-slot chapter-icon"><component :is="chap.icon" :size="24" /></span>
+              <h2 class="chapter-title">{{ chap.title }}</h2>
+              <span class="mc-tag">{{ chap.badge }}</span>
+            </header>
 
-              <span
-                class="font-heading font-black text-[10px] uppercase tracking-wider px-2.5 py-1 text-black rounded"
-                :style="{ backgroundColor: chap.badgeColor }"
-              >
-                {{ chap.badge }}
-              </span>
-            </div>
-
-            <!-- Список правил в главе -->
-            <div class="space-y-4">
+            <div class="flex flex-col gap-4">
               <article
                 v-for="rule in chap.rules"
+                :id="rule.anchor"
                 :key="rule.num"
-                :id="`rule-${rule.num.replace('.', '-')}`"
-                class="rule-box p-4 sm:p-5 rounded-lg border transition-all duration-300 relative group"
-                :class="[
-                  rule.isWarning ? 'border-red-500/25 bg-red-500/[0.03]' : 'border-white/[0.06] bg-[#101113]/70',
-                  currentHash === `rule-${rule.num.replace('.', '-')}` ? 'is-target-highlight' : ''
-                ]"
+                class="rule mc-well group"
+                :class="{ 'is-warn': rule.isWarning, 'is-target': currentHash === rule.anchor }"
               >
-                <!-- Заголовок правила + кнопка копирования ссылки -->
-                <div class="flex items-start justify-between gap-3 mb-2.5">
-                  <div class="flex items-center gap-2.5 flex-wrap">
-                    <span
-                      class="font-mono text-xs font-bold px-2 py-0.5 rounded select-all"
-                      :class="rule.isWarning ? 'text-red-300 bg-red-500/20' : 'text-zinc-300 bg-white/10'"
-                    >
-                      § {{ rule.num }}
-                    </span>
-                    <h3 class="font-heading font-bold text-base sm:text-lg text-white tracking-tight">
-                      {{ rule.title }}
-                    </h3>
+                <div class="flex items-start justify-between gap-3 mb-2">
+                  <div class="flex items-baseline gap-2.5 flex-wrap min-w-0">
+                    <span class="rule-num">§ {{ rule.num }}</span>
+                    <h3 class="rule-title">{{ rule.title }}</h3>
                   </div>
-
-                  <!-- КНОПКА СКОПИРОВАТЬ ССЫЛКУ -->
                   <button
                     type="button"
-                    @click="copyRuleLink(rule.num)"
-                    class="copy-link-btn flex items-center gap-1.5 px-2 py-1 rounded text-[11px] font-mono transition cursor-pointer select-none"
-                    :class="copiedRuleId === `rule-${rule.num.replace('.', '-')}`
-                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-                      : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/15 border border-white/10'"
+                    class="rule-link"
+                    :class="{ 'is-done': copiedRuleId === rule.anchor }"
                     :title="'Скопировать ссылку на правило ' + rule.num"
+                    :aria-label="'Скопировать ссылку на правило ' + rule.num"
+                    @click="copyRuleLink(rule.num)"
                   >
-                    <template v-if="copiedRuleId === `rule-${rule.num.replace('.', '-')}`">
-                      <Check :size="13" class="text-emerald-400" />
-                      <span>Скопировано!</span>
-                    </template>
-                    <template v-else>
-                      <LinkIcon :size="13" />
-                      <span class="opacity-0 group-hover:opacity-100 transition-opacity hidden sm:inline">Ссылка</span>
-                    </template>
+                    <component :is="copiedRuleId === rule.anchor ? Check : LinkIcon" :size="24" />
                   </button>
                 </div>
 
-                <!-- Текст правила -->
-                <p class="text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal mb-3.5">
-                  {{ rule.text }}
-                </p>
+                <div class="rule-body" v-html="rule.html"></div>
 
-                <!-- Плашка наказания -->
-                <div v-if="rule.penalty" class="flex flex-wrap items-center gap-2 text-xs font-mono pt-3 border-t border-white/[0.06]">
-                  <span class="text-zinc-500 uppercase tracking-wider font-semibold">Наказание:</span>
-                  <span
-                    class="px-2 py-0.5 rounded text-[11px]"
-                    :class="rule.isWarning ? 'bg-red-500/15 text-red-300 font-bold' : 'bg-white/5 text-zinc-300'"
-                  >
-                    {{ rule.penalty }}
-                  </span>
+                <div v-if="rule.penalty" class="rule-pen">
+                  <span>Наказание:</span>
+                  <span class="mc-tag" :class="rule.isWarning ? 'mc-tag--bad' : 'mc-tag--dim'">{{ rule.penalty }}</span>
                 </div>
               </article>
             </div>
           </section>
         </div>
 
-        <!-- ПРАВАЯ ПАНЕЛЬ: Балансир (Sticky, 260px) — сохраняет центр экрана -->
-        <aside class="hidden xl:flex flex-col gap-3 w-64 shrink-0 sticky top-24 select-none">
-          <!-- Поддержка -->
-          <div class="p-4 bg-[#151619] border border-white/10 rounded-lg text-left shadow-lg">
-            <div class="flex items-center gap-2 text-zinc-300 font-heading font-bold text-xs uppercase mb-1.5">
-              <HelpCircle :size="15" class="text-[#0099FF]" />
-              <span>Помощь состава</span>
+        <aside class="hidden xl:flex flex-col gap-3 w-64 shrink-0 sticky top-24">
+          <div class="mc-panel p-4">
+            <div class="flex items-center gap-2 font-bold text-[17px] mb-2">
+              <HelpCircle :size="24" class="text-[var(--sky)]" />
+              <span>{{ rulesMeta.supportTitle }}</span>
             </div>
-            <p class="text-xs text-zinc-400 leading-relaxed mb-3">
-              Если произошел спор, вас загриферили или нужна апелляция:
-            </p>
-            <a
-              href="https://discord.gg/22uJ8rya7Y"
-              target="_blank"
-              class="font-heading font-black text-xs uppercase tracking-wider text-[#0099FF] hover:underline inline-flex items-center gap-1"
-            >
-              Тикет в Discord →
+            <p class="text-[15px] text-[var(--text-muted)] leading-snug mb-3">{{ rulesMeta.supportText }}</p>
+            <a :href="rulesMeta.supportLink" target="_blank" rel="noopener noreferrer" class="mc-btn mc-btn--sm mc-btn--discord">
+              {{ rulesMeta.supportLinkText }}
             </a>
           </div>
-
-          <!-- Инфо-виджет -->
-          <div class="p-4 bg-[#151619] border border-white/5 rounded-lg text-left font-mono text-[11px] text-zinc-500 space-y-2">
-            <div class="flex items-center gap-1.5 text-zinc-400">
-              <Clock :size="13" />
-              <span>РЕДАКЦИЯ: 2026.1</span>
+          <div class="text-[14px] text-[var(--text-sub)] px-2 leading-snug">
+            <div class="flex items-center gap-1.5 mb-2 text-[var(--text-muted)]">
+              <Clock :size="12" />
+              <span>Редакция: {{ rulesMeta.edition }}</span>
             </div>
-            <div class="border-t border-white/5 pt-2">
-              Незнание правил не освобождает от ответственности.
-            </div>
+            {{ rulesMeta.disclaimer }}
           </div>
         </aside>
-
       </div>
     </div>
   </main>
 </template>
 
 <style scoped>
-/* Фирменное выделение слова в заголовке */
-.word-hl {
-  display: inline-block;
-  color: #181611;
-  background: #FF4444;
-  font-weight: 400;
-  padding: 0 0.28em;
-  margin: 0 0.04em;
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
-  transform: rotate(-1.5deg);
-  cursor: default;
-  user-select: none;
+.search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
 }
-
-/* Карточка главы */
-.chapter-card {
-  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.5);
+.search input {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: 0;
+  outline: 0;
+  color: var(--text-main);
+  font: inherit;
 }
-
-/* Сайдбар */
-.toc-btn {
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+.search input::placeholder {
+  color: var(--text-sub);
 }
-
-/*
- * ЭФФЕКТ ВЫДЕЛЕНИЯ ПРАВИЛА ПРИ ПЕРЕХОДЕ ПО ССЫЛКЕ:
- * Неоновая подсветка + мягкая пульсация
- */
-.is-target-highlight,
-:target {
-  border-color: #0099FF !important;
-  background: rgba(0, 153, 255, 0.08) !important;
-  box-shadow: 0 0 24px rgba(0, 153, 255, 0.35), inset 0 0 0 1px #0099FF !important;
-  animation: rulePulse 2s ease-out;
+.search-x {
+  display: grid;
+  background: none;
+  border: 0;
+  color: var(--text-muted);
+  cursor: pointer;
 }
-
-@keyframes rulePulse {
-  0% {
-    box-shadow: 0 0 35px rgba(0, 153, 255, 0.8), inset 0 0 0 2px #0099FF;
-    transform: scale(1.01);
+.search-x:hover {
+  color: #fff;
+}
+.found {
+  position: absolute;
+  z-index: 40;
+  top: 100%;
+  left: 3px;
+  right: 3px;
+  max-height: 24rem;
+  margin-top: 9px;
+  padding: 10px;
+  overflow-y: auto;
+}
+.found-head,
+.side-head {
+  padding: 0 4px 6px;
+  color: var(--text-sub);
+  font-weight: 700;
+  font-size: 14px;
+}
+.found-row {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  background: var(--well);
+  border: 0;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.found-row + .found-row {
+  margin-top: 4px;
+}
+.found-row:hover {
+  background: var(--panel-hi);
+}
+.found-num {
+  color: var(--sky);
+  font-weight: 700;
+}
+.found-chap {
+  margin-left: 8px;
+  color: var(--text-sub);
+  font-size: 14px;
+}
+.found-snip {
+  display: block;
+  color: var(--text-muted);
+  font-size: 15px;
+  line-height: 1.35;
+}
+.toc {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--panel);
+  color: var(--text-main);
+  border: 2px solid var(--ink);
+  text-align: left;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+}
+.toc:active {
+  transform: translateY(2px);
+}
+.toc:hover {
+  background: var(--panel-hi);
+}
+.chapter {
+  padding: 20px;
+}
+.chapter-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.chapter-icon {
+  width: 48px;
+  height: 48px;
+}
+.chapter-title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.2;
+}
+@media (max-width: 640px) {
+  .chapter {
+    padding: 14px;
   }
-  50% {
-    box-shadow: 0 0 24px rgba(0, 153, 255, 0.4), inset 0 0 0 1px #0099FF;
-    transform: scale(1);
+  .chapter-title {
+    font-size: 24px;
   }
-  100% {
-    box-shadow: 0 0 18px rgba(0, 153, 255, 0.25), inset 0 0 0 1px #0099FF;
-  }
+}
+.rule {
+  padding: 14px 16px;
+  scroll-margin-top: 90px;
+}
+.rule.is-warn {
+  --edge: #6B1F2B;
+}
+.rule.is-target {
+  --edge: var(--sky);
+}
+.rule-num {
+  flex: none;
+  color: var(--sky);
+  font-weight: 700;
+  font-size: 15px;
+}
+.rule.is-warn .rule-num {
+  color: var(--bad);
+}
+.rule-title {
+  font-family: 'Noto Sans', 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 700;
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.3;
+}
+.rule-link {
+  display: grid;
+  flex: none;
+  background: none;
+  border: 0;
+  color: var(--text-sub);
+  cursor: pointer;
+}
+.rule-link:hover {
+  color: #fff;
+}
+.rule-link.is-done {
+  color: var(--ok);
+}
+.rule-body {
+  color: var(--text-muted);
+  font-size: 16px;
+  line-height: 1.5;
+}
+.rule-body :deep(p) + :deep(p) {
+  margin-top: 0.75rem;
+}
+.rule-body :deep(.rule-list) {
+  margin: 0.5rem 0 0 1.1rem;
+  list-style: disc;
+}
+.rule-body :deep(ol.rule-list) {
+  list-style: decimal;
+}
+.rule-body :deep(li) {
+  margin-top: 0.25rem;
+}
+.rule-body :deep(.rule-code) {
+  font-family: ui-monospace, monospace;
+  background: var(--panel);
+  padding: 0 0.3em;
+  font-size: 0.9em;
+}
+.rule-body :deep(.rule-link) {
+  color: var(--sky);
+  text-decoration: underline;
+}
+.rule-pen {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  color: var(--text-sub);
+  font-size: 15px;
 }
 </style>

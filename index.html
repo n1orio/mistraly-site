@@ -4,22 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
-    <title>Mistraly — Игровой проект</title>
+    <title>Mistraly — приватный Minecraft-сервер ванилла плюс</title>
+    <meta name="description" content="Mistraly — приватный Minecraft-сервер 26.3 формата ванилла плюс: банк и рынок игроков, свои механики и дальняя прорисовка. Вход через Discord и собственный лаунчер, без гриферов." />
+    <meta name="theme-color" content="#121212" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Mistraly" />
+    <meta property="og:title" content="Mistraly — приватный Minecraft-сервер ванилла плюс" />
+    <meta property="og:description" content="Ванилла плюс: банк и рынок игроков, свои механики и дальняя прорисовка. Вход через Discord и лаунчер, который сам ставит всё нужное." />
+    <meta property="og:locale" content="ru_RU" />
+    <meta name="twitter:card" content="summary" />
     <script>
       // Применяем сохранённую тему до загрузки приложения, чтобы избежать белой вспышки
       try { var t = localStorage.getItem('mistraly_theme') || localStorage.getItem('breeze_theme'); if (t ? t === 'dark' : true) document.documentElement.classList.add('dark') } catch (e) {}
     </script>
-  <style>html{zoom:1.15}
-/* На телефонах zoom 1.15 раздувает интерфейс: навигация перестаёт
-   помещаться в 375px, текст и кнопки выходят за край. Отключаем. */
-@media (max-width:1024px){html{zoom:1}}
-/* Пиксельное приближение только для игровых скриншотов. Раньше правило было
-   глобальным на любую картинку, из-за чего иконки модов рендерились
-   с пиксельной лесенкой. */
-.pixel-art{image-rendering:pixelated;image-rendering:-moz-crisp-edges;image-rendering:crisp-edges}</style><link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:wght@400;700;900&family=Cinzel:wght@400;700;900&family=Russo+One&display=swap" rel="stylesheet">
-<style>.font-heading{font-family:"Russo One","Fira Sans Condensed",sans-serif;font-weight:400;letter-spacing:0.01em}body{font-family:"PT Root UI","Inter",system-ui,-apple-system,sans-serif}</style>
+  <style>html{background:#121212}body{font-family:"Noto Sans",Arial,sans-serif;font-weight:400}</style>
 </head>
   <body>
     <div id="app"></div>

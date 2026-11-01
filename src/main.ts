@@ -6,6 +6,8 @@ import App from './App.vue'
 import { useTheme } from './composables/useTheme'
 import { setUnauthorizedHandler } from './api/client'
 import { useAuthStore } from './stores/auth'
+import { rememberPromoFromUrl } from './stores/purchase'
+import { waitForElement } from './lib/scroll'
 
 /**
  * На admin.mistraly.net корень — это сама админка, а не витрина магазина.
@@ -64,7 +66,15 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true }
   },
   { path: '/offer', name: 'Offer', component: () => import('./views/OfferView.vue') },
+  {
+    path: '/bank',
+    name: 'Bank',
+    component: () => import('./views/BankView.vue'),
+    meta: { requiresAuth: true }
+  },
   { path: '/rules', name: 'Rules', component: () => import('./views/RulesView.vue') },
+  { path: '/wiki/:rest(.*)*', name: 'Wiki', component: () => import('./views/WikiView.vue') },
+  { path: '/download', name: 'Download', component: () => import('./views/DownloadView.vue') },
   // Документы, обязательные для модерации платёжного шлюза
   { path: '/contacts', name: 'Contacts', component: () => import('./views/ContactsView.vue') },
   { path: '/privacy', name: 'Privacy', component: () => import('./views/PrivacyView.vue') },
@@ -76,7 +86,16 @@ const routes: RouteRecordRaw[] = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
-  scrollBehavior: () => ({ top: 0 })
+  // Ссылки с якорем (/#stages, /download#flatpak) раньше открывали страницу
+  // в самом верху: якорь игнорировался. Ждём, пока секция отрисуется.
+  async scrollBehavior(to, _from, saved) {
+    if (saved) return saved
+    if (to.hash) {
+      const el = await waitForElement(to.hash)
+      if (el) return { el: to.hash }
+    }
+    return { top: 0 }
+  }
 })
 
 const pinia = createPinia()
@@ -92,13 +111,21 @@ router.beforeEach(async (to) => {
   // переживает перезагрузку, localStorage с токеном больше не используется.
   await auth.restore()
 
+  // Блок загрузки переехал с главной на /download — старые ссылки
+  // /#launcher и /#flatpak (из Discord, закладок) ведём туда.
+  if (to.path === '/' && (to.hash === '#launcher' || to.hash === '#flatpak')) {
+    return { path: '/download', hash: to.hash === '#flatpak' ? '#flatpak' : '' }
+  }
+
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
     return { path: '/auth/discord', query: { redirect: to.fullPath } }
   }
   // Не админа отправляем на страницу отказа, а не на корень: на
   // admin.mistraly.net корень — это сама админка, и редирект туда же
   // зациклил бы гард.
-  if (to.meta.requiresAdmin && !auth.isAdmin) {
+  // Автор промокода тоже попадает в админку — но видит только свою
+  // статистику: остальные разделы бэкенд ему всё равно не отдаст.
+  if (to.meta.requiresAdmin && !auth.isAdmin && !(await auth.checkAuthor())) {
     return { path: '/admin-denied' }
   }
   return true
@@ -113,11 +140,9 @@ setUnauthorizedHandler(() => auth.clear())
 const { initTheme } = useTheme()
 initTheme()
 
-// Прогреваем движок и модель шестерни сразу, не дожидаясь монтирования
-// HomeView. Пока качается мегабайтный чанк Babylon, роутер и компоненты
-// главной успевают отрисоваться; без этого первые пару секунд после
-// перезагрузки фоновая шестерня ещё не готова. import() не блокирует
-// mount — он только стартует загрузку.
-void import('./lib/gearRenderer').then((m) => m.preloadGear())
+// Реферальная ссылка автора: mistraly.net/?promo=КОД — код подставится
+// в покупку, даже если игрок купит не сразу.
+rememberPromoFromUrl()
+
 
 createApp(App).use(pinia).use(router).mount('#app')

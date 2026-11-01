@@ -1,0 +1,1803 @@
+{
+"pages": [
+{
+"slug": "start",
+"title": "С чего начать",
+"cat": "Основы",
+"source": "<icon/mistraly:mist>\n<info/Раздел/Основы>\n<info/Читать/за минуту>\n\nКороткая справка для новичка: где искать меню сервера и что в Mistraly устроено не так, как в обычной ванилле.\n\n# Кнопки над инвентарём\n\n- ==Банк== — счета, переводы, магазины.\n- ==Настройки== — уведомления и чат.\n- ==Личный кабинет== — тема ника и профиль.\n- ==Вики== — справка прямо в игре.\n\n# Самое важное\n\n- Обычное сообщение слышат только игроки рядом. С ==!== в начале — весь сервер.\n- Деньги сервера — ==мисты==.\n- Руды дают грубые камни, их нужно обработать на точиле.\n- После смерти хотбар и броня остаются при вас.\n\n> Наведите на любой предмет и нажмите ==R== — увидите рецепт, ==U== — где он используется.\n\n<see/chat bank ores death>"
+},
+{
+"slug": "chat",
+"title": "Чат",
+"cat": "Основы",
+"source": "<info/Радиус/250 блоков>\n<info/Глобальный чат/сообщение с !>\n<info/Личные сообщения//msg, /tell, /w, /r>\n\nЧат на сервере разделён: обычные сообщения слышно только поблизости, а для всего сервера есть отдельный префикс.\n\n# Локальный чат\n\nОбычное сообщение видят игроки в радиусе ==250 блоков== в том же измерении. Если рядом никого нет, над хотбаром появится подсказка.\n\n# Глобальный чат\n\nНачните сообщение с ==!== — его увидит весь сервер.\n\n> \\!всем привет\n\n# Личные сообщения\n\n- ==/msg ник текст== (или /tell, /w).\n- Нажмите на полученное сообщение — в чат подставится «/msg ник» для ответа.\n- ==/r текст== — ответ тому, кто написал последним.\n\n> Любой чат можно выключить в Настройках, там же — заблокировать ЛС от отдельных игроков.\n\n<see/commands settings>"
+},
+{
+"slug": "commands",
+"title": "Команды",
+"cat": "Основы",
+"source": "<info/Раздел/Основы>\n\nКоманды, которые доступны всем игрокам. Всё остальное делается через кнопки над инвентарём.\n\n# Сообщения\n\n| Команда | Что делает |\n| /msg ник текст | Личное сообщение игроку |\n| /tell ник текст | То же, что /msg |\n| /w ник текст | То же, что /msg |\n| /r текст | Ответ тому, кто написал последним |\n\n# Клавиши\n\n| Клавиша | Что делает |\n| R на предмете | Показывает рецепт |\n| U на предмете | Показывает, где используется предмет |\n| L | Открывает меню достижений |\n| Shift+ПКМ по игроку | Открывает его профиль |\n\n<see/chat settings>"
+},
+{
+"slug": "punishments",
+"title": "Система наказаний",
+"cat": "Основы",
+"source": "<info/Варн держится/1 месяц>\n<info/3 варна/бан на неделю>\n<info/После бана/варны сбрасываются>\n\nЗа нарушение правил администрация выдаёт предупреждения, мьюты и баны. Предупреждения копятся, и третье подряд приводит к бану.\n\n# Варны\n\nВарн — это предупреждение за нарушение правил.\n\n- Варн держится ==1 месяц==, потом снимается сам.\n- ==3 варна== — бан на неделю.\n- После бана варны сбрасываются.\n\n# Другие наказания\n\n| Наказание | Что значит |\n| Варн | Предупреждение, держится 1 месяц |\n| Мьют | Запрет писать в чат |\n| Штраф | Оплата мистами в Банке |\n| Бан | Запрет заходить на сервер |\n\nКакое наказание выдать и на какой срок, решает администрация. Список нарушений есть в [правилах](/rules).\n\n> Не согласны с наказанием? Откройте тикет в Discord.\n\n<see/fines chat>"
+},
+{
+"slug": "settings",
+"title": "Настройки",
+"cat": "Основы",
+"source": "<info/Как открыть/кнопка над инвентарём>\n\nНастройки открываются кнопкой над инвентарём. Здесь выбирают, какие уведомления получать и кто может писать в личные сообщения.\n\n# Банк\n\n- Переводы, продажи в магазинах.\n- Оплата штрафов в вашу пользу.\n- Напоминание о штрафах при входе.\n\n# Чат\n\n- Локальный и глобальный чат.\n- Сообщения о смерти, входе и выходе игроков.\n\n# Личные сообщения\n\n- Выключить /msg совсем.\n- Заблокировать отдельных игроков.\n\n> Штрафы и предупреждения приходят всегда, их выключить нельзя.\n\n<see/chat bank>"
+},
+{
+"slug": "bank",
+"title": "Банк и счета",
+"cat": "Экономика",
+"source": "<icon/mistraly:mist>\n<info/Валюта/мист>\n<info/Счетов/2, с Plus 4>\n<info/Как открыть/кнопка над инвентарём>\n\nБанк — основа экономики сервера. Деньги здесь называются мистами и хранятся на счетах, а кнопка «Банк» над инвентарём открывает их откуда угодно.\n\n# Мисты\n\n<flow/mistraly:mist_ore > mistraly:raw_mist > mistraly:mist>\n\n<recipes/mistraly:mist>\n\nМист добывают из мистовой руды и обрабатывают на точиле. Деньги хранятся на счетах.\n\n# Счета\n\n- Можно открыть ==2 счёта==, с Plus — ==4==.\n- У счёта есть название, описание и цвет.\n- Кнопка ==Банк== показывает все счета, баланс и историю.\n- В истории есть фильтры по типу, периоду и поиск.\n\n> Банк присылает уведомления со звуком: переводы, продажи, штрафы. Лишние можно выключить в Настройках.\n\n<see/atm transfers co-owners fines shops>"
+},
+{
+"slug": "atm",
+"title": "Банкомат",
+"cat": "Экономика",
+"source": "<icon/mistraly:atm>\n<info/Тип/блок>\n<info/Снятие за раз/до 1728 мистов>\n<info/Осколки/9 = 1 мист>\n\nБанкомат — блок, через который мисты попадают на счёт и обратно. Только здесь можно открыть новый счёт.\n\n<recipes/mistraly:atm>\n\nНажмите ПКМ по банкомату.\n\n# Что можно сделать\n\n- ==Открыть счёт== — название, описание и цвет.\n- ==Пополнить== — положите мисты в ящик и нажмите «Готово».\n- ==Снять== — до 1728 мистов за раз. Что не забрали, вернётся на счёт.\n- ==Название и цвет== — изменить счёт.\n- ==Закрыть== — только пустой счёт.\n\n> Осколки миста тоже принимаются: каждые 9 зачисляются как 1 мист, лишние вернутся.\n\n<see/bank mist>"
+},
+{
+"slug": "transfers",
+"title": "Переводы",
+"cat": "Экономика",
+"source": "<info/Комментарий/необязательно>\n\nМисты можно отправить любому игроку со счёта на счёт, для этого не нужно стоять рядом с банкоматом.\n\n# Через Банк\n\n- Нажмите ==Перевод==.\n- Выберите свой счёт, игрока (недавние — сверху) и его счёт.\n- Введите сумму и, если хотите, комментарий.\n\n# Быстрее — через профиль\n\n- ==Shift+ПКМ== по игроку.\n- Нажмите на его счёт и введите сумму.\n- «Назад» вернёт в профиль.\n\n> Деньги можно перевести и в ==Казну== — общий счёт сервера.\n\n<see/bank profile>"
+},
+{
+"slug": "co-owners",
+"title": "Совладельцы",
+"cat": "Экономика",
+"source": "<info/Максимум/4 игрока>\n<info/Приглашение/через историю счёта>\n\nК счёту можно пригласить других игроков и пользоваться им вместе, например, вести общую казну поселения.\n\n# Как пригласить\n\n- Банк → откройте историю счёта.\n- Нажмите ==Совладельцы==.\n- Введите ник и нажмите «Пригласить». Можно до 4 игроков.\n- Игрок принимает приглашение в своём Банке.\n\n> Запретить приглашать себя можно в Настройках.\n\n# Что могут совладельцы\n\n- Пополнять, снимать, переводить и платить со счёта.\n- Выйти из совладельцев.\n\n# Только владелец\n\n- Переименовывает, перекрашивает и закрывает счёт.\n- Убирает совладельцев.\n\n> Уведомления о деньгах на счёт приходят всем его владельцам.\n\n<see/bank settings>"
+},
+{
+"slug": "fines",
+"title": "Штрафы",
+"cat": "Экономика",
+"source": "<info/Просрочка/предупреждение в неделю>\n<info/3 предупреждения/бан на неделю>\n\nШтраф выписывает администрация за нарушения. Его видно в Банке, а просрочка ведёт к предупреждениям и бану.\n\nАдминистрация может выписать ==штраф==. Он появится в Банке со сроком оплаты и кнопкой ==Оплатить==. Деньги идут в Казну или пострадавшему: он видит такие штрафы в своём Банке.\n\n# Если не оплатить\n\n- Каждая неделя просрочки — ==предупреждение==.\n- ==3 предупреждения== — бан на неделю, потом они сбрасываются.\n\n> При входе в игру банк напомнит о неоплаченных штрафах.\n\n<see/bank>"
+},
+{
+"slug": "shops",
+"title": "Магазины и рынок",
+"cat": "Экономика",
+"source": "<icon/mistraly:shop>\n<info/Тип/блок>\n<info/Слотов/4>\n<info/Новый слот/100 мистов>\n\nМагазин — блок, через который игрок продаёт предметы за мисты без личного присутствия. Все магазины сервера видно на рынке.\n\n<recipes/mistraly:shop>\n\n# Владельцу\n\n- ==ПКМ== — положить товар, задать цену за штуку и счёт для выручки.\n- ==Shift+ПКМ== — посмотреть, как магазин видит покупатель.\n- Сломать магазин может только владелец.\n- Можно поставить ==4 магазина==, каждый следующий слот стоит ==100 мист==: Банк → Магазины.\n- Воронка может доливать товар, но ничего не забирает.\n\n# Покупателю\n\n- ==ПКМ== — выбрать количество и счёт оплаты.\n\n# В Банке → Магазины\n\n- Список ваших магазинов с координатами.\n- Статистика продаж за день, неделю и всё время.\n- Кнопка ==Заблокировать==: пока магазин заблокирован, в нём ничего не купить.\n\n# Рынок\n\n- Кнопка ==Рынок== над инвентарём: все магазины сервера, ближайшие сверху.\n- Видно товар, цену, наличие, продавца и координаты.\n- Поиск находит магазины по предмету.\n- Нажмите на магазин, чтобы поставить ==метку==: она появится на карте Diorama и в мире и исчезнет, когда вы дойдёте.\n\n> Убрать свой магазин с рынка можно в его настройках.\n\n<see/bank mist>"
+},
+{
+"slug": "profile",
+"title": "Профиль игрока",
+"cat": "Игрок",
+"source": "<info/Как открыть/Shift+ПКМ по игроку>\n\nПрофиль показывает снаряжение, статистику, счета и магазины игрока. Открывается нажатием Shift+ПКМ по нему.\n\n# Что в профиле\n\n- Модель игрока, броня и предметы в руках.\n- Статистика: время в игре, смерти, максимальный баланс, добытая руда, сломанные блоки, убитые игроки и мобы.\n- Счета — нажмите на счёт, чтобы перевести деньги.\n- Магазины с ценами и координатами.\n- Кнопка ==Написать в ЛС==.\n\n> Что из этого видят другие — настраивается в Личном кабинете.\n\n<see/cabinet transfers>"
+},
+{
+"slug": "cabinet",
+"title": "Личный кабинет",
+"cat": "Игрок",
+"source": "<info/Как открыть/кнопка над инвентарём>\n<info/Темы/Обычная, Plus, Админ, Глитч>\n\nВ Личном кабинете выбирают тему ника и решают, что другие увидят в вашем профиле.\n\n# Тема ника\n\nИконка перед ником видна в чате, в табе, над головой и в меню.\n\n- ==Обычная== есть у всех.\n- ==Plus== — с подпиской.\n- ==Админ== — у администрации.\n- ==Глитч== выдаёт администрация, вместе с ней открывается цвет счёта «Глитч».\n\nТема меняет и оформление вашего профиля.\n\n# Профиль\n\nВыберите, что видят другие:\n\n- разделы «Счета» и «Магазины» целиком;\n- каждую строку статистики;\n- отдельный счёт или отдельный магазин.\n\n> Скрытое просто не показывается, без надписей «скрыто».\n\n<see/profile plus>"
+},
+{
+"slug": "plus",
+"title": "Подписка Plus",
+"cat": "Игрок",
+"source": "<info/Счетов/4 вместо 2>\n<info/Выдаёт/администрация>\n\nPlus — подписка с дополнительными счетами и золотым оформлением. Выдаёт её администрация.\n\n==Plus== выдаёт администрация.\n\n# Что даёт\n\n- До ==4 счетов== вместо 2.\n- Анимированный ==золотой цвет== счёта.\n- Тема ника ==Plus==: золотая иконка, жёлтый ник и золотой профиль.\n- Значок ==PLUS== над инвентарём. Наведите на него — увидите, до какого числа действует подписка.\n\n> Когда подписка кончается, счета остаются, а золотой цвет становится обычным жёлтым.\n\n<see/bank cabinet>"
+},
+{
+"slug": "achievements",
+"title": "Достижения",
+"cat": "Игрок",
+"source": "<info/Как открыть/кнопка с кубком или L>\n<info/Всего/3>\n\nВанильные достижения на сервере заменены своими целями сервера.\n\nКнопка с кубком над инвентарём показывает все достижения и прогресс по ним.\n\n# Как это работает\n\n- Полученное достижение видит весь сервер.\n- Чужие достижения можно скрыть в Настройках → Чат.\n\n> Ванильных достижений на сервере нет: клавиша L открывает это же меню.\n\n# Список достижений\n\n| Название | Что сделать |\n| Ебанк | Открыть счёт в банке |\n| Молодой миллионер | Заработать 999 999 мистов |\n| Темщик | Поставить 8 магазинов |\n\n<see/bank shops>"
+},
+{
+"slug": "death",
+"title": "Смерть и могилы",
+"cat": "Игрок",
+"source": "<info/Потеря прочности/10%>\n<info/Могила лежит/12 часов>\n<info/Слотов артефактов/4>\n\nСмерть на сервере не отбирает всё сразу: часть вещей остаётся у игрока, а остальное ждёт в могиле.\n\n# Остаётся при вас\n\n- Хотбар, броня и вторая рука.\n- Эти вещи теряют ==10% прочности==, но сломаться от этого не могут.\n\n# Артефакты\n\n- ==4 слота== в инвентаре, рядом с бронёй.\n- Вещи из них при смерти остаются при вас и не теряют прочность.\n\n# Остальное — в могиле\n\n- Могила появляется рядом с местом смерти.\n- Забрать вещи может только владелец: ==ПКМ== по могиле.\n- Могила лежит ==12 часов==, потом разваливается, и вещи выпадают.\n- После возрождения в чате будут координаты могилы.\n\n> Наведите на сообщение о смерти — увидите потерянные вещи и таймер могилы.\n\n<see/profile>"
+},
+{
+"slug": "ores",
+"title": "Руды и точило",
+"cat": "Добыча",
+"source": "<icon/mistraly:rough_diamond>\n<info/Инструмент/точило>\n<info/Управление/пробел или ЛКМ>\n<info/Бонус/зелёная зона>\n\nРуды дают не готовые ресурсы, а грубые камни, самородки и осколки. Камни доводят на точиле в небольшой мини-игре.\n\n# Что дают руды\n\n<flow/minecraft:diamond_ore > mistraly:rough_diamond + mistraly:rough_diamond_shard>\n\n<flow/minecraft:iron_ore > mistraly:raw_iron_nugget*6>\n\n<flow/minecraft:coal_ore > mistraly:coal_lump>\n\n- Изумруд, лазурит и мист — так же, как алмаз.\n- Удача повышает шанс грубого осколка.\n\n# Точило\n\n- Возьмите грубый камень в руку и нажмите ==ПКМ== по точилу.\n- Остановите бегунок пробелом или ЛКМ.\n- Попали в ==зелёную зону== — получите бонусный осколок.\n<recipes/minecraft:diamond>\n\n> Как скрафтить предмет — наведите и нажмите ==R==. ==U== покажет, что из него делают на точиле.\n\n# Что обрабатывается\n\n| Предмет | Результат | Бонус в зелёной зоне |\n| Неогранённый алмаз | Алмаз | Осколок алмаза |\n| Неогранённый осколок алмаза | Осколок алмаза | Осколок алмаза |\n| Неогранённый изумруд | Изумруд | Осколок изумруда |\n| Неогранённый осколок изумруда | Осколок изумруда | Осколок изумруда |\n| Необработанный лазурит | Лазурит ×4 | Осколок лазурита |\n| Осколок необработанного лазурита | Осколок лазурита | Осколок лазурита |\n| Сырой мист | Мист | Осколок миста |\n| Сырой осколок миста | Осколок миста | Осколок миста |\n| Кусок угля | Уголь | Ещё один уголь |\n\n<see/mist gems nuggets>"
+},
+{
+"slug": "mist",
+"title": "Мист",
+"cat": "Добыча",
+"source": "<icon/mistraly:mist>\n<info/Тип/валюта>\n<info/Руда/глубоко под землёй>\n<info/Делится на/9 осколков>\n\nМист — валюта сервера. Его добывают из мистовой руды, доводят на точиле и кладут на счёт через банкомат.\n\n# Предметы\n\n<items/mistraly:mist_ore mistraly:deepslate_mist_ore mistraly:raw_mist mistraly:raw_mist_shard mistraly:mist mistraly:mist_shard>\n\n# Как получить\n\n<flow/mistraly:mist_ore > mistraly:raw_mist + mistraly:raw_mist_shard>\n\nМистовая руда залегает глубоко, ближе к бедроку, как алмазы. Сырой мист доводят на точиле.\n\n<flow/mistraly:raw_mist > mistraly:mist + mistraly:mist_shard>\n\n- Удача повышает шанс сырого осколка.\n- Попадание в зелёную зону на точиле даёт бонусный осколок миста.\n\n> Руду, добытую с шёлковым касанием, можно переплавить в сырой мист.\n\n# Рецепты\n\n<recipes/mistraly:mist>\n<recipes/mistraly:mist_shard>\n<recipes/mistraly:raw_mist>\n<recipes/mistraly:raw_mist_shard>\n\n<see/bank atm ores>"
+},
+{
+"slug": "gems",
+"title": "Драгоценные камни",
+"cat": "Добыча",
+"source": "<icon/mistraly:rough_diamond>\n<info/Камни/алмаз, изумруд, лазурит>\n<info/Обработка/точило>\n\nАлмаз, изумруд и лазурит выпадают из руды неогранёнными. Готовый камень получают только на точиле.\n\n# Предметы\n\n<items/mistraly:rough_diamond mistraly:rough_diamond_shard mistraly:diamond_shard>\n<items/mistraly:rough_emerald mistraly:rough_emerald_shard mistraly:emerald_shard>\n<items/mistraly:rough_lazurite mistraly:rough_lazurite_shard mistraly:lapis_lazuli_shard>\n\n# Как получить\n\n<flow/minecraft:diamond_ore > mistraly:rough_diamond + mistraly:rough_diamond_shard>\n\nИзумруд и лазурит добываются так же. Удача повышает шанс грубого осколка.\n\n- 9 осколков складываются в алмаз или изумруд.\n- 4 осколка складываются в лазурит.\n\n# Рецепты\n\n<recipes/minecraft:diamond>\n<recipes/minecraft:emerald>\n<recipes/minecraft:lapis_lazuli>\n<recipes/mistraly:rough_diamond_shard>\n<recipes/mistraly:rough_emerald_shard>\n<recipes/mistraly:rough_lazurite_shard>\n\n<see/ores mist>"
+},
+{
+"slug": "nuggets",
+"title": "Самородки и уголь",
+"cat": "Добыча",
+"source": "<icon/mistraly:raw_iron_nugget>\n<info/Металлы/железо, золото, медь>\n<info/Из руды/по 6 самородков>\n\nЖелезная, золотая и медная руды дают самородки сырого металла, а угольная — куски угля.\n\n# Предметы\n\n<items/mistraly:raw_iron_nugget mistraly:raw_gold_nugget mistraly:raw_copper_nugget mistraly:coal_lump>\n\n# Как получить\n\n<flow/minecraft:iron_ore > mistraly:raw_iron_nugget*6>\n\n<flow/minecraft:coal_ore > mistraly:coal_lump>\n\n- 9 самородков складываются в сырой металл.\n- Самородок сырого металла переплавляется в обычный самородок.\n- Кусок угля годится как топливо, а на точиле превращается в уголь.\n\n# Рецепты\n\n<recipes/minecraft:raw_iron>\n<recipes/minecraft:raw_gold>\n<recipes/minecraft:raw_copper>\n<recipes/minecraft:iron_nugget>\n<recipes/minecraft:gold_nugget>\n<recipes/minecraft:copper_nugget>\n\n<see/ores>"
+},
+{
+"slug": "bone-gear",
+"title": "Костяное снаряжение",
+"cat": "Снаряжение",
+"source": "<icon/mistraly:bone_sword>\n<info/Материал/кость>\n<info/Прочность инструмента/100>\n<info/Улучшается до/мясного>\n\nДешёвое снаряжение из костей: быстро копает и хорошо бьёт, но недолговечно. Полный комплект брони возвращает часть урона.\n\n# Инструменты\n\n<items/mistraly:bone_sword mistraly:bone_pickaxe mistraly:bone_axe mistraly:bone_shovel mistraly:bone_hoe>\n| Предмет | Урон | Скорость атаки | Прочность |\n| Костяной меч | 6,5 | 1,6 | 100 |\n| Костяная кирка | 4,5 | 1,2 | 100 |\n| Костяной топор | 9 | 1 | 100 |\n| Костяная лопата | 5 | 1 | 100 |\n| Костяная мотыга | 1 | 3,5 | 100 |\n\nКопают на уровне железа: всё, что доступно железной кирке.\n\n# Броня\n\n<items/mistraly:bone_helmet mistraly:bone_chestplate mistraly:bone_leggings mistraly:bone_boots>\n| Предмет | Защита | Прочность |\n| Костяной шлем | 2 | 88 |\n| Костяной нагрудник | 6 | 128 |\n| Костяные поножи | 5 | 120 |\n| Костяные ботинки | 2 | 104 |\n\n- Полный комплект: 30% полученного урона возвращается тому, кто его нанёс.\n- Нельзя зачаровать на «Шипы».\n\n# Рецепты\n\n<recipes/mistraly:bone_sword>\n<recipes/mistraly:bone_pickaxe>\n<recipes/mistraly:bone_helmet>\n<recipes/mistraly:bone_chestplate>\n\n<see/meat-gear knives>"
+},
+{
+"slug": "meat-gear",
+"title": "Мясное снаряжение",
+"cat": "Снаряжение",
+"source": "<icon/mistraly:meat_sword>\n<info/Материал/мясное улучшение>\n<info/Уровень добычи/незерит>\n<info/Ремонт/кормление едой>\n\nЖивые инструменты, улучшенные из костяных. Они не ломаются окончательно и питаются едой вместо ремонта.\n\n# Мясное улучшение\n\n<flow/mistraly:unactive_meat_trim > mistraly:meat_trim>\n\n- Покормите неактивное улучшение пятью разными продуктами по очереди.\n- Оно просит конкретный продукт, после пятой кормёжки становится мясным улучшением.\n- На кузнечном столе улучшение превращает костяной инструмент в мясной.\n<recipes/mistraly:unactive_meat_trim>\n\n# Инструменты\n\n<items/mistraly:meat_sword mistraly:meat_pickaxe mistraly:meat_axe mistraly:meat_shovel mistraly:meat_hoe>\n| Предмет | Урон | Скорость атаки | Прочность |\n| Мясной меч | 8 | 1,6 | 100 |\n| Мясная кирка | 6 | 1,2 | 100 |\n| Мясной топор | 10 | 1 | 100 |\n| Мясная лопата | 6,5 | 1 | 100 |\n| Мясная мотыга | 1 | 4 | 100 |\n\n# Особенности\n\n- ПКМ едой по инструменту кормит его и восполняет прочность.\n- На последней единице прочности инструмент не ломается, а перестаёт работать, пока его не покормят.\n- Зачарование «Прочность» недоступно.\n\n# Ускорение\n\n| Еда | Ускорение добычи | Скорость атаки | Длительность |\n| Золотое яблоко | ×1,5 | +50% | 1 минута |\n| Зачарованное золотое яблоко | ×2 | +100% | 5 минут |\n\n# Рецепты\n\n<recipes/mistraly:meat_sword>\n<recipes/mistraly:meat_pickaxe>\n\n<see/bone-gear knives>"
+},
+{
+"slug": "knives",
+"title": "Ножи",
+"cat": "Снаряжение",
+"source": "<icon/mistraly:iron_knife>\n<info/Скорость атаки/2,2>\n<info/Материалы/6>\n\nЛёгкое оружие: бьёт слабее меча, зато заметно быстрее. Первый нож можно сделать уже из кремня.\n\n# Виды ножей\n\n<items/mistraly:flint_knife mistraly:copper_knife mistraly:iron_knife mistraly:golden_knife mistraly:diamond_knife mistraly:netherite_knife>\n| Предмет | Урон | Скорость атаки | Прочность |\n| Кремнёвый нож | 4 | 2,2 | 131 |\n| Медный нож | 4 | 2,2 | 190 |\n| Железный нож | 5 | 2,2 | 250 |\n| Золотой нож | 3 | 2,2 | 32 |\n| Алмазный нож | 6 | 2,2 | 1561 |\n| Незеритовый нож | 7 | 2,2 | 2031 |\n\n# Рецепты\n\n<recipes/mistraly:flint_knife>\n<recipes/mistraly:iron_knife>\n<recipes/mistraly:netherite_knife>\n\n<see/bone-gear meat-gear>"
+},
+{
+"slug": "formatting",
+"title": "Форматирование и разметка",
+"cat": "Основы",
+"source": "Все статьи вики пишутся обычным текстом с разметкой. Почти всё вставляется кнопками на панели редактора, а на этой странице разобран весь набор: слева то, что вы пишете, справа то, что увидят читатели.\n\n> Правка попадает к администрации и появляется на сайте после проверки. Статус своих правок видно на странице [Мои правки](/wiki/my).\n\n# Текст\n\n:: **Жирный текст**\n:: *Курсив*\n:: ==Акцент==\n:: `Код или команда`\n\nЧтобы разметка не сработала, поставьте перед знаком обратный слэш: `\\*не курсив\\*`.\n\n# Заголовки\n\nЗаголовок начинается с решётки и пробела. Чем больше решёток, тем он мельче. Заголовки сами попадают в содержание статьи.\n\n```\n# Большой раздел\n## Подраздел\n### Мелкий заголовок\n```\n\n# Списки\n\nОбычный список начинается со знака минус и пробела:\n\n:: - Первый пункт\n\nНумерованный начинается с цифры и точки:\n\n:: 1. Первый шаг\n\n# Ссылки\n\nСсылка на статью вики начинается со слэша:\n\n:: [Банк и счета](/wiki/bank)\n\nВнешняя ссылка пишется полностью и открывается в новой вкладке:\n\n:: [Сайт сервера](https://mistraly.net)\n\n# Ссылка на игрока\n\nНапишите @ и ник: рядом появится голова со скином, а ссылка откроет страницу игрока. В редакторе после @ всплывает подсказка с никами.\n\n:: @NioRio\n\nОтдельная голова без ссылки вставляется так, последнее число задаёт размер:\n\n:: <avatar/NioRio/32>\n\n# Автоссылки\n\nНазвания механик и предметов сами становятся ссылками: на странице подсвечивается первое упоминание, падежи учитываются. Автоссылка не ставится внутри жирного текста и на собственной странице.\n\n:: Положите мисты на счёт\n\nЧтобы слово не стало ссылкой, поставьте перед ним восклицательный знак, он не отобразится:\n\n:: !Мист как обычное слово\n\n# Карточки\n\nСтрока со знака > становится карточкой:\n\n:: > Важная подсказка для читателя\n\nНесколько карточек в ряд: каждый новый знак > начинает колонку. Колонок может быть до пяти.\n\n:: > Левая карточка > Правая карточка\n\nВся карточка живёт в одной строке, перенос внутри пишется как `\\n`, а `>>` добавляет внутреннюю подсказку:\n\n:: > ### Заголовок \\n 1. Первый шаг \\n 2. Второй шаг \\n >> Примечание\n\n# Таблицы\n\nСтроки таблицы начинаются и заканчиваются вертикальной чертой, первая строка становится шапкой:\n\n```\n| Предмет | Урон |\n| Меч | 8 |\n| Нож | 5 |\n```\n\n| Предмет | Урон |\n| Меч | 8 |\n| Нож | 5 |\n\n# Предметы и рецепты\n\nПредмет в тексте с иконкой и ссылкой на статью:\n\n:: <item/mistraly:mist>\n\nРяд предметов, идентификаторы через пробел:\n\n:: <items/mistraly:mist mistraly:mist_shard mistraly:raw_mist>\n\nЦепочка добычи: > ведёт к следующему шагу, + добавляет предмет рядом, *6 задаёт количество:\n\n:: <flow/mistraly:mist_ore > mistraly:raw_mist + mistraly:raw_mist_shard*2>\n\nВсе рецепты предмета:\n\n:: <recipes/mistraly:atm>\n\n# Карточки страниц\n\nСсылка на статью большой карточкой. Несколько адресов через пробел встанут в ряд:\n\n:: <wiki/bank atm shops>\n\n# Сноска справа\n\nБлок справа от текста, как у [Мист](/wiki/mist), собирается отдельными строками в начале статьи:\n\n```\n<icon/mistraly:mist>\n<info/Тип/валюта>\n<info/Делится на/9 осколков>\n```\n\nВ конце статьи можно перечислить похожие страницы:\n\n```\n<see/bank atm ores>\n```\n\n# Картинки\n\nКнопка «Картинка» загружает ваш файл: PNG, JPEG или WebP до 5 МБ и до 2048 пикселей. Все увидят картинку после проверки правки, а до этого её видите только вы и администрация.\n\n```\n<image/up/номер-файла/Подпись>\n```\n\n# Текстуры мода\n\nКнопка «Текстура мода» вставляет любую текстуру из мода: предмет, блок, значок или модель брони.\n\n:: <asset/item/mist//Мист крупно>\n\nМаленький значок прямо в строке текста:\n\n:: Цена в мистах <icon/item/mist>"
+}
+],
+"assets": [
+{
+"id": "block/atm_front",
+"w": 16,
+"h": 16
+},
+{
+"id": "block/atm_side",
+"w": 16,
+"h": 16
+},
+{
+"id": "block/atm_top",
+"w": 16,
+"h": 16
+},
+{
+"id": "block/deepslate_mist_ore",
+"w": 16,
+"h": 16
+},
+{
+"id": "block/mist_ore",
+"w": 16,
+"h": 16
+},
+{
+"id": "block/shop_bottom",
+"w": 16,
+"h": 16
+},
+{
+"id": "block/shop_side",
+"w": 16,
+"h": 16
+},
+{
+"id": "block/shop_top",
+"w": 16,
+"h": 16
+},
+{
+"id": "entity/equipment/humanoid/bone",
+"w": 64,
+"h": 32
+},
+{
+"id": "entity/equipment/humanoid_leggings/bone",
+"w": 64,
+"h": 32
+},
+{
+"id": "font/admin_icon",
+"w": 8,
+"h": 8
+},
+{
+"id": "font/bank_chat_icon",
+"w": 8,
+"h": 8
+},
+{
+"id": "font/def_icon",
+"w": 8,
+"h": 8
+},
+{
+"id": "font/fine_icon",
+"w": 8,
+"h": 8
+},
+{
+"id": "font/glitch_icon",
+"w": 8,
+"h": 8
+},
+{
+"id": "font/global_chat_icon",
+"w": 8,
+"h": 8
+},
+{
+"id": "font/local_chat_icon",
+"w": 8,
+"h": 8
+},
+{
+"id": "font/msg_chat_icon",
+"w": 8,
+"h": 8
+},
+{
+"id": "font/plus_icon",
+"w": 8,
+"h": 8
+},
+{
+"id": "gui/sprites/achievements_glyph",
+"w": 16,
+"h": 16
+},
+{
+"id": "gui/sprites/bank_glyph",
+"w": 16,
+"h": 16
+},
+{
+"id": "gui/sprites/cabinet_glyph",
+"w": 16,
+"h": 16
+},
+{
+"id": "gui/sprites/market_glyph",
+"w": 16,
+"h": 16
+},
+{
+"id": "gui/sprites/settings_glyph",
+"w": 16,
+"h": 16
+},
+{
+"id": "gui/sprites/wiki_glyph",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/bone_axe",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/bone_boots",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/bone_chestplate",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/bone_helmet",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/bone_hoe",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/bone_leggings",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/bone_pickaxe",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/bone_shovel",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/bone_sword",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/coal_lump",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/copper_knife",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/diamond_knife",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/diamond_shard",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/emerald_shard",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/flint_knife",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/golden_knife",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/iron_knife",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/lapis_lazuli_shard",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/meat_axe",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/meat_hoe",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/meat_pickaxe",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/meat_shovel",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/meat_sword",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/meat_trim",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/mist",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/mist_shard",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/netherite_knife",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/raw_copper_nugget",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/raw_gold_nugget",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/raw_iron_nugget",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/raw_mist",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/raw_mist_shard",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/rough_diamond",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/rough_diamond_shard",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/rough_emerald",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/rough_emerald_shard",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/rough_lazurite",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/rough_lazurite_shard",
+"w": 16,
+"h": 16
+},
+{
+"id": "item/unactive_meat_trim",
+"w": 16,
+"h": 16
+}
+],
+"cats": [
+{
+"name": "Основы",
+"text": "Первые шаги, чат, команды и настройки."
+},
+{
+"name": "Экономика",
+"text": "Мисты, счета, переводы, магазины и штрафы."
+},
+{
+"name": "Игрок",
+"text": "Профиль, темы ника, достижения и смерть."
+},
+{
+"name": "Добыча",
+"text": "Руды, точило, камни и валюта сервера."
+},
+{
+"name": "Снаряжение",
+"text": "Костяные и мясные инструменты, броня и ножи."
+}
+],
+"groups": [
+{
+"title": "Валюта и мист",
+"page": "mist",
+"items": [
+"mistraly:mist",
+"mistraly:mist_shard",
+"mistraly:raw_mist",
+"mistraly:raw_mist_shard",
+"mistraly:mist_ore",
+"mistraly:deepslate_mist_ore"
+]
+},
+{
+"title": "Драгоценные камни",
+"page": "gems",
+"items": [
+"mistraly:rough_diamond",
+"mistraly:rough_diamond_shard",
+"mistraly:diamond_shard",
+"mistraly:rough_emerald",
+"mistraly:rough_emerald_shard",
+"mistraly:emerald_shard",
+"mistraly:rough_lazurite",
+"mistraly:rough_lazurite_shard",
+"mistraly:lapis_lazuli_shard"
+]
+},
+{
+"title": "Самородки и уголь",
+"page": "nuggets",
+"items": [
+"mistraly:raw_iron_nugget",
+"mistraly:raw_gold_nugget",
+"mistraly:raw_copper_nugget",
+"mistraly:coal_lump"
+]
+},
+{
+"title": "Костяное снаряжение",
+"page": "bone-gear",
+"items": [
+"mistraly:bone_sword",
+"mistraly:bone_pickaxe",
+"mistraly:bone_axe",
+"mistraly:bone_shovel",
+"mistraly:bone_hoe",
+"mistraly:bone_helmet",
+"mistraly:bone_chestplate",
+"mistraly:bone_leggings",
+"mistraly:bone_boots"
+]
+},
+{
+"title": "Мясное снаряжение",
+"page": "meat-gear",
+"items": [
+"mistraly:unactive_meat_trim",
+"mistraly:meat_trim",
+"mistraly:meat_sword",
+"mistraly:meat_pickaxe",
+"mistraly:meat_axe",
+"mistraly:meat_shovel",
+"mistraly:meat_hoe"
+]
+},
+{
+"title": "Ножи",
+"page": "knives",
+"items": [
+"mistraly:flint_knife",
+"mistraly:copper_knife",
+"mistraly:iron_knife",
+"mistraly:golden_knife",
+"mistraly:diamond_knife",
+"mistraly:netherite_knife"
+]
+},
+{
+"title": "Блоки",
+"page": "atm",
+"items": [
+"mistraly:atm",
+"mistraly:shop"
+]
+}
+],
+"items": {
+"#minecraft:wool": {
+"name": "Любая шерсть",
+"icon": null,
+"page": null
+},
+"mistraly:iron_knife": {
+"name": "Железный нож",
+"icon": "/images/wiki/iron_knife.png",
+"page": "knives"
+},
+"mistraly:atm": {
+"name": "Банкомат",
+"icon": "/images/wiki/atm.png",
+"page": "atm"
+},
+"minecraft:raw_gold": {
+"name": "Сырое золото",
+"icon": null,
+"page": null
+},
+"minecraft:netherite_upgrade_smithing_template": {
+"name": "Шаблон незеритового улучшения",
+"icon": null,
+"page": null
+},
+"#minecraft:meat": {
+"name": "Любое мясо",
+"icon": null,
+"page": null
+},
+"minecraft:coal_ore": {
+"name": "Угольная руда",
+"icon": null,
+"page": null
+},
+"#minecraft:netherite_tool_materials": {
+"name": "Незеритовый слиток",
+"icon": null,
+"page": null
+},
+"#mistraly:flint_tool_materials": {
+"name": "Кремень",
+"icon": null,
+"page": null
+},
+"mistraly:shop": {
+"name": "Магазин",
+"icon": "/images/wiki/shop.png",
+"page": "shops"
+},
+"mistraly:raw_mist_shard": {
+"name": "Сырой осколок миста",
+"icon": "/images/wiki/raw_mist_shard.png",
+"page": "mist"
+},
+"mistraly:diamond_knife": {
+"name": "Алмазный нож",
+"icon": "/images/wiki/diamond_knife.png",
+"page": "knives"
+},
+"minecraft:copper_nugget": {
+"name": "Медный самородок",
+"icon": null,
+"page": null
+},
+"mistraly:raw_mist": {
+"name": "Сырой мист",
+"icon": "/images/wiki/raw_mist.png",
+"page": "mist"
+},
+"mistraly:bone_pickaxe": {
+"name": "Костяная кирка",
+"icon": "/images/wiki/bone_pickaxe.png",
+"page": "bone-gear"
+},
+"mistraly:meat_hoe": {
+"name": "Мясная мотыга",
+"icon": "/images/wiki/meat_hoe.png",
+"page": "meat-gear"
+},
+"mistraly:bone_hoe": {
+"name": "Костяная мотыга",
+"icon": "/images/wiki/bone_hoe.png",
+"page": "bone-gear"
+},
+"mistraly:bone_shovel": {
+"name": "Костяная лопата",
+"icon": "/images/wiki/bone_shovel.png",
+"page": "bone-gear"
+},
+"mistraly:rough_emerald": {
+"name": "Неогранённый изумруд",
+"icon": "/images/wiki/rough_emerald.png",
+"page": "gems"
+},
+"mistraly:diamond_shard": {
+"name": "Осколок алмаза",
+"icon": "/images/wiki/diamond_shard.png",
+"page": "gems"
+},
+"mistraly:rough_lazurite": {
+"name": "Необработанный лазурит",
+"icon": "/images/wiki/rough_lazurite.png",
+"page": "gems"
+},
+"mistraly:bone_sword": {
+"name": "Костяной меч",
+"icon": "/images/wiki/bone_sword.png",
+"page": "bone-gear"
+},
+"minecraft:glass_pane": {
+"name": "Стеклянная панель",
+"icon": null,
+"page": null
+},
+"minecraft:iron_ore": {
+"name": "Железная руда",
+"icon": null,
+"page": null
+},
+"minecraft:bone": {
+"name": "Кость",
+"icon": null,
+"page": null
+},
+"mistraly:mist": {
+"name": "Мист",
+"icon": "/images/wiki/mist.png",
+"page": "mist"
+},
+"mistraly:rough_diamond_shard": {
+"name": "Неогранённый осколок алмаза",
+"icon": "/images/wiki/rough_diamond_shard.png",
+"page": "gems"
+},
+"mistraly:rough_lazurite_shard": {
+"name": "Осколок необработанного лазурита",
+"icon": "/images/wiki/rough_lazurite_shard.png",
+"page": "gems"
+},
+"mistraly:raw_gold_nugget": {
+"name": "Самородок сырого золота",
+"icon": "/images/wiki/raw_gold_nugget.png",
+"page": "nuggets"
+},
+"#minecraft:planks": {
+"name": "Любые доски",
+"icon": null,
+"page": null
+},
+"mistraly:bone_axe": {
+"name": "Костяной топор",
+"icon": "/images/wiki/bone_axe.png",
+"page": "bone-gear"
+},
+"minecraft:gold_nugget": {
+"name": "Золотой самородок",
+"icon": null,
+"page": null
+},
+"minecraft:redstone": {
+"name": "Редстоун",
+"icon": null,
+"page": null
+},
+"minecraft:stick": {
+"name": "Палка",
+"icon": null,
+"page": null
+},
+"mistraly:deepslate_mist_ore": {
+"name": "Глубинносланцевая мистовая руда",
+"icon": "/images/wiki/deepslate_mist_ore.png",
+"page": "mist"
+},
+"mistraly:bone_chestplate": {
+"name": "Костяной нагрудник",
+"icon": "/images/wiki/bone_chestplate.png",
+"page": "bone-gear"
+},
+"minecraft:emerald": {
+"name": "Изумруд",
+"icon": null,
+"page": null
+},
+"minecraft:diamond_ore": {
+"name": "Алмазная руда",
+"icon": null,
+"page": null
+},
+"mistraly:emerald_shard": {
+"name": "Осколок изумруда",
+"icon": "/images/wiki/emerald_shard.png",
+"page": "gems"
+},
+"mistraly:rough_emerald_shard": {
+"name": "Неогранённый осколок изумруда",
+"icon": "/images/wiki/rough_emerald_shard.png",
+"page": "gems"
+},
+"minecraft:iron_nugget": {
+"name": "Железный самородок",
+"icon": null,
+"page": null
+},
+"minecraft:coal": {
+"name": "Уголь",
+"icon": null,
+"page": null
+},
+"mistraly:bone_leggings": {
+"name": "Костяные поножи",
+"icon": "/images/wiki/bone_leggings.png",
+"page": "bone-gear"
+},
+"minecraft:iron_ingot": {
+"name": "Железный слиток",
+"icon": null,
+"page": null
+},
+"#minecraft:iron_tool_materials": {
+"name": "Железный слиток",
+"icon": null,
+"page": null
+},
+"minecraft:raw_iron": {
+"name": "Сырое железо",
+"icon": null,
+"page": null
+},
+"mistraly:raw_copper_nugget": {
+"name": "Самородок сырой меди",
+"icon": "/images/wiki/raw_copper_nugget.png",
+"page": "nuggets"
+},
+"mistraly:meat_shovel": {
+"name": "Мясная лопата",
+"icon": "/images/wiki/meat_shovel.png",
+"page": "meat-gear"
+},
+"mistraly:netherite_knife": {
+"name": "Незеритовый нож",
+"icon": "/images/wiki/netherite_knife.png",
+"page": "knives"
+},
+"mistraly:rough_diamond": {
+"name": "Неогранённый алмаз",
+"icon": "/images/wiki/rough_diamond.png",
+"page": "gems"
+},
+"mistraly:bone_boots": {
+"name": "Костяные ботинки",
+"icon": "/images/wiki/bone_boots.png",
+"page": "bone-gear"
+},
+"mistraly:golden_knife": {
+"name": "Золотой нож",
+"icon": "/images/wiki/golden_knife.png",
+"page": "knives"
+},
+"#minecraft:diamond_tool_materials": {
+"name": "Алмаз",
+"icon": null,
+"page": null
+},
+"mistraly:lapis_lazuli_shard": {
+"name": "Осколок лазурита",
+"icon": "/images/wiki/lapis_lazuli_shard.png",
+"page": "gems"
+},
+"mistraly:raw_iron_nugget": {
+"name": "Самородок сырого железа",
+"icon": "/images/wiki/raw_iron_nugget.png",
+"page": "nuggets"
+},
+"minecraft:grindstone": {
+"name": "Точило",
+"icon": null,
+"page": null
+},
+"#minecraft:copper_tool_materials": {
+"name": "Медный слиток",
+"icon": null,
+"page": null
+},
+"minecraft:gold_ingot": {
+"name": "Золотой слиток",
+"icon": null,
+"page": null
+},
+"mistraly:flint_knife": {
+"name": "Кремнёвый нож",
+"icon": "/images/wiki/flint_knife.png",
+"page": "knives"
+},
+"mistraly:mist_ore": {
+"name": "Мистовая руда",
+"icon": "/images/wiki/mist_ore.png",
+"page": "mist"
+},
+"#mistraly:bone_tool_materials": {
+"name": "Кость",
+"icon": null,
+"page": null
+},
+"mistraly:coal_lump": {
+"name": "Кусок угля",
+"icon": "/images/wiki/coal_lump.png",
+"page": "nuggets"
+},
+"mistraly:bone_helmet": {
+"name": "Костяной шлем",
+"icon": "/images/wiki/bone_helmet.png",
+"page": "bone-gear"
+},
+"#minecraft:gold_tool_materials": {
+"name": "Золотой слиток",
+"icon": null,
+"page": null
+},
+"mistraly:meat_trim": {
+"name": "Мясное улучшение",
+"icon": "/images/wiki/meat_trim.png",
+"page": "meat-gear"
+},
+"mistraly:meat_pickaxe": {
+"name": "Мясная кирка",
+"icon": "/images/wiki/meat_pickaxe.png",
+"page": "meat-gear"
+},
+"minecraft:diamond": {
+"name": "Алмаз",
+"icon": null,
+"page": null
+},
+"minecraft:chest": {
+"name": "Сундук",
+"icon": null,
+"page": null
+},
+"mistraly:mist_shard": {
+"name": "Осколок миста",
+"icon": "/images/wiki/mist_shard.png",
+"page": "mist"
+},
+"mistraly:copper_knife": {
+"name": "Медный нож",
+"icon": "/images/wiki/copper_knife.png",
+"page": "knives"
+},
+"mistraly:unactive_meat_trim": {
+"name": "Неактивное мясное улучшение",
+"icon": "/images/wiki/unactive_meat_trim.png",
+"page": "meat-gear"
+},
+"mistraly:meat_axe": {
+"name": "Мясной топор",
+"icon": "/images/wiki/meat_axe.png",
+"page": "meat-gear"
+},
+"mistraly:meat_sword": {
+"name": "Мясной меч",
+"icon": "/images/wiki/meat_sword.png",
+"page": "meat-gear"
+},
+"minecraft:lapis_lazuli": {
+"name": "Лазурит",
+"icon": null,
+"page": null
+},
+"minecraft:raw_copper": {
+"name": "Сырая медь",
+"icon": null,
+"page": null
+}
+},
+"recipes": {
+"mistraly:atm": [
+{
+"result": {
+"id": "mistraly:atm",
+"count": 1
+},
+"kind": "crafting",
+"slots": [
+"minecraft:iron_ingot",
+"minecraft:glass_pane",
+"minecraft:iron_ingot",
+"minecraft:iron_ingot",
+"minecraft:diamond",
+"minecraft:iron_ingot",
+"minecraft:iron_ingot",
+"minecraft:redstone",
+"minecraft:iron_ingot"
+]
+}
+],
+"mistraly:bone_axe": [
+{
+"result": {
+"id": "mistraly:bone_axe",
+"count": 1
+},
+"kind": "crafting",
+"slots": [
+"#mistraly:bone_tool_materials",
+"#mistraly:bone_tool_materials",
+null,
+"#mistraly:bone_tool_materials",
+"minecraft:stick",
+null,
+null,
+"minecraft:stick",
+null
+]
+}
+],
+"mistraly:bone_boots": [
+{
+"result": {
+"id": "mistraly:bone_boots",
+"count": 1
+},
+"kind": "crafting",
+"slots": [
+"#mistraly:bone_tool_materials",
+null,
+"#mistraly:bone_tool_materials",
+"#mistraly:bone_tool_materials",
+null,
+"#mistraly:bone_tool_materials",
+null,
+null,
+null
+]
+}
+],
+"mistraly:bone_chestplate": [
+{
+"result": {
+"id": "mistraly:bone_chestplate",
+"count": 1
+},
+"kind": "crafting",
+"slots": [
+"#mistraly:bone_tool_materials",
+null,
+"#mistraly:bone_tool_materials",
+"#mistraly:bone_tool_materials",
+"#mistraly:bone_tool_materials",
+"#mistraly:bone_tool_materials",
+"#mistraly:bone_tool_materials",
+"#mistraly:bone_tool_materials",
+"#mistraly:bone_tool_materials"
+]
+}
+],
+"mistraly:bone_helmet": [
+{
+"result": {
+"id": "mistraly:bone_helmet",
+"count": 1
+},
+"kind": "crafting",
+"slots": [
+"#mistraly:bone_tool_materials",
+"#mistraly:bone_tool_materials",
+"#mistraly:bone_tool_materials",
+"#mistraly:bone_tool_materials",
+null,
+"#mistraly:bone_tool_materials",
+null,
+null,
+null
+]
+}
+],
+"mistraly:bone_hoe": [
+{
+"result": {
+"id": "mistraly:bone_hoe",
+"count": 1
+},
+"kind": "crafting",
+"slots": [
+"#mistraly:bone_tool_materials",
+"#mistraly:bone_tool_materials",
+null,
+null,
+"minecraft:stick",
+null,
+null,
+"minecraft:stick",
+null
+]
+}
+],
+"mistraly:bone_leggings": [
+{
+"result": {
+"id": "mistraly:bone_leggings",
+"count": 1
+},
+"kind": "crafting",
+"slots": [
+"#mistraly:bone_tool_materials",
+"#mistraly:bone_tool_materials",
+"#mistraly:bone_tool_materials",
+"#mistraly:bone_tool_materials",
+null,
+"#mistraly:bone_tool_materials",
+"#mistraly:bone_tool_materials",
+null,
+"#mistraly:bone_tool_materials"
+]
+}
+],
+"mistraly:bone_pickaxe": [
+{
+"result": {
+"id": "mistraly:bone_pickaxe",
+"count": 1
+},
+"kind": "crafting",
+"slots": [
+"#mistraly:bone_tool_materials",
+"#mistraly:bone_tool_materials",
+"#mistraly:bone_tool_materials",
+null,
+"minecraft:stick",
+null,
+null,
+"minecraft:stick",
+null
+]
+}
+],
+"mistraly:bone_shovel": [
+{
+"result": {
+"id": "mistraly:bone_shovel",
+"count": 1
+},
+"kind": "crafting",
+"slots": [
+"#mistraly:bone_tool_materials",
+null,
+null,
+"minecraft:stick",
+null,
+null,
+"minecraft:stick",
+null,
+null
+]
+}
+],
+"mistraly:bone_sword": [
+{
+"result": {
+"id": "mistraly:bone_sword",
+"count": 1
+},
+"kind": "crafting",
+"slots": [
+"#mistraly:bone_tool_materials",
+null,
+null,
+"#mistraly:bone_tool_materials",
+null,
+null,
+"minecraft:stick",
+null,
+null
+]
+}
+],
+"mistraly:copper_knife": [
+{
+"result": {
+"id": "mistraly:copper_knife",
+"count": 1
+},
+"kind": "crafting",
+"slots": [
+"#minecraft:copper_tool_materials",
+null,
+null,
+"minecraft:stick",
+null,
+null,
+null,
+null,
+null
+]
+}
+],
+"minecraft:copper_nugget": [
+{
+"result": {
+"id": "minecraft:copper_nugget",
+"count": 1
+},
+"kind": "blasting",
+"slots": [
+"mistraly:raw_copper_nugget"
+]
+},
+{
+"result": {
+"id": "minecraft:copper_nugget",
+"count": 1
+},
+"kind": "smelting",
+"slots": [
+"mistraly:raw_copper_nugget"
+]
+}
+],
+"minecraft:diamond": [
+{
+"result": {
+"id": "minecraft:diamond",
+"count": 1
+},
+"kind": "crafting",
+"slots": [
+"mistraly:diamond_shard",
+"mistraly:diamond_shard",
+"mistraly:diamond_shard",
+"mistraly:diamond_shard",
+"mistraly:diamond_shard",
+"mistraly:diamond_shard",
+"mistraly:diamond_shard",
+"mistraly:diamond_shard",
+"mistraly:diamond_shard"
+]
+}
+],
+"mistraly:diamond_knife": [
+{
+"result": {
+"id": "mistraly:diamond_knife",
+"count": 1
+},
+"kind": "crafting",
+"slots": [
+"#minecraft:diamond_tool_materials",
+null,
+null,
+"minecraft:stick",
+null,
+null,
+null,
+null,
+null
+]
+}
+],
+"minecraft:emerald": [
+{
+"result": {
+"id": "minecraft:emerald",
+"count": 1
+},
+"kind": "crafting",
+"slots": [
+"mistraly:emerald_shard",
+"mistraly:emerald_shard",
+"mistraly:emerald_shard",
+"mistraly:emerald_shard",
+"mistraly:emerald_shard",
+"mistraly:emerald_shard",
+"mistraly:emerald_shard",
+"mistraly:emerald_shard",
+"mistraly:emerald_shard"
+]
+}
+],
+"mistraly:flint_knife": [
+{
+"result": {
+"id": "mistraly:flint_knife",
+"count": 1
+},
+"kind": "crafting",
+"slots": [
+"#mistraly:flint_tool_materials",
+null,
+null,
+"minecraft:stick",
+null,
+null,
+null,
+null,
+null
+]
+}
+],
+"minecraft:gold_nugget": [
+{
+"result": {
+"id": "minecraft:gold_nugget",
+"count": 1
+},
+"kind": "blasting",
+"slots": [
+"mistraly:raw_gold_nugget"
+]
+},
+{
+"result": {
+"id": "minecraft:gold_nugget",
+"count": 1
+},
+"kind": "smelting",
+"slots": [
+"mistraly:raw_gold_nugget"
+]
+}
+],
+"mistraly:golden_knife": [
+{
+"result": {
+"id": "mistraly:golden_knife",
+"count": 1
+},
+"kind": "crafting",
+"slots": [
+"#minecraft:gold_tool_materials",
+null,
+null,
+"minecraft:stick",
+null,
+null,
+null,
+null,
+null
+]
+}
+],
+"mistraly:iron_knife": [
+{
+"result": {
+"id": "mistraly:iron_knife",
+"count": 1
+},
+"kind": "crafting",
+"slots": [
+"#minecraft:iron_tool_materials",
+null,
+null,
+"minecraft:stick",
+null,
+null,
+null,
+null,
+null
+]
+}
+],
+"minecraft:iron_nugget": [
+{
+"result": {
+"id": "minecraft:iron_nugget",
+"count": 1
+},
+"kind": "blasting",
+"slots": [
+"mistraly:raw_iron_nugget"
+]
+},
+{
+"result": {
+"id": "minecraft:iron_nugget",
+"count": 1
+},
+"kind": "smelting",
+"slots": [
+"mistraly:raw_iron_nugget"
+]
+}
+],
+"minecraft:lapis_lazuli": [
+{
+"result": {
+"id": "minecraft:lapis_lazuli",
+"count": 1
+},
+"kind": "crafting",
+"slots": [
+"mistraly:lapis_lazuli_shard",
+"mistraly:lapis_lazuli_shard",
+"mistraly:lapis_lazuli_shard",
+"mistraly:lapis_lazuli_shard",
+null,
+null,
+null,
+null,
+null
+]
+}
+],
+"mistraly:meat_axe": [
+{
+"result": {
+"id": "mistraly:meat_axe",
+"count": 1
+},
+"kind": "smithing",
+"slots": [
+"mistraly:meat_trim",
+"mistraly:bone_axe"
+]
+}
+],
+"mistraly:meat_hoe": [
+{
+"result": {
+"id": "mistraly:meat_hoe",
+"count": 1
+},
+"kind": "smithing",
+"slots": [
+"mistraly:meat_trim",
+"mistraly:bone_hoe"
+]
+}
+],
+"mistraly:meat_pickaxe": [
+{
+"result": {
+"id": "mistraly:meat_pickaxe",
+"count": 1
+},
+"kind": "smithing",
+"slots": [
+"mistraly:meat_trim",
+"mistraly:bone_pickaxe"
+]
+}
+],
+"mistraly:meat_shovel": [
+{
+"result": {
+"id": "mistraly:meat_shovel",
+"count": 1
+},
+"kind": "smithing",
+"slots": [
+"mistraly:meat_trim",
+"mistraly:bone_shovel"
+]
+}
+],
+"mistraly:meat_sword": [
+{
+"result": {
+"id": "mistraly:meat_sword",
+"count": 1
+},
+"kind": "smithing",
+"slots": [
+"mistraly:meat_trim",
+"mistraly:bone_sword"
+]
+}
+],
+"mistraly:mist": [
+{
+"result": {
+"id": "mistraly:mist",
+"count": 1
+},
+"kind": "crafting",
+"slots": [
+"mistraly:mist_shard",
+"mistraly:mist_shard",
+"mistraly:mist_shard",
+"mistraly:mist_shard",
+"mistraly:mist_shard",
+"mistraly:mist_shard",
+"mistraly:mist_shard",
+"mistraly:mist_shard",
+"mistraly:mist_shard"
+]
+}
+],
+"mistraly:mist_shard": [
+{
+"result": {
+"id": "mistraly:mist_shard",
+"count": 9
+},
+"kind": "crafting",
+"slots": [
+"mistraly:mist",
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null
+]
+}
+],
+"mistraly:netherite_knife": [
+{
+"result": {
+"id": "mistraly:netherite_knife",
+"count": 1
+},
+"kind": "smithing",
+"slots": [
+"minecraft:netherite_upgrade_smithing_template",
+"mistraly:diamond_knife",
+"#minecraft:netherite_tool_materials"
+]
+}
+],
+"minecraft:raw_copper": [
+{
+"result": {
+"id": "minecraft:raw_copper",
+"count": 1
+},
+"kind": "crafting",
+"slots": [
+"mistraly:raw_copper_nugget",
+"mistraly:raw_copper_nugget",
+"mistraly:raw_copper_nugget",
+"mistraly:raw_copper_nugget",
+"mistraly:raw_copper_nugget",
+"mistraly:raw_copper_nugget",
+"mistraly:raw_copper_nugget",
+"mistraly:raw_copper_nugget",
+"mistraly:raw_copper_nugget"
+]
+}
+],
+"minecraft:raw_gold": [
+{
+"result": {
+"id": "minecraft:raw_gold",
+"count": 1
+},
+"kind": "crafting",
+"slots": [
+"mistraly:raw_gold_nugget",
+"mistraly:raw_gold_nugget",
+"mistraly:raw_gold_nugget",
+"mistraly:raw_gold_nugget",
+"mistraly:raw_gold_nugget",
+"mistraly:raw_gold_nugget",
+"mistraly:raw_gold_nugget",
+"mistraly:raw_gold_nugget",
+"mistraly:raw_gold_nugget"
+]
+}
+],
+"minecraft:raw_iron": [
+{
+"result": {
+"id": "minecraft:raw_iron",
+"count": 1
+},
+"kind": "crafting",
+"slots": [
+"mistraly:raw_iron_nugget",
+"mistraly:raw_iron_nugget",
+"mistraly:raw_iron_nugget",
+"mistraly:raw_iron_nugget",
+"mistraly:raw_iron_nugget",
+"mistraly:raw_iron_nugget",
+"mistraly:raw_iron_nugget",
+"mistraly:raw_iron_nugget",
+"mistraly:raw_iron_nugget"
+]
+}
+],
+"mistraly:raw_mist": [
+{
+"result": {
+"id": "mistraly:raw_mist",
+"count": 1
+},
+"kind": "blasting",
+"slots": [
+"mistraly:deepslate_mist_ore"
+]
+},
+{
+"result": {
+"id": "mistraly:raw_mist",
+"count": 1
+},
+"kind": "blasting",
+"slots": [
+"mistraly:mist_ore"
+]
+},
+{
+"result": {
+"id": "mistraly:raw_mist",
+"count": 1
+},
+"kind": "crafting",
+"slots": [
+"mistraly:raw_mist_shard",
+"mistraly:raw_mist_shard",
+"mistraly:raw_mist_shard",
+"mistraly:raw_mist_shard",
+"mistraly:raw_mist_shard",
+"mistraly:raw_mist_shard",
+"mistraly:raw_mist_shard",
+"mistraly:raw_mist_shard",
+"mistraly:raw_mist_shard"
+]
+},
+{
+"result": {
+"id": "mistraly:raw_mist",
+"count": 1
+},
+"kind": "smelting",
+"slots": [
+"mistraly:deepslate_mist_ore"
+]
+},
+{
+"result": {
+"id": "mistraly:raw_mist",
+"count": 1
+},
+"kind": "smelting",
+"slots": [
+"mistraly:mist_ore"
+]
+}
+],
+"mistraly:raw_mist_shard": [
+{
+"result": {
+"id": "mistraly:raw_mist_shard",
+"count": 9
+},
+"kind": "crafting",
+"slots": [
+"mistraly:raw_mist",
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null
+]
+}
+],
+"mistraly:rough_diamond": [
+{
+"result": {
+"id": "mistraly:rough_diamond",
+"count": 1
+},
+"kind": "crafting",
+"slots": [
+"mistraly:rough_diamond_shard",
+"mistraly:rough_diamond_shard",
+"mistraly:rough_diamond_shard",
+"mistraly:rough_diamond_shard",
+"mistraly:rough_diamond_shard",
+"mistraly:rough_diamond_shard",
+"mistraly:rough_diamond_shard",
+"mistraly:rough_diamond_shard",
+"mistraly:rough_diamond_shard"
+]
+}
+],
+"mistraly:rough_diamond_shard": [
+{
+"result": {
+"id": "mistraly:rough_diamond_shard",
+"count": 9
+},
+"kind": "crafting",
+"slots": [
+"mistraly:rough_diamond",
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null
+]
+}
+],
+"mistraly:rough_emerald": [
+{
+"result": {
+"id": "mistraly:rough_emerald",
+"count": 1
+},
+"kind": "crafting",
+"slots": [
+"mistraly:rough_emerald_shard",
+"mistraly:rough_emerald_shard",
+"mistraly:rough_emerald_shard",
+"mistraly:rough_emerald_shard",
+"mistraly:rough_emerald_shard",
+"mistraly:rough_emerald_shard",
+"mistraly:rough_emerald_shard",
+"mistraly:rough_emerald_shard",
+"mistraly:rough_emerald_shard"
+]
+}
+],
+"mistraly:rough_emerald_shard": [
+{
+"result": {
+"id": "mistraly:rough_emerald_shard",
+"count": 9
+},
+"kind": "crafting",
+"slots": [
+"mistraly:rough_emerald",
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null
+]
+}
+],
+"mistraly:rough_lazurite": [
+{
+"result": {
+"id": "mistraly:rough_lazurite",
+"count": 1
+},
+"kind": "crafting",
+"slots": [
+"mistraly:rough_lazurite_shard",
+"mistraly:rough_lazurite_shard",
+"mistraly:rough_lazurite_shard",
+"mistraly:rough_lazurite_shard",
+"mistraly:rough_lazurite_shard",
+"mistraly:rough_lazurite_shard",
+"mistraly:rough_lazurite_shard",
+"mistraly:rough_lazurite_shard",
+"mistraly:rough_lazurite_shard"
+]
+}
+],
+"mistraly:rough_lazurite_shard": [
+{
+"result": {
+"id": "mistraly:rough_lazurite_shard",
+"count": 9
+},
+"kind": "crafting",
+"slots": [
+"mistraly:rough_lazurite",
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null
+]
+}
+],
+"mistraly:shop": [
+{
+"result": {
+"id": "mistraly:shop",
+"count": 1
+},
+"kind": "crafting",
+"slots": [
+"#minecraft:wool",
+"#minecraft:wool",
+"#minecraft:wool",
+"#minecraft:planks",
+"minecraft:gold_ingot",
+"#minecraft:planks",
+"#minecraft:planks",
+"minecraft:chest",
+"#minecraft:planks"
+]
+}
+],
+"mistraly:unactive_meat_trim": [
+{
+"result": {
+"id": "mistraly:unactive_meat_trim",
+"count": 1
+},
+"kind": "crafting",
+"slots": [
+"minecraft:bone",
+"#minecraft:meat",
+null,
+null,
+null,
+null,
+null,
+null,
+null
+]
+}
+]
+}
+}

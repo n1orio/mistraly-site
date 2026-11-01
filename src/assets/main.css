@@ -1,9 +1,155 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-html{color-scheme:dark light;--bg-page:#F1F4F9;--bg-page:#F1F4F9;--bg-card:#FFF;--bg-card-hover:#F8FAFC;--border-color:#E2E8F0;--text-main:#0B0F19;--text-muted:#475569;--text-sub:#64748B;--nav-bg:rgba(255,255,255,.85);--nav-border:#E2E8F0}
-html.dark{color-scheme:dark;background-color:#0A0A0A;background-image:linear-gradient(to bottom,#141414 0%,#0A0A0A 100%);background-repeat:no-repeat;background-attachment:scroll;min-height:100%;--bg-page:#141414;--bg-page-bottom:#0A0A0A;--bg-card:#2B2B2B;--bg-card-hover:#1A1D26;--border-color:rgba(255,255,255,.06);--text-main:#FFF;--text-muted:#94A3B8;--text-sub:#64748B;--nav-bg:rgba(20,20,20,.82);--nav-border:rgba(255,255,255,.08)}
-html,body{margin:0;padding:0;width:100%;min-height:100vh;background-color:transparent;background-repeat:no-repeat;color:var(--text-main);font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif}#app{width:100%;min-height:100vh;display:flex;flex-direction:column}h1,h2,h3,.font-heading{font-family:'Russo One','Fira Sans Condensed',sans-serif;letter-spacing:0.01em;font-weight:400}.nav-indicator{display:none}.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}::view-transition-group(root),::view-transition-image-pair(root),::view-transition-old(root),::view-transition-new(root){animation:none!important;mix-blend-mode:normal!important}::view-transition-old(root){z-index:9999}::view-transition-new(root){z-index:1}
+/* Шрифты лежат на самом сайте: Google Fonts бывает недоступен (в том числе
+   у части игроков из России), и тогда страница рендерилась запасными.
+   Заголовки — Minecraft Ten: у настоящего нет кириллицы, поэтому шрифт собран
+   из пака с глифами в его стиле (CC BY 4.0, scripts/gen-minecraft-font.py). */
+@font-face{font-family:'Minecraft Ten';font-weight:400;font-display:swap;src:url(./fonts/minecraft-ten.woff2) format('woff2')}
 
-html.dark .page-bg{background-color:transparent}
+@font-face{font-family:'Noto Sans';font-weight:400;font-display:swap;src:url(./fonts/noto-sans-latin-400.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Noto Sans';font-weight:400;font-display:swap;src:url(./fonts/noto-sans-cyrillic-400.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:'Noto Sans';font-weight:600;font-display:swap;src:url(./fonts/noto-sans-latin-600.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Noto Sans';font-weight:600;font-display:swap;src:url(./fonts/noto-sans-cyrillic-600.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:'Noto Sans';font-weight:700;font-display:swap;src:url(./fonts/noto-sans-latin-700.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Noto Sans';font-weight:700;font-display:swap;src:url(./fonts/noto-sans-cyrillic-700.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:'Noto Sans';font-weight:800;font-display:swap;src:url(./fonts/noto-sans-latin-800.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Noto Sans';font-weight:800;font-display:swap;src:url(./fonts/noto-sans-cyrillic-800.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
 
+/* =========================================================
+   ПАЛИТРА
+   Нейтральный графит и один яркий синий акцент. Цвет не льём на фон:
+   он остаётся только на кнопках, активных вкладках и выделенных словах.
+   ========================================================= */
+html{
+  color-scheme:dark;
+  --bg-page:#121212;--bg-void:#0C0C0C;
+  --panel:#1A1A1A;--panel-hi:#222223;--well:#141414;
+  --ink:#050505;--line:#3D3D3D;
+  --blue:#186EF0;--blue-hi:#6FA3F2;--blue-lo:#1357BD;--blue-lip:#0E3F8A;
+  --sky:#5C9DF5;
+  --ok:#2BD948;--warn:#F2C037;--bad:#EB5A4E;
+  --text-main:#E1E5EB;--text-muted:#B3B3B3;--text-sub:#81868F;
+  --bg-card:var(--panel);--bg-card-hover:var(--panel-hi);--border-color:var(--line);
+  background-color:var(--bg-page);
+}
+html,body{margin:0;padding:0;width:100%;min-height:100vh;color:var(--text-main);font-family:'Noto Sans','Helvetica Neue',Arial,sans-serif;font-weight:400;font-size:16px;line-height:1.5}
+#app{width:100%;min-height:100vh;display:flex;flex-direction:column}
+.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
+::selection{background:var(--blue);color:#fff}
+
+/* Заголовки как на minecraft.net: Ten без теней. В шрифте 8 пикселей на кегль:
+   чёткими выходят размеры, кратные 8. */
+h1,h2,h3,h4,.font-heading{font-family:'Minecraft Ten','Noto Sans',sans-serif;font-weight:400;letter-spacing:0}
+.pixel-img{image-rendering:pixelated}
+
+@layer components{
+  /* Блоки как на minecraft.net: прямые углы и сплошная рамка 2 px. */
+  .mc-box{
+    --edge:#2B2B2C;
+    border:2px solid var(--edge);
+    box-shadow:var(--bevel,0 0 #0000);
+  }
+  .mc-panel{
+    @apply mc-box;
+    background:var(--panel);
+  }
+  /* Утопленная ячейка: поле, слот инвентаря, квитанция. Тень сверху — как
+     у выпадающих списков на minecraft.net. */
+  .mc-well{
+    @apply mc-box;
+    background:var(--well);
+    --edge:var(--line);
+    --bevel:inset 0 6px 0 0 rgba(0,0,0,.3);
+  }
+  .mc-slot{
+    @apply mc-well;
+    display:grid;place-items:center;flex:none;width:72px;height:72px;color:var(--sky);
+  }
+
+  /* Кнопка как настоящая клавиша. Форма и полосы взяты у MC_Button_Hero с
+     minecraft.net, а толщину даёт основание снизу (--depth, тень без размытия).
+     При нажатии верх уходит в основание на всю его толщину. Нижний край кнопки
+     остаётся на месте, поэтому видно именно прожатие, а не сдвиг всей кнопки. */
+  .mc-btn{
+    --face:var(--blue);--top:var(--blue-hi);--lip:var(--blue-lo);--side:var(--blue-lip);--fg:#fff;
+    --inset:6px;--depth:6px;
+    position:relative;display:inline-flex;align-items:center;justify-content:center;gap:10px;
+    margin-bottom:calc(var(--depth) + 2px);
+    padding:15px 28px;
+    background:var(--face);color:var(--fg);
+    border:2px solid var(--ink);border-radius:0;
+    box-shadow:inset 0 calc(var(--inset)*-1) 0 var(--lip),inset 0 var(--inset) 0 var(--top),
+      0 var(--depth) 0 0 var(--side),0 calc(var(--depth) + 2px) 0 0 var(--ink);
+    /* Отпускание чуть медленнее нажатия: клавиша вдавливается резко, а выходит мягко. */
+    transition:transform .11s ease-out,box-shadow .11s ease-out;
+    cursor:pointer;user-select:none;text-decoration:none;touch-action:manipulation;
+    font-family:'Noto Sans','Helvetica Neue',Arial,sans-serif;font-weight:800;font-size:18px;line-height:20px;
+    letter-spacing:.03em;text-transform:uppercase;
+  }
+  /* Зона нажатия шире клавиши: иначе кнопка уезжала бы из-под курсора у нижнего
+     края, и нажатие срывалось. */
+  .mc-btn::after{content:'';position:absolute;inset:-6px -2px calc((var(--depth) + 4px)*-1)}
+  /* Только для мыши: на телефоне hover залипает после тапа. */
+  @media (hover:hover){
+    .mc-btn:hover:not(:disabled){filter:brightness(1.1)}
+  }
+  .mc-btn:active:not(:disabled){
+    transform:translateY(calc(var(--depth) + 2px));
+    /* Светлая полоса гаснет, сверху ложится тень: верх теперь утоплен. */
+    box-shadow:inset 0 calc(var(--inset)*-1) 0 var(--lip),inset 0 var(--inset) 0 rgba(0,0,0,.28),
+      0 0 0 0 var(--side),0 0 0 0 var(--ink);
+    filter:none;
+    transition-duration:.05s;transition-timing-function:linear;
+  }
+  .mc-btn:focus-visible{outline:2px solid #fff;outline-offset:2px}
+  .mc-btn:disabled{cursor:not-allowed;opacity:.5}
+  .mc-btn--muted{--face:#2D2D2E;--top:#464747;--lip:#1E1E1F;--side:#121213;--fg:var(--text-main)}
+  .mc-btn--discord{--face:#5865F2;--top:#7E89F8;--lip:#3F4BC8;--side:#2B348F}
+  .mc-btn--block{display:flex;width:100%}
+  .mc-btn--sm{--inset:4px;--depth:4px;padding:9px 16px;font-size:14px;line-height:18px}
+  .mc-btn--lg{--depth:8px;padding:20px 72px;font-size:22px;line-height:24px}
+  @media (prefers-reduced-motion:reduce){.mc-btn{transition:none}}
+
+  .mc-input{
+    @apply mc-well;
+    display:block;width:100%;padding:12px 14px;
+    color:var(--text-main);font:inherit;border:0;outline:0;
+  }
+  .mc-input::placeholder{color:var(--text-sub)}
+  .mc-input:focus,.mc-input:focus-within{--edge:var(--sky)}
+
+  /* Этикетка: тег рубрики, статус. */
+  .mc-tag{
+    display:inline-flex;align-items:center;gap:6px;padding:3px 8px;background:var(--blue-lo);color:#fff;
+    font-weight:700;font-size:13px;line-height:1.2;letter-spacing:.06em;text-transform:uppercase;
+  }
+  .mc-tag--ok{background:#14632A}.mc-tag--warn{background:#7A5F12}.mc-tag--bad{background:#8A2A22}
+  .mc-tag--dim{background:#2D2D2E;color:var(--text-muted)}
+
+  .section-head{text-align:center;margin-bottom:40px}
+  .section-title{font-size:24px;line-height:1.25;margin:0 0 6px;color:var(--text-main)}
+  .section-sub{margin:0;color:var(--text-muted);font-size:17px}
+  .word-hl{color:var(--sky)}
+  @media (min-width:640px){.section-title{font-size:32px}}
+
+  .mc-link{color:var(--sky);text-decoration:underline;text-underline-offset:3px}
+  .mc-link:hover{color:#fff}
+
+  /* Ступенчатый переход между фоновыми цветами. Сама полоса — png из
+     scripts/gen-pixel-assets.py, поэтому размер кратен 4 × масштаб. */
+  .dither{height:48px;background-repeat:repeat-x;background-position:bottom;background-size:16px 48px;image-rendering:pixelated;pointer-events:none}
+  .dither--page{background-image:url(/images/ui/dither-page.png)}
+  .dither--void{background-image:url(/images/ui/dither-void.png)}
+  .dither--up{transform:scaleY(-1)}
+
+  /* Загрузка: четыре блока, зажигаются по кругу рывками. */
+  .mc-spinner{display:inline-block;width:12px;height:12px;background:var(--sky);box-shadow:16px 0 0 var(--blue),16px 16px 0 var(--blue-lo),0 16px 0 var(--blue);animation:mc-spin .8s steps(1,end) infinite;margin:0 16px 16px 0}
+}
+@keyframes mc-spin{
+  0%{box-shadow:16px 0 0 var(--blue),16px 16px 0 var(--blue-lo),0 16px 0 var(--blue-lo);background:var(--sky)}
+  25%{box-shadow:16px 0 0 var(--sky),16px 16px 0 var(--blue),0 16px 0 var(--blue-lo);background:var(--blue-lo)}
+  50%{box-shadow:16px 0 0 var(--blue-lo),16px 16px 0 var(--sky),0 16px 0 var(--blue);background:var(--blue-lo)}
+  75%{box-shadow:16px 0 0 var(--blue-lo),16px 16px 0 var(--blue),0 16px 0 var(--sky);background:var(--blue)}
+}
+@media (prefers-reduced-motion:reduce){.mc-spinner{animation:none}}

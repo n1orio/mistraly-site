@@ -4,7 +4,7 @@ import { docs } from '../data/legal'
 </script>
 
 <template>
-  <main class="w-full flex-1 flex flex-col items-center page-bg bg-[var(--bg-page)] text-[var(--text-main)]">
+  <main class="w-full flex-1 flex flex-col items-center text-[var(--text-main)]">
     <LegalDoc :doc="docs.refund" />
   </main>
 </template>

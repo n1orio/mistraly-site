@@ -10,6 +10,7 @@ export interface AuthUser {
   has_pass?: boolean
   pass_expires_at?: string | null
   skin_variant?: string
+  skin_data?: string | null
 }
 
 export interface DiscordInfo {
@@ -42,6 +43,24 @@ export const useAuthStore = defineStore('auth', () => {
 
   const isAuthenticated = computed(() => !!user.value)
   const isAdmin = computed(() => user.value?.role === 'admin')
+  /**
+   * Владелец авторского промокода. Отдельной роли нет (в users роль —
+   * только user/admin), поэтому спрашиваем бэкенд: есть ли у аккаунта код.
+   * null — ещё не спрашивали.
+   */
+  const isAuthor = ref<boolean | null>(null)
+
+  async function checkAuthor(): Promise<boolean> {
+    if (!user.value) return false
+    if (isAuthor.value !== null) return isAuthor.value
+    try {
+      const res = await api.get('/author/stats')
+      isAuthor.value = !!res.data?.success
+    } catch {
+      isAuthor.value = false
+    }
+    return isAuthor.value
+  }
 
   function readJson<T>(key: string): T | null {
     try {
@@ -70,11 +89,29 @@ export const useAuthStore = defineStore('auth', () => {
   function clear() {
     setAccessToken(null)
     user.value = null
+    isAuthor.value = null
     discord.value = null
     localStorage.removeItem(USER_KEY)
     localStorage.removeItem(DISCORD_KEY)
     localStorage.removeItem('mistraly_token')
     localStorage.removeItem('breeze_token')
+  }
+
+  /**
+   * Передать лаунчеру токен по уже имеющейся сессии сайта.
+   *
+   * Без этого лаунчер открывал /auth/discord?nonce=… и заставлял игрока
+   * снова жать «Войти через Discord», хотя cookie была жива и аккаунт
+   * тот же. Теперь OAuth нужен только тем, кто на сайт ещё не входил.
+   */
+  async function launcherHandoff(nonce: string): Promise<boolean> {
+    loading.value = true
+    try {
+      await unwrap(api.post('/auth/launcher/handoff', { nonce }))
+      return true
+    } finally {
+      loading.value = false
+    }
   }
 
   /** Обмен Discord-кода на сессию. Вызывается из DiscordAuthView. */
@@ -147,12 +184,15 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   return {
+    isAuthor,
+    checkAuthor,
     user,
     discord,
     ready,
     loading,
     isAuthenticated,
     isAdmin,
+    launcherHandoff,
     loginWithDiscord,
     restore,
     refreshProfile,
