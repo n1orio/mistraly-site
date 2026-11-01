@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { Home, ShoppingBag, ScrollText, Download, Discord } from '../lib/icons'
+import { Home, ShoppingBag, ScrollText, Download, Discord, BookOpen } from '../lib/icons'
 import { useAuthStore } from '../stores/auth'
 
 const route = useRoute()
@@ -28,6 +28,7 @@ function startAuth() {
 const tabs = [
   { to: '/', label: 'Главная', icon: Home, exact: true },
   { to: '/shop', label: 'Магазин', icon: ShoppingBag },
+  { to: '/wiki', label: 'Вики', icon: BookOpen },
   { to: '/rules', label: 'Правила', icon: ScrollText },
   { to: '/download', label: 'Скачать', icon: Download },
 ]

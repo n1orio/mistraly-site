@@ -37,6 +37,7 @@ const isAdminHost = location.hostname === 'admin.mistraly.net'
             <router-link to="/privacy" class="foot-link">Персональные данные</router-link>
             <router-link to="/license" class="foot-link">Лицензии</router-link>
             <router-link to="/contacts" class="foot-link">Контакты</router-link>
+            <router-link to="/wiki" class="foot-link">Вики</router-link>
             <router-link to="/shop" class="foot-link">Магазин</router-link>
             <router-link to="/profile" class="foot-link">Профиль</router-link>
           </div>

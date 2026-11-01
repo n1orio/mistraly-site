@@ -196,6 +196,7 @@ onMounted(() => {
             <router-link to="/privacy">Персональные данные</router-link>
             <router-link to="/license">Лицензии</router-link>
             <router-link to="/contacts">Контакты</router-link>
+            <router-link to="/wiki">Вики</router-link>
             <router-link to="/shop">Магазин</router-link>
             <router-link to="/profile">Профиль</router-link>
           </div>
