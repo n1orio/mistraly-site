@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { ref, computed, markRaw } from 'vue'
-import { Cpu, ShieldCheck, Radio, Sparkles, AlertTriangle } from 'lucide-vue-next'
+import { Cpu, ShieldCheck, Radio, Sparkles, AlertTriangle } from '../lib/icons'
 
 const selectedIndex = ref(0)
 const sheet = ref<HTMLElement | null>(null)
 
 /**
- * На телефоне газета с ответом стоит под всем списком вопросов, и клик по
+ * На телефоне панель с ответом стоит под всем списком вопросов, и клик по
  * вопросу выглядел так, будто ничего не произошло. Прокручиваем к ответу.
  */
 function select(idx: number) {
@@ -20,7 +20,6 @@ const faqs = [
   {
     id: 'specs',
     tag: 'ЖЕЛЕЗО',
-    tagColor: '#0099FF',
     menuTitle: 'Системные требования',
     title: 'Какие системные требования у сборки?',
     desc: 'Сборка оптимизирована под моды Create и дальнюю прорисовку Voxy: далёкие чанки приходят готовыми с сервера, поэтому процессор почти не нагружается, а основная работа ложится на видеокарту. Вот ориентир по железу для комфортной игры:',
@@ -48,7 +47,6 @@ const faqs = [
   {
     id: 'license',
     tag: 'ДОСТУП',
-    tagColor: '#22C55E',
     menuTitle: 'Нужна ли лицензия?',
     title: 'Нужна ли официальная лицензия Minecraft?',
     icon: markRaw(ShieldCheck),
@@ -61,7 +59,6 @@ const faqs = [
   {
     id: 'pass',
     tag: 'ПРОХОДКА',
-    tagColor: '#FFCC00',
     menuTitle: 'Зачем платить за вход?',
     title: 'Зачем покупать платную проходку?',
     icon: markRaw(Sparkles),
@@ -74,7 +71,6 @@ const faqs = [
   {
     id: 'grief',
     tag: 'ЗАЩИТА',
-    tagColor: '#EF4444',
     menuTitle: 'Защита от гриферов',
     title: 'Что делать, если загриферили или взорвали судно?',
     icon: markRaw(AlertTriangle),
@@ -87,7 +83,6 @@ const faqs = [
   {
     id: 'voice',
     tag: 'СВЯЗЬ',
-    tagColor: '#A855F7',
     menuTitle: 'Голосовой чат',
     title: 'Есть ли голосовой чат прямо в игре?',
     icon: markRaw(Radio),
@@ -112,315 +107,163 @@ const content = computed(() => selected.value.content ?? [])
 </script>
 
 <template>
-  <section id="faq" class="w-full max-w-5xl mx-auto px-4 py-16 flex flex-col items-center select-none">
-
-    <!-- Заголовок страницы -->
-    <div class="text-center mb-12 sm:mb-16">
-      <h2 class="font-heading text-3xl sm:text-4xl text-[var(--text-main)] tracking-tight mb-3">
-        Частые <span class="word-hl">вопросы</span>
-      </h2>
-      <p class="text-xs sm:text-sm text-[var(--text-muted)] max-w-xl mx-auto">
-        Поможем разобраться
-      </p>
+  <section id="faq" class="w-full max-w-5xl mx-auto px-4 py-16">
+    <div class="section-head">
+      <h2 class="section-title">Частые <span class="word-hl">вопросы</span></h2>
+      <p class="section-sub">Поможем разобраться</p>
     </div>
 
-    <!-- Сетка: слева темы, справа — газета с коцками на гранях -->
-    <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-7 items-start">
-
-      <!-- ЛЕВАЯ КОЛОНКА: Рубрики с видимыми иконками -->
-      <div class="lg:col-span-5 flex flex-col gap-3">
-        <div
+    <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <!-- Слева темы, как список установок в лаунчере -->
+      <div class="lg:col-span-5 flex flex-col gap-2">
+        <button
           v-for="(item, idx) in faqs"
           :key="item.id"
-          role="button"
-          tabindex="0"
+          type="button"
           :aria-pressed="selectedIndex === idx"
-          @click="select(idx)"
-          @keydown.enter.prevent="select(idx)"
-          @keydown.space.prevent="select(idx)"
-          class="nav-tab-item group cursor-pointer transition-all duration-200"
+          class="q"
           :class="{ 'is-active': selectedIndex === idx }"
-          :style="{
-            '--accent': item.tagColor,
-            clipPath: idx % 2 === 0
-              ? 'polygon(0% 2%, 100% 0%, 98.5% 98%, 1.5% 100%)'
-              : 'polygon(1% 0%, 99.5% 2%, 99% 100%, 0% 98%)'
-          }"
+          @click="select(idx)"
         >
-          <div
-            class="p-4 flex items-center justify-between relative bg-[#161719] border-l-4 transition-colors duration-200"
-            :style="{ borderLeftColor: selectedIndex === idx ? item.tagColor : 'transparent' }"
-          >
-            <!-- Блок иконки + текст -->
-            <div class="flex items-center gap-3.5 min-w-0 pr-2">
-              <!-- ИКОНКА (четко зафиксированный размер и flex-shrink-0) -->
-              <div
-                class="w-10 h-10 rounded shrink-0 flex items-center justify-center border border-white/10 transition-transform duration-200 group-hover:scale-105"
-                :style="{
-                  backgroundColor: selectedIndex === idx ? item.tagColor : 'rgba(255,255,255,0.05)',
-                  color: selectedIndex === idx ? '#101113' : item.tagColor
-                }"
-              >
-                <component :is="item.icon" :size="20" class="shrink-0" />
-              </div>
-
-              <!-- Текстовый блок -->
-              <div class="min-w-0">
-                <span
-                  class="font-heading font-black text-[9px] uppercase tracking-wider px-1.5 py-0.5 inline-block mb-1 text-black"
-                  :style="{ backgroundColor: item.tagColor }"
-                >
-                  {{ item.tag }}
-                </span>
-                <h4 class="item-title font-heading font-black text-sm tracking-tight truncate block">
-                  {{ item.menuTitle }}
-                </h4>
-              </div>
-            </div>
-
-            <!-- Номер пункта -->
-            <span class="item-num font-mono text-xs font-bold shrink-0 transition-colors ml-2">
-              #0{{ idx + 1 }}
-            </span>
-          </div>
-        </div>
+          <span class="q-icon"><component :is="item.icon" :size="24" /></span>
+          <span class="min-w-0">
+            <span class="q-tag">{{ item.tag }}</span>
+            <span class="q-title">{{ item.menuTitle }}</span>
+          </span>
+        </button>
       </div>
 
-      <!-- ПРАВАЯ КОЛОНКА: Газета с коцками и зазубринами на гранях -->
-      <div ref="sheet" class="lg:col-span-7 w-full newspaper-outer scroll-mt-24" aria-live="polite">
-        <!-- key: при смене вопроса лист пересоздаётся и проигрывает рывок sheet-swap -->
-        <article :key="selectedIndex" class="newspaper-sheet p-6 sm:p-8 relative">
+      <div ref="sheet" class="lg:col-span-7 w-full scroll-mt-24" aria-live="polite">
+        <article class="answer mc-panel">
+          <span class="mc-tag">{{ selected.tag }}</span>
+          <h3 class="answer-title">{{ selected.title }}</h3>
+          <p v-if="selected.desc" class="answer-text">{{ selected.desc }}</p>
 
-          <!-- Шапка газеты -->
-          <header class="newspaper-header text-center pb-2 mb-4">
-            <div class="newspaper-title font-heading font-black text-2xl sm:text-3xl text-[#1a1815] tracking-tight uppercase">
-              The Mistraly Chronicle
-            </div>
-            <!-- Классическая двойная газетная черта -->
-            <div class="newspaper-double-rule mt-2 mb-1"></div>
-            <div class="flex items-center justify-between text-[10px] font-mono font-bold tracking-widest text-[#5c5446] uppercase">
-              <span>MISTRALY • Minecraft 1.21.1</span>
-              <span>ВЫПУСК #0{{ selectedIndex + 1 }}</span>
-            </div>
-          </header>
-
-          <!-- Заголовок статьи -->
-          <div class="mb-4">
-            <h2 class="font-heading font-black text-xl sm:text-2xl text-[#181613] tracking-tight leading-snug mb-2">
-              {{ selected.title }}
-            </h2>
-            <p v-if="selected.desc" class="text-xs sm:text-sm text-[#38332a] leading-relaxed">
-              {{ selected.desc }}
-            </p>
-          </div>
-
-          <!-- ВАРИАНТ А: Системные требования -->
-          <div v-if="selected.isSpecs && specs" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 my-2">
-
-            <!-- Минималки -->
-            <div class="spec-card p-3.5 border border-[#2b2721]/35 bg-[#e2d8c3]/60">
-              <span class="font-heading font-black text-xs text-[#181613] uppercase tracking-wide block pb-1 mb-2 border-b border-[#2b2721]/20">
-                {{ specs.min.title }}
-              </span>
-              <ul class="space-y-1.5 text-xs font-mono text-[#2c2822] mb-3">
-                <li><strong class="text-[#181613]">ЦП:</strong> {{ specs.min.cpu }}</li>
-                <li><strong class="text-[#181613]">ОЗУ:</strong> {{ specs.min.ram }}</li>
-                <li><strong class="text-[#181613]">ГПУ:</strong> {{ specs.min.gpu }}</li>
-                <li><strong class="text-[#181613]">ДИСК:</strong> {{ specs.min.disk }}</li>
+          <!-- Системные требования -->
+          <div v-if="selected.isSpecs && specs" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+            <div v-for="tier in [specs.min, specs.rec]" :key="tier.title" class="spec mc-well">
+              <span class="spec-title">{{ tier.title }}</span>
+              <ul>
+                <li><b>ЦП:</b> {{ tier.cpu }}</li>
+                <li><b>ОЗУ:</b> {{ tier.ram }}</li>
+                <li><b>ГПУ:</b> {{ tier.gpu }}</li>
+                <li><b>ДИСК:</b> {{ tier.disk }}</li>
               </ul>
-              <p class="text-[11px] text-[#4a4234] border-t border-[#2b2721]/15 pt-2 leading-tight">
-                {{ specs.min.note }}
-              </p>
+              <p>{{ tier.note }}</p>
             </div>
-
-            <!-- Рекомендуемые -->
-            <div class="spec-card p-3.5 border-2 border-[#181613] bg-[#f5ecda]">
-              <span class="font-heading font-black text-xs text-[#181613] uppercase tracking-wide block pb-1 mb-2 border-b border-[#181613]/25">
-                {{ specs.rec.title }}
-              </span>
-              <ul class="space-y-1.5 text-xs font-mono text-[#181613] mb-3">
-                <li><strong>ЦП:</strong> {{ specs.rec.cpu }}</li>
-                <li><strong>ОЗУ:</strong> {{ specs.rec.ram }}</li>
-                <li><strong>ГПУ:</strong> {{ specs.rec.gpu }}</li>
-                <li><strong>ДИСК:</strong> {{ specs.rec.disk }}</li>
-              </ul>
-              <p class="text-[11px] text-[#2c2822] border-t border-[#181613]/15 pt-2 leading-tight font-medium">
-                {{ specs.rec.note }}
-              </p>
-            </div>
-
           </div>
 
-          <!-- ВАРИАНТ Б: Обычный понятный текст -->
-          <div v-else class="text-xs sm:text-sm text-[#24211b] leading-relaxed space-y-3 pt-1">
-            <p v-for="(paragraph, pIdx) in content" :key="pIdx">
-              {{ paragraph }}
-            </p>
+          <!-- Обычный текст -->
+          <div v-else class="flex flex-col gap-3">
+            <p v-for="(paragraph, pIdx) in content" :key="pIdx" class="answer-text">{{ paragraph }}</p>
           </div>
-
         </article>
       </div>
-
     </div>
   </section>
 </template>
 
 <style scoped>
-/* Вопросы стали кнопками для клавиатуры. Рамку рисуем внутрь: снаружи её
-   срезал бы собственный clip-path карточки. */
-.nav-tab-item:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: -4px;
+.q {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 3px;
+  padding: 10px 14px;
+  background: var(--panel);
+  color: var(--text-main);
+  border: 0;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 -3px 0 0 var(--ink), 0 3px 0 0 var(--ink), -3px 0 0 0 var(--ink), 3px 0 0 0 var(--ink);
+}
+.q:hover {
+  background: var(--panel-hi);
+}
+.q.is-active {
+  background: var(--blue-lo);
+  box-shadow: 0 -3px 0 0 var(--ink), 0 3px 0 0 var(--ink), -3px 0 0 0 var(--ink), 3px 0 0 0 var(--ink), inset 6px 0 0 0 var(--sky);
+}
+.q:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+.q-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  background: var(--well);
+  color: var(--sky);
+}
+.q-tag {
+  display: block;
+  color: var(--sky);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+}
+.q.is-active .q-tag {
+  color: #C5EEFF;
+}
+.q-title {
+  display: block;
+  font-family: 'Minecraft', 'Podkova', sans-serif;
+  font-size:16px;
+  line-height: 1.25;
+  text-shadow: 2px 2px 0 var(--ink);
 }
 
-/* Фирменный стиль плашки в заголовке */
-.word-hl {
-  display: inline-block;
-  color: #181611;
-  background: #22C55E;
-  font-weight: 400;
-  padding: 0 0.28em;
-  margin: 0 0.04em;
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
-  transform: rotate(-1.5deg);
-  cursor: default;
-  user-select: none;
-}
-
-/* Левые вкладки */
-.nav-tab-item {
-  filter: drop-shadow(4px 4px 0px rgba(0, 0, 0, 0.45));
-}
-
-.nav-tab-item:hover {
-  transform: translate(-2px, -2px);
-  filter: drop-shadow(7px 7px 0px rgba(0, 0, 0, 0.65));
-}
-
-.nav-tab-item.is-active {
-  transform: translate(-3px, -3px);
-  filter: drop-shadow(8px 8px 0px rgba(0, 0, 0, 0.75));
-}
-
-/* Активный вопрос — на газетной бумаге с растром по краям, как активная
-   вкладка в навигации; текст тушью. */
-.nav-tab-item.is-active > div {
-  background:
-    radial-gradient(ellipse closest-side, #ECE5D2 60%, transparent 100%),
-    radial-gradient(circle, rgba(17, 17, 17, 0.45) 32%, transparent 38%) 0 0 / 5px 5px,
-    #ECE5D2;
-}
-
-.item-title {
-  color: #FFFFFF;
-}
-.item-num {
-  color: rgba(255, 255, 255, 0.3);
-}
-.nav-tab-item:hover .item-num {
-  color: #FFFFFF;
-}
-.nav-tab-item.is-active .item-title,
-.nav-tab-item.is-active .item-num {
-  color: #111111;
-}
-
-/* =========================================================
-   ГАЗЕТА С РЕАЛЬНЫМИ КОЦКАМИ И СКОЛАМИ НА ГРАНЯХ
-   ========================================================= */
-.newspaper-outer {
-  position: relative;
-  filter: drop-shadow(10px 12px 0px rgba(0, 0, 0, 0.7));
-  transform: rotate(0.4deg);
-}
-
-.newspaper-sheet {
-  /* Смена вопроса — рывок в три кадра, как стоп-моушен на сайте. */
-  animation: sheet-swap 0.24s steps(1, end);
-  background-color: #ebe3d3;
-  background-image:
-    radial-gradient(#d8ceba 1px, transparent 1px),
-    linear-gradient(180deg, #f0e8d9 0%, #e6decb 100%);
-  background-size: 16px 16px, 100% 100%;
-  border: 1px solid rgba(26, 24, 21, 0.6);
-  /*
-   * Высота, а не ширина, вызывала прыжок вёрстки при переключении рубрик:
-   * вкладка с характеристиками разворачивает две колонки и газета растёт
-   * с 432 до 667px, а секция скачет на 151px. Ширина при этом стабильна
-   * (газета 655, колонка 457, сетка 1141 на всех вкладках).
-   *
-   * min-height берётся по самой высокой вкладке, поэтому страница не
-   * дёргается. На узких экранах характеристики складываются в одну
-   * колонку и газета и так выше — там фиксируем меньше, чтобы не было
-   * лишней пустоты.
-   */
+.answer {
+  padding: 24px;
+  /* Вкладка с характеристиками выше остальных: без запаса страница
+     прыгала бы при переключении вопросов. */
   min-height: 340px;
-
-  /* Настоящие физические коцки, сколы и вырезы по краям листа: */
-  clip-path: polygon(
-    0% 2.5%,
-    1.2% 0.8%,
-    2.5% 0%,
-    24% 0.3%,
-    24.5% 1%,     /* коцка на верхнем ребре */
-    25.5% 0.2%,
-    62% 0.4%,
-    63% 0%,
-    97.5% 0%,
-    99.2% 1.4%,
-    100% 3%,      /* срезанный правый верхний угол */
-    99.4% 32%,
-    98.7% 33%,    /* зазубрина справа */
-    99.6% 34.5%,
-    100% 68%,
-    99.3% 97.5%,
-    98% 99.2%,
-    96.5% 100%,   /* правый нижний угол со сколом */
-    58% 99.5%,
-    57.2% 98.8%,  /* выемка на нижнем ребре */
-    56% 99.6%,
-    18% 100%,
-    2% 100%,
-    0.6% 98.5%,
-    0% 96.5%,
-    0.6% 62%,
-    1.3% 61%,     /* коцка на левом ребре */
-    0.4% 59.5%,
-    0% 28%
-  );
 }
-
-@keyframes sheet-swap {
-  0% { transform: rotate(-2deg) translate(-6px, 4px) scale(0.97); }
-  33% { transform: rotate(1.2deg) translate(3px, -3px); }
-  66% { transform: rotate(-0.4deg); }
-  100% { transform: none; }
+.answer-title {
+  margin: 14px 0 10px;
+  font-size: 16px;
+  line-height: 1.3;
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .newspaper-sheet {
-    animation: none;
-  }
+.answer-text {
+  margin: 0 0 10px;
+  color: var(--text-muted);
+  line-height: 1.5;
 }
-
-/* Двойная черта как в классических печатных газетах */
-.newspaper-double-rule {
-  border-top: 3px double #1a1815;
+.spec {
+  margin: 3px;
+  padding: 14px;
+  font-size: 15px;
+  color: var(--text-muted);
 }
-
-.spec-card {
-  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.12);
+.spec-title {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-main);
+  font-weight: 700;
 }
-
-/*
- * Фиксируем высоту газеты на широких экранах — там характеристики
- * разложены в две колонки, и без этого вкладка «Железо» вырастает
- * относительно остальных, а страница прыгает при переключении.
- */
+.spec ul {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+}
+.spec b {
+  color: var(--sky);
+}
+.spec p {
+  margin: 0;
+  padding-top: 8px;
+  border-top: 3px solid var(--panel);
+  font-size: 14px;
+  line-height: 1.35;
+}
 @media (min-width: 640px) {
-  .newspaper-sheet {
-    min-height: 680px;
+  .answer {
+    min-height: 640px;
   }
 }
 </style>

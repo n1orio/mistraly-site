@@ -8,7 +8,6 @@ import { setUnauthorizedHandler } from './api/client'
 import { useAuthStore } from './stores/auth'
 import { rememberPromoFromUrl } from './stores/purchase'
 import { waitForElement } from './lib/scroll'
-import { installNewsBurst } from './lib/newsBurst'
 
 /**
  * На admin.mistraly.net корень — это сама админка, а не витрина магазина.
@@ -134,18 +133,9 @@ setUnauthorizedHandler(() => auth.clear())
 const { initTheme } = useTheme()
 initTheme()
 
-// Прогреваем движок и модель шестерни сразу, не дожидаясь монтирования
-// HomeView. Пока качается мегабайтный чанк Babylon, роутер и компоненты
-// главной успевают отрисоваться; без этого первые пару секунд после
-// перезагрузки фоновая шестерня ещё не готова. import() не блокирует
-// mount — он только стартует загрузку.
-void import('./lib/gearRenderer').then((m) => m.preloadGear())
-
 // Реферальная ссылка автора: mistraly.net/?promo=КОД — код подставится
 // в покупку, даже если игрок купит не сразу.
 rememberPromoFromUrl()
 
-// Газетный стоп-моушен за кнопками на ховере.
-installNewsBurst()
 
 createApp(App).use(pinia).use(router).mount('#app')

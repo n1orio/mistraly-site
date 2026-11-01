@@ -142,8 +142,9 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <!-- Секция без своего цвета фона — она живёт на твоём родном page-bg -->
-  <section id="lore" class="w-full py-24 sm:py-32 px-4 flex flex-col items-center relative overflow-hidden select-none">
+  <!-- Самая тёмная полоса сайта: глаза смотрят из неё -->
+  <div class="dither dither--void lore-edge w-full" aria-hidden="true" />
+  <section id="lore" class="lore w-full py-20 sm:py-28 px-4 flex flex-col items-center relative overflow-hidden">
 
 <!-- ================================================================= -->
     <!-- КОПИИ ГЛАЗА. Фон у GIF прозрачный, поэтому каждая копия —
@@ -182,13 +183,9 @@ onUnmounted(() => {
     <!-- ================================================================= -->
     <!-- ЗАГОЛОВОК СЕКЦИИ (КАК В МОДАХ) -->
     <!-- ================================================================= -->
-    <div class="text-center mb-12 sm:mb-16 relative z-10">
-      <h2 class="font-heading text-2xl sm:text-3xl text-[var(--text-main)] tracking-tight mb-2">
-        Лор <span class="word-hl">сервера</span>
-      </h2>
-      <p class="text-xs sm:text-sm text-[var(--text-muted)] max-w-2xl mx-auto">
-        Погрузись в историю
-      </p>
+    <div class="section-head relative z-10">
+      <h2 class="section-title">Лор <span class="word-hl">сервера</span></h2>
+      <p class="section-sub">Погрузись в историю</p>
     </div>
 
     <div class="w-full max-w-4xl relative z-10 flex flex-col items-center">
@@ -198,16 +195,12 @@ onUnmounted(() => {
 
         <!-- ЛЕВАЯ КОЛОНКА: Досье -->
         <div class="lg:col-span-5 flex flex-col gap-4">
-          <div
-            class="p-6 bg-[#161719]/90 backdrop-blur-md border border-white/10 relative"
-            style="clip-path: polygon(0% 1.5%, 100% 0%, 98.5% 98.5%, 1.5% 100%); filter: drop-shadow(6px 6px 0px rgba(0,0,0,0.6));"
-          >
-
-            <h3 class="font-heading font-black text-xl text-white tracking-tight uppercase mb-3">
+          <div class="mc-panel p-6">
+            <h3 class="lore-h lore-h--gap">
               Что скрывают Эльфы?
             </h3>
 
-            <p class="font-mono text-xs text-zinc-300 leading-relaxed mb-4">
+            <p class="lore-p">
               Тысячи лет мы не знаем ничего об их истории, но теперь всё изменится. Старые летописи и дневники помогут приоткрыть завесу тайны.
             </p>
 
@@ -216,11 +209,11 @@ onUnmounted(() => {
 
         <!-- ПРАВАЯ КОЛОНКА: Текст -->
         <div class="lg:col-span-7 flex flex-col justify-center space-y-4">
-          <h3 class="font-heading font-black text-2xl sm:text-3xl text-[#EFEBD9] tracking-tight uppercase leading-snug">
+          <h3 class="lore-h lore-h--big">
             Что на самом деле скрывают облака?
           </h3>
 
-          <div class="space-y-4 font-mono text-xs sm:text-[13px] text-zinc-300/90 leading-relaxed drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+          <div class="lore-copy space-y-4">
             <p>
               В небесном секторе Mistraly можно найти всё: от мирных паровых заводов до гигантских дирижаблей с тяжелой артиллерией. Но для тех, кто ищет истинно разрушительную мощь, существуют места, о которых не говорят открыто.
             </p>
@@ -235,50 +228,53 @@ onUnmounted(() => {
       </div>
 
       <!-- ================= ВТОРОЙ АРТ В РАМКЕ ================= -->
-      <div class="w-full my-8 max-w-2xl">
-        <div class="feature-photo-frame p-2 bg-[#EFEBD9] border-2 border-[#181611] shadow-[8px_8px_0px_#000]">
-          <img
-            v-if="featureImage"
-            :src="featureImage"
-            alt="Иллюстрация"
-            class="w-full h-56 sm:h-72 object-cover"
-          />
-          <div
-            v-else
-            class="w-full h-56 sm:h-72 bg-[#141518] flex flex-col items-center justify-center p-6 text-center border border-black/40 relative overflow-hidden"
-          >
-            <div class="relative z-10 space-y-1.5">
-              <span class="font-heading font-black text-xs uppercase tracking-wider text-[#A855F7]">
-                [ МЕСТО ДЛЯ СКРИНШОТА / АРТА В РАМКЕ ]
-              </span>
-              <p class="font-mono text-[11px] text-zinc-400 max-w-xs">
-                Сюда отлично встанет скриншот корабля, локации или ритуала
-              </p>
-            </div>
-          </div>
-        </div>
+      <div v-if="featureImage" class="w-full my-8 max-w-2xl mc-panel p-3">
+        <img :src="featureImage" alt="Скриншот с сервера" class="w-full h-56 sm:h-72 object-cover" loading="lazy" />
       </div>
 
     </div>
   </section>
+  <div class="dither dither--void dither--up lore-edge w-full" aria-hidden="true" />
 </template>
 
 <style scoped>
+.lore {
+  background: var(--bg-void);
+}
+.lore-edge {
+  margin-bottom: -1px;
+}
+.lore-edge.dither--up {
+  margin: -1px 0 0;
+}
+.lore-h {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.3;
+}
+.lore-h--gap {
+  margin-bottom: 12px;
+}
+.lore-h--big {
+  font-size: 24px;
+}
+.lore-p,
+.lore-copy {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.lore-copy p {
+  margin: 0;
+}
+
 /*
- * СЛОЙ КАРТИНКИ:
- * Одна простая эллиптическая маска без mask-composite,
- * которая поддерживается всеми браузерами.
- * Радиус по X: 38% — гарантированно срезает бока в 0% задолго до границы картинки!
- */
-/*
- * УВЕЛИЧЕННАЯ КАРТИНКА С СУПЕР-ПЛАВНЫМ ПЕРЕХОДОМ В ФОН
- */
-/*
- * ОГРОМНАЯ КАРТИНКА С УЗКОЙ МАСКОЙ ПО БОКАМ:
- * Бока гарантированно гасятся в 0% задолго до реальных краев картинки!
- */
-/*
- * КРУПНАЯ, ЧЕТКАЯ КАРТИНКА С ШИРОКИМ ЦЕНТРОМ И МЯГКИМ СХОДОМ В ФОН
+ * Слой глаз. Позиция, размер, поворот и прозрачность приходят инлайном из
+ * eyeCopies, здесь только общая часть.
+ *
+ * object-fit: contain обязателен — cover обрезал бы глаз по краям в момент
+ * моргания. Маска растворяет края: прозрачность в исходнике бинарная, без
+ * неё глаз выглядит трафаретом. Тон — синий, под палитру сайта.
  */
 .lore-eyes {
   position: absolute;
@@ -287,56 +283,16 @@ onUnmounted(() => {
   pointer-events: none;
   z-index: 0;
 }
-
-/*
- * Одна копия глаза.
- *
- * Кадр 400x320 показывается целиком: contain обязателен, потому что
- * cover обрезал бы глаз по краям прямо в момент моргания.
- *
- * Маска нужна для растворения краёв вырезки: у GIF прозрачность
- * бинарная, поэтому кромка после порога остаётся жёсткой и без маски
- * глаз выглядит вырезанным трафаретом.
- */
-/*
- * Позиция, размер, поворот и прозрачность приходят инлайном из данных
- * eyeCopies, здесь только общая часть слоя.
- */
 .lore-eye {
-  /*
-   * Кадр приходит готовым видео со всеми 93 кадрами, поэтому анимация
-   * идёт с исходной частотой и глаз моргает плавно. Раньше здесь был
-   * спрайт-лист с steps(31): каждый кадр держался 120 мс вместо 40,
-   * и моргание шло втрое «блочнее» оригинала.
-   *
-   * object-fit: contain обязателен — cover обрезал бы глаз по краям
-   * ровно в момент моргания.
-   *
-   * Маска растворяет края вырезки: прозрачность в исходнике бинарная,
-   * поэтому кромка жёсткая и без маски глаз выглядит трафаретом.
-   */
   position: absolute;
   object-fit: contain;
-  filter: grayscale(1) contrast(1.12) brightness(1.04);
+  filter: grayscale(1) sepia(1) hue-rotate(175deg) saturate(3) contrast(1.1);
+  mix-blend-mode: screen;
   -webkit-mask-image: radial-gradient(ellipse 58% 58% at 50% 50%, #000 42%, transparent 99%);
   mask-image: radial-gradient(ellipse 58% 58% at 50% 50%, #000 42%, transparent 99%);
 }
-
-
-
-/* Крупный центральный глаз — задаёт тон всей секции */
-
-/*
- * Фиолетовое свечение ровно посередине.
- *
- * Отдельный слой под глазами: если светить самим глазам через filter,
- * засветка ложилась бы поверх анимации и дёргалась вместе с кадрами.
- * Здесь статичный радиальный градиент — он держит середину секции
- * собранной, пока глаза вокруг него моргают.
- *
- * Размер небольшой намеренно: при 500px и альфе 0.2 фиолетовый уходил
- * в заливку всего блока, а нужен был локальный свет за главным глазом.
- */
+/* Свет лежит под глазами отдельным слоем: через filter самих глаз засветка
+   дёргалась бы вместе с кадрами. */
 .lore-glow {
   position: absolute;
   left: 50%;
@@ -344,52 +300,8 @@ onUnmounted(() => {
   width: 420px;
   height: 420px;
   margin: -210px 0 0 -210px;
-  background: radial-gradient(
-    circle,
-    rgba(168, 85, 247, 0.2) 0%,
-    rgba(168, 85, 247, 0.09) 38%,
-    rgba(168, 85, 247, 0.03) 62%,
-    transparent 74%
-  );
+  background: radial-gradient(circle, rgba(47, 128, 255, 0.26) 0%, rgba(47, 128, 255, 0.1) 40%, transparent 74%);
   filter: blur(46px);
   z-index: 0;
-}
-
-/* Фоторамка под нижний арт */
-/*
- * Фиолетовая плашка на заголовке.
- *
- * Геометрия один в один как на остальных секциях (FaqSection,
- * ModHighlights, ShopView) — различается только цвет акцента: там
- * зелёный, синий и жёлтый, здесь фиолетовый под палитру секции.
- *
- * Правило обязательно: стили в компоненте scoped, поэтому класс из
- * соседних секций сюда не подтягивается. Без него `.word-hl` в шаблоне
- * оставался обычным словом без плашки — заголовок выглядел иначе, чем
- * все остальные на сайте.
- */
-.word-hl {
-  display: inline-block;
-  color: #181611;
-  background: #A855F7;
-  font-weight: 400;
-  padding: 0 0.28em;
-  margin: 0 0.04em;
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
-  transform: rotate(-1.5deg);
-  cursor: default;
-  user-select: none;
-}
-
-/* Рамка под нижний арт */
-.feature-photo-frame {
-  transform: rotate(-0.6deg);
-  filter: drop-shadow(8px 8px 0px rgba(0, 0, 0, 0.85));
-  transition: transform 0.22s ease;
-}
-
-.feature-photo-frame:hover {
-  transform: rotate(0deg) scale(1.01);
 }
 </style>

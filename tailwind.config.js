@@ -5,11 +5,11 @@ export default {
   theme: {
     extend: {
       colors: {
-        brand: { dark: '#0A0B0E', card: '#2B2B2B', blue: '#0080FF', cyan: '#00BBFF' }
+        brand: { dark: '#0B1A3E', card: '#122A5C', blue: '#2F80FF', cyan: '#6FD0FF' }
       },
       fontFamily: {
         sans: ['Podkova', 'Georgia', 'serif'],
-        heading: ['Russo One', 'sans-serif']
+        heading: ['Minecraft', 'Podkova', 'sans-serif']
       }
     }
   },

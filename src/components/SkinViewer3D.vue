@@ -305,8 +305,7 @@ onBeforeUnmount(destroyViewer)
   right: 0;
   bottom: 10px;
   text-align: center;
-  font-family: monospace;
-  font-size: 11px;
+  font-size: 14px;
   pointer-events: none;
 }
 
@@ -315,7 +314,7 @@ onBeforeUnmount(destroyViewer)
 }
 
 .skin3d-hint {
-  color: rgba(246, 196, 66, 0.55);
+  color: var(--text-sub);
 }
 
 /* Панель управления поверх холста */
@@ -328,22 +327,19 @@ onBeforeUnmount(destroyViewer)
 }
 
 .skin3d-btn {
-  font-family: monospace;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #1c1b0d;
-  background: #f6c442;
-  border: none;
   padding: 4px 10px;
+  background: var(--blue);
+  color: #fff;
+  border: 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   cursor: pointer;
-  clip-path: polygon(0% 0%, 100% 12%, 100% 88%, 0% 100%);
-  transition: background-color 0.15s ease;
 }
 
 .skin3d-btn:hover {
-  background: #fff;
+  background: #4c95ff;
 }
 
 @media (prefers-reduced-motion: reduce) {

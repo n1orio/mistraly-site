@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Check, ChevronLeft, MessageCircle, ShieldCheck, X, ExternalLink, Loader2, CreditCard, Ticket } from 'lucide-vue-next'
+import { Check, ChevronLeft, Discord, ShieldCheck, X, ExternalLink, Loader2, CreditCard, Ticket } from '../lib/icons'
 import { usePurchaseStore, isFree } from '../stores/purchase'
 import { useAuthStore } from '../stores/auth'
 import { formatRub } from '../api/promo'
@@ -73,81 +73,55 @@ const hints: Record<string, string> = {
 <template>
   <div
     v-if="store.open"
-    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md select-none"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#050B1E]/85"
     @click.self="store.close"
   >
-    <div class="modal-outer w-full max-w-md relative">
-      <!-- Кнопка закрытия (крестик) со скосом -->
-  <button
-    class="close-btn absolute -top-3 -right-3 z-30 w-8 h-8 bg-[#18191c] hover:bg-white text-white hover:text-black flex items-center justify-center border border-white/20 transition cursor-pointer"
-    @click="store.close"
-  >
-    <X :size="16" />
+    <div class="w-full max-w-md relative">
+      <button class="close-btn mc-btn mc-btn--muted mc-btn--sm" aria-label="Закрыть" @click="store.close">
+    <X :size="24" />
   </button>
 
-  <!-- Карточка терминала покупки -->
-  <div
-    class="modal-card bg-[#151619] p-7 sm:p-8 relative overflow-hidden text-left"
-    style="clip-path: polygon(0% 1.2%, 100% 0%, 99% 99%, 1% 100%);"
-  >
-    <!-- Тонкий фоновый полутоновый растр -->
-    <div class="comic-dots-pattern" aria-hidden="true" />
-
-    <div class="relative z-10">
+  <div class="mc-panel p-6 sm:p-7 text-left max-h-[calc(100vh-40px)] overflow-y-auto">
+    <div>
 
       <!-- ВЕРХНЯЯ СТРОКА: Статус и индикатор шагов -->
-      <div class="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
-        <span
-          class="font-heading font-black text-[11px] uppercase tracking-wider px-2.5 py-0.5 text-black"
-          style="background-color: #0099FF; transform: rotate(-1.5deg);"
-        >
-          {{ store.item ? 'ТЕРМИНАЛ // ЗАКАЗ' : 'MISTRALY PASS' }}
-        </span>
+      <div class="flex items-center justify-between pb-3 mb-5">
+        <span class="mc-tag">{{ store.item ? 'Заказ' : 'Mistraly Pass' }}</span>
 
         <!-- Рубленый степпер 1-2-3 -->
-        <div class="flex items-center gap-1.5 font-mono text-[10px]">
+        <div class="flex items-center gap-1.5 text-[14px]">
           <span
             v-for="n in 3"
             :key="n"
-            class="px-1.5 py-0.5 border font-bold transition-all"
-            :class="store.step >= n || (store.step === 4 && n === 3)
-              ? 'bg-[#0099FF] text-black border-[#0099FF]'
-              : 'bg-white/5 text-zinc-500 border-white/10'"
+            class="step-dot"
+            :class="{ 'is-on': store.step >= n || (store.step === 4 && n === 3) }"
           >
-            0{{ n }}
+            {{ n }}
           </span>
         </div>
       </div>
 
       <!-- ================= ШАГ 1: ВХОД ЧЕРЕЗ DISCORD ================= -->
       <div v-if="store.step === 1" class="flex flex-col items-center text-center py-2">
-        <div
-          class="w-16 h-16 rounded-xl bg-[#5865F2]/15 text-[#5865F2] border border-[#5865F2]/30 flex items-center justify-center mb-5"
-          style="transform: rotate(-2deg); box-shadow: 4px 4px 0px rgba(0,0,0,0.5);"
-        >
-          <MessageCircle :size="30" />
-        </div>
+        <span class="mc-slot mb-5"><Discord :size="36" /></span>
 
-        <h2 class="font-heading font-black text-2xl text-white tracking-tight uppercase mb-2">
+        <h2 class="modal-title mb-2">
           Авторизация профиля
         </h2>
-        <p class="text-xs text-zinc-400 mb-6 leading-relaxed max-w-xs">
+        <p class="text-[15px] text-[var(--text-muted)] mb-6 leading-relaxed max-w-xs">
           Для оформления покупки и привязки предметов требуется вход через Discord. Профиль создается мгновенно без паролей.
         </p>
 
-        <div class="comic-btn-wrap w-full mb-4">
-          <button
+        <button
             @click="startAuth"
-            class="comic-btn w-full py-3.5 px-6 font-heading font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2.5 cursor-pointer"
-            :style="{ '--btn-bg': '#5865F2', '--btn-color': '#FFFFFF' }"
+            class="mc-btn mc-btn--block mc-btn--discord"
           >
-            <MessageCircle :size="16" />
+            <Discord :size="24" />
             Войти через Discord
           </button>
-        </div>
 
-        <div class="flex items-center gap-2 text-[11px] font-mono text-zinc-500">
-          <ShieldCheck :size="14" class="text-emerald-400 shrink-0" />
+        <div class="flex items-center gap-2 text-[14px] text-[var(--text-sub)]">
+          <ShieldCheck :size="14" class="text-[var(--ok)] shrink-0" />
           <span>Безопасный шлюз без ввода пароля</span>
         </div>
       </div>
@@ -156,16 +130,16 @@ const hints: Record<string, string> = {
       <div v-else-if="store.step === 2" class="flex flex-col">
         <button
           v-if="auth.isAuthenticated"
-          class="inline-flex items-center gap-1 font-mono text-xs text-zinc-500 hover:text-white mb-3 transition cursor-pointer self-start"
+          class="inline-flex items-center gap-1 text-[15px] text-[var(--text-muted)] hover:text-white mb-3 transition cursor-pointer self-start"
           @click="store.step = 1"
         >
           <ChevronLeft :size="14" /> Назад
         </button>
 
-        <h2 class="font-heading font-black text-2xl text-white tracking-tight uppercase mb-1">
+        <h2 class="modal-title mb-1">
           Игровой никнейм
         </h2>
-        <p class="text-xs text-zinc-400 mb-5 leading-relaxed">
+        <p class="text-[15px] text-[var(--text-muted)] mb-5 leading-relaxed">
           Укажите ник (от 3 до 16 символов). Он привязывается к аккаунту один раз — в следующий раз мы спросим сами.
         </p>
 
@@ -174,26 +148,22 @@ const hints: Record<string, string> = {
             v-model="store.nickname"
             maxlength="16"
             placeholder="Ваш ник в Minecraft..."
-            class="w-full px-4 py-3 bg-black/45 border border-white/15 focus:border-[#0099FF] text-white text-sm font-mono placeholder:text-zinc-600 outline-none transition"
-            style="clip-path: polygon(0% 6%, 100% 0%, 100% 94%, 0% 100%);"
+            class="mc-input"
             @input="store.error = ''"
           />
         </div>
 
-        <span v-if="store.error" class="text-xs font-mono text-rose-400 mb-3 block">
+        <span v-if="store.error" class="text-[15px] text-[var(--bad)] mb-3 block">
           ⚠ {{ store.error }}
         </span>
 
-        <div class="comic-btn-wrap w-full mt-2">
-          <button
+        <button
             :disabled="!store.isNicknameValid || store.checking"
             @click="store.checkNickname"
-            class="comic-btn w-full py-3.5 px-6 font-heading font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-            :style="{ '--btn-bg': '#0099FF', '--btn-color': '#FFFFFF' }"
+            class="mc-btn mc-btn--block"
           >
             {{ store.checking ? 'Проверяем базу…' : 'Продолжить →' }}
           </button>
-        </div>
       </div>
 
       <!-- ================= ШАГ 3: ЧЕК И ПОДТВЕРЖДЕНИЕ ================= -->
@@ -201,50 +171,50 @@ const hints: Record<string, string> = {
         <!-- Шаг ввода ника доступен и по кнопке: привязанный ник бывает нужно
              исправить — например, если сменили ник на сервере. -->
         <button
-          class="inline-flex items-center gap-1 font-mono text-xs text-zinc-500 hover:text-white mb-3 transition cursor-pointer self-start"
+          class="inline-flex items-center gap-1 text-[15px] text-[var(--text-muted)] hover:text-white mb-3 transition cursor-pointer self-start"
           @click="store.step = 2"
         >
           <ChevronLeft :size="14" />
           {{ store.nickname ? 'Изменить ник' : 'Привязать ник' }}
         </button>
 
-        <h2 class="font-heading font-black text-2xl text-white tracking-tight uppercase mb-1">
+        <h2 class="modal-title mb-1">
           Проверка заказа
         </h2>
-        <p class="text-xs text-zinc-400 mb-5">
+        <p class="text-[15px] text-[var(--text-muted)] mb-5">
           Подтвердите данные — покупка оформится сразу.
         </p>
 
         <!-- Квитанция заказа с пунктирной рамкой -->
-        <div class="receipt-box bg-black/45 border border-dashed border-white/15 p-4 mb-4 space-y-2.5 font-mono text-xs">
+        <div class="mc-well m-[3px] mb-4 p-4 space-y-2 text-[15px]">
           <div class="flex justify-between">
-            <span class="text-zinc-500">Получатель:</span>
+            <span class="text-[var(--text-sub)]">Получатель:</span>
             <strong class="text-white">{{ store.nickname || auth.user?.username || 'Привязан к аккаунту' }}</strong>
           </div>
           <div class="flex justify-between">
-            <span class="text-zinc-500">Discord:</span>
+            <span class="text-[var(--text-sub)]">Discord:</span>
             <strong class="text-white">{{ auth.user?.username || auth.discord?.discord_username || 'Привязан' }}</strong>
           </div>
           <div class="flex justify-between">
-            <span class="text-zinc-500">Позиция:</span>
+            <span class="text-[var(--text-sub)]">Позиция:</span>
             <strong class="text-white">
               {{ store.item ? store.item.name : 'Mistraly Pass' }}
-              <span v-if="store.item && store.quantity > 1" class="text-[#0099FF]"> × {{ store.quantity }}</span>
+              <span v-if="store.item && store.quantity > 1" class="text-[var(--sky)]"> × {{ store.quantity }}</span>
             </strong>
           </div>
           <div v-if="store.promo" class="flex justify-between">
-            <span class="text-zinc-500">Без скидки:</span>
-            <span class="text-zinc-500 line-through">{{ formatRub(store.promo.original_kopecks) }}</span>
+            <span class="text-[var(--text-sub)]">Без скидки:</span>
+            <span class="text-[var(--text-sub)] line-through">{{ formatRub(store.promo.original_kopecks) }}</span>
           </div>
           <div v-if="store.promo" class="flex justify-between">
-            <span class="text-zinc-500">Промокод {{ store.promo.code }}:</span>
-            <strong class="text-emerald-400">−{{ formatRub(store.promo.discount_kopecks) }} ({{ store.promo.discount_percent }}%)</strong>
+            <span class="text-[var(--text-sub)]">Промокод {{ store.promo.code }}:</span>
+            <strong class="text-[var(--ok)]">−{{ formatRub(store.promo.discount_kopecks) }} ({{ store.promo.discount_percent }}%)</strong>
           </div>
           <div class="flex justify-between items-baseline">
-            <span class="text-zinc-500">К оплате:</span>
+            <span class="text-[var(--text-sub)]">К оплате:</span>
             <strong class="text-white text-base">
               {{ freeByPromo ? 'Бесплатно' : priceRub }}
-              <span v-if="isPaid" class="text-[10px] text-[#0099FF] font-normal ml-1">(через Lava)</span>
+              <span v-if="isPaid" class="text-[10px] text-[var(--sky)] font-normal ml-1">(через Lava)</span>
             </strong>
           </div>
         </div>
@@ -252,8 +222,8 @@ const hints: Record<string, string> = {
         <!-- Промокод: обычный или код автора -->
         <form class="promo-row mb-4" @submit.prevent="store.applyPromo">
           <label class="sr-only" for="promo">Промокод</label>
-          <div class="promo-field">
-            <Ticket :size="14" class="text-zinc-500 shrink-0" />
+          <div class="promo-field mc-well">
+            <Ticket :size="24" class="text-[var(--text-sub)] shrink-0" />
             <input
               id="promo"
               v-model.trim="store.promoCode"
@@ -269,7 +239,7 @@ const hints: Record<string, string> = {
           <button
             v-if="store.promo"
             type="button"
-            class="promo-btn promo-btn--ghost"
+            class="mc-btn mc-btn--muted mc-btn--sm"
             @click="store.clearPromo"
           >
             Убрать
@@ -277,118 +247,103 @@ const hints: Record<string, string> = {
           <button
             v-else
             type="submit"
-            class="promo-btn"
+            class="mc-btn mc-btn--sm"
             :disabled="!store.promoCode || store.promoChecking"
           >
             {{ store.promoChecking ? '…' : 'Применить' }}
           </button>
         </form>
-        <span v-if="store.promoError" class="text-xs font-mono text-rose-400 -mt-2 mb-3 block">
+        <span v-if="store.promoError" class="text-[15px] text-[var(--bad)] -mt-2 mb-3 block">
           {{ store.promoError }}
         </span>
 
-        <p v-if="hints[store.item?.item_type || 'pass']" class="text-[11px] font-mono text-zinc-500 mb-4 leading-relaxed">
-          // {{ hints[store.item?.item_type || 'pass'] }}
+        <p v-if="hints[store.item?.item_type || 'pass']" class="text-[14px] text-[var(--text-sub)] mb-4 leading-relaxed">
+          {{ hints[store.item?.item_type || 'pass'] }}
         </p>
 
-        <span v-if="store.error" class="text-xs font-mono text-rose-400 mb-3 block">
+        <span v-if="store.error" class="text-[15px] text-[var(--bad)] mb-3 block">
           ⚠ {{ store.error }}
         </span>
 
-        <div class="comic-btn-wrap w-full">
-          <button
+        <button
             :disabled="store.submitting"
             @click="store.confirmOrder"
-            class="comic-btn w-full py-3.5 px-6 font-heading font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
-            :style="{ '--btn-bg': '#0099FF', '--btn-color': '#FFFFFF' }"
+            class="mc-btn mc-btn--block"
           >
             {{ store.submitting ? 'Оформляем…' : freeByPromo ? 'Получить бесплатно' : 'Купить' }}
           </button>
-        </div>
       </div>
 
       <!-- ================= ШАГ 5: ОПЛАТА LAVA ================= -->
       <div v-else-if="store.step === 5" class="flex flex-col">
-        <h2 class="font-heading font-black text-2xl text-white tracking-tight uppercase mb-1">
+        <h2 class="modal-title mb-1">
           Оплата
         </h2>
-        <p class="text-xs text-zinc-400 mb-5 leading-relaxed">
+        <p class="text-[15px] text-[var(--text-muted)] mb-5 leading-relaxed">
           Счёт на <strong class="text-white">{{ priceRub }}</strong> выставлен в Lava.
           Товар выдадим сразу после подтверждения платежа.
         </p>
 
-        <div class="receipt-box bg-black/45 border border-dashed border-white/15 p-4 mb-4 space-y-2.5 font-mono text-xs">
+        <div class="mc-well m-[3px] mb-4 p-4 space-y-2 text-[15px]">
           <div class="flex justify-between">
-            <span class="text-zinc-500">Позиция:</span>
+            <span class="text-[var(--text-sub)]">Позиция:</span>
             <strong class="text-white">{{ store.result?.item || 'Mistraly Pass' }}</strong>
           </div>
           <div class="flex justify-between">
-            <span class="text-zinc-500">Сумма:</span>
+            <span class="text-[var(--text-sub)]">Сумма:</span>
             <strong class="text-white">{{ priceRub }}</strong>
           </div>
           <div class="flex justify-between">
-            <span class="text-zinc-500">Номер заказа:</span>
-            <strong class="text-zinc-300 text-[11px] break-all">{{ store.orderId }}</strong>
+            <span class="text-[var(--text-sub)]">Номер заказа:</span>
+            <strong class="text-[var(--text-muted)] text-[11px] break-all">{{ store.orderId }}</strong>
           </div>
         </div>
 
-        <p v-if="store.error" class="text-xs font-mono text-amber-400 mb-3 block leading-relaxed">
+        <p v-if="store.error" class="text-[15px] text-[var(--warn)] mb-3 block leading-relaxed">
           ⚠ {{ store.error }}
         </p>
 
-        <div class="comic-btn-wrap w-full mb-2">
-          <button
+        <button
             :disabled="!store.payUrl"
             @click="store.redirectToPayment"
-            class="comic-btn w-full py-3.5 px-6 font-heading font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-            :style="{ '--btn-bg': '#0099FF', '--btn-color': '#FFFFFF' }"
+            class="mc-btn mc-btn--block"
           >
             <ExternalLink :size="15" />
             Перейти к оплате
           </button>
-        </div>
 
         <!-- Запасной путь: платёж может пройти, а вебхук задержаться.
              Кнопка спрашивает статус у бэкенда, а не у Lava напрямую,
              и переходит к «получено» только при status = success. -->
-        <div class="comic-btn-wrap w-full">
-          <button
+        <button
             :disabled="store.submitting"
             @click="store.checkPayment"
-            class="comic-btn w-full py-3 px-6 font-heading font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
-            :style="{ '--btn-bg': '#1f2937', '--btn-color': '#FFFFFF' }"
+            class="mc-btn mc-btn--block mc-btn--muted"
           >
             <Loader2 v-if="store.submitting" :size="14" class="animate-spin" />
             <CreditCard v-else :size="14" />
             {{ store.submitting ? 'Проверяем…' : 'Я оплатил — проверить' }}
           </button>
-        </div>
 
-        <p class="text-[11px] font-mono text-zinc-600 mt-4 text-center leading-relaxed">
-          // Подтверждение приходит от Lava автоматически.
-          // Обычно 1–2 минуты, но иногда до 15.
+        <p class="text-[14px] text-[var(--text-sub)] mt-4 text-center leading-relaxed">
+          Подтверждение приходит от Lava автоматически. Обычно 1–2 минуты, но иногда до 15.
         </p>
       </div>
 
       <!-- ================= ШАГ 4: ГОТОВО ================= -->
       <div v-else class="flex flex-col items-center text-center py-4">
-        <div
-          class="w-16 h-16 bg-emerald-500/15 border-2 border-emerald-500 text-emerald-400 flex items-center justify-center mb-4"
-          style="transform: rotate(3deg); box-shadow: 4px 4px 0px rgba(0,0,0,0.5);"
-        >
-          <Check :size="32" />
-        </div>
+        <span class="mc-slot mb-4 text-[var(--ok)]" style="color:var(--ok)"><Check :size="36" /></span>
 
-        <span class="font-heading font-black text-xs uppercase tracking-wider text-emerald-400 mb-1">
+        <span class="mc-tag mc-tag--ok mb-3">
           ПОЛУЧЕНО
         </span>
-        <h2 class="font-heading font-black text-2xl text-white tracking-tight uppercase mb-2">
+        <h2 class="modal-title mb-2">
           Заказ выполнен!
         </h2>
-        <p class="text-xs text-zinc-400 mb-2">
+        <p class="text-[15px] text-[var(--text-muted)] mb-2">
           {{ store.result?.item }} для игрока <strong class="text-white">{{ store.nickname || auth.user?.username || 'вашего аккаунта' }}</strong>
         </p>
-        <p class="text-[11px] font-mono text-zinc-500 mb-6 max-w-xs leading-relaxed">
+        <p class="text-[14px] text-[var(--text-sub)] mb-6 max-w-xs leading-relaxed">
           {{
             store.result?.delivery
               ? 'Зайдите на сервер — предмет будет выдан модом в инвентарь.'
@@ -396,15 +351,12 @@ const hints: Record<string, string> = {
           }}
         </p>
 
-        <div class="comic-btn-wrap inline-flex">
-          <button
+        <button
             @click="store.close"
-            class="comic-btn px-10 py-3 font-heading font-black text-xs uppercase tracking-wider cursor-pointer"
-            :style="{ '--btn-bg': '#FFFFFF', '--btn-color': '#101113' }"
+            class="mc-btn mc-btn--block mc-btn--muted"
           >
             Закрыть окно
           </button>
-        </div>
       </div>
 
     </div>
@@ -415,72 +367,34 @@ const hints: Record<string, string> = {
   </div>
 </template>
 <style scoped>
-/* Внешняя тень модального окна */
-.modal-outer {
-  filter: drop-shadow(14px 14px 0px rgba(0, 0, 0, 0.8));
-}
-
-.modal-card {
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-/* Крестик закрытия */
 .close-btn {
-  clip-path: polygon(0% 10%, 100% 0%, 100% 90%, 0% 100%);
-  filter: drop-shadow(3px 3px 0px rgba(0, 0, 0, 0.5));
-}
-
-/* Фоновый точечный растр */
-.comic-dots-pattern {
   position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.06;
-  background-image: radial-gradient(#0099FF 1.5px, transparent 1.5px);
-  background-size: 9px 9px;
-  background-position: 0 0;
-  z-index: 1;
+  top: -14px;
+  right: -8px;
+  z-index: 30;
+  padding: 4px 4px 6px;
 }
-
-/* =========================================================
-   ФИРМЕННЫЕ КНОПКИ В СТИЛЕ САЙТА:
-   Жесткая тень, при ховере растут, БЕЛЕЮТ, текст чернеет
-   ========================================================= */
-.comic-btn-wrap {
-  position: relative;
-  display: flex;
-  filter: drop-shadow(5px 5px 0px rgba(0, 0, 0, 0.7));
-  transition: filter 0.22s ease;
+.modal-title {
+  margin: 0 0 6px;
+  font-size: 24px;
+  line-height: 1.2;
 }
-
-.comic-btn-wrap:hover {
-  filter: drop-shadow(7px 7px 0px rgba(0, 0, 0, 0.85));
+.step-dot {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  background: var(--well);
+  color: var(--text-sub);
+  font-weight: 700;
 }
-
-.comic-btn {
-  background-color: var(--btn-bg);
-  color: var(--btn-color);
-  clip-path: polygon(0% 12%, 100% 0%, 100% 100%, 0% 88%);
-  transform: rotate(-1.2deg);
-  border: none;
-  user-select: none;
-  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
-              background-color 0.2s ease,
-              color 0.2s ease;
-}
-
-/* Ховер: рост, белый фон, черный текст */
-.comic-btn:hover {
-  transform: scale(1.04) rotate(-1.2deg);
-  background-color: var(--btn-hover-bg) !important;
-  color: var(--btn-hover-fg) !important;
-}
-
-.comic-btn:active {
-  transform: scale(0.96) rotate(-1.2deg);
+.step-dot.is-on {
+  background: var(--blue);
+  color: #fff;
 }
 .promo-row {
   display: flex;
+  align-items: center;
   gap: 8px;
 }
 .promo-field {
@@ -488,51 +402,31 @@ const hints: Record<string, string> = {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 0 12px;
-  background: rgba(0, 0, 0, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  min-width: 0;
+  margin: 3px;
+  padding: 0 10px;
 }
 .promo-field:focus-within {
-  border-color: #0099ff;
+  --edge: var(--sky);
 }
 .promo-input {
   flex: 1;
   min-width: 0;
-  padding: 10px 0;
+  padding: 8px 0;
   background: transparent;
-  border: none;
-  outline: none;
+  border: 0;
+  outline: 0;
   color: #fff;
-  font-family: ui-monospace, monospace;
-  font-size: 13px;
-  letter-spacing: 0.08em;
+  font: inherit;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 .promo-input::placeholder {
-  color: #71717a;
+  color: var(--text-sub);
   text-transform: none;
   letter-spacing: 0;
 }
 .promo-input:disabled {
-  color: #34d399;
-}
-.promo-btn {
-  padding: 0 14px;
-  border: none;
-  background: #0099ff;
-  color: #fff;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  cursor: pointer;
-}
-.promo-btn:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-.promo-btn--ghost {
-  background: rgba(255, 255, 255, 0.08);
-  color: #a1a1aa;
+  color: var(--ok);
 }
 </style>

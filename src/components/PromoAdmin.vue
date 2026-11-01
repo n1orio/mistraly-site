@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { Plus, RefreshCw, Wallet, ChevronLeft, Power } from 'lucide-vue-next'
+import { Plus, RefreshCw, Wallet, ChevronLeft, Power } from '../lib/icons'
 import { errorMessage } from '../api/client'
 import type { AdminUser } from '../api/admin'
 import AuthorStats from './AuthorStats.vue'
@@ -411,7 +411,6 @@ h3 {
 .card {
   padding: 12px 14px;
   border: 1px solid rgba(128, 128, 128, 0.22);
-  border-radius: 10px;
   background: rgba(128, 128, 128, 0.06);
 }
 .card.accent {
@@ -474,7 +473,6 @@ button {
   align-items: center;
   gap: 5px;
   padding: 6px 10px;
-  border-radius: 6px;
   border: 1px solid rgba(128, 128, 128, 0.35);
   background: rgba(128, 128, 128, 0.12);
   color: inherit;
@@ -500,7 +498,6 @@ button.primary {
 input,
 select {
   padding: 7px 10px;
-  border-radius: 6px;
   border: 1px solid rgba(128, 128, 128, 0.35);
   background: #0f1115;
   color: inherit;
@@ -513,7 +510,6 @@ select {
   gap: 12px;
   padding: 14px;
   border: 1px solid rgba(128, 128, 128, 0.22);
-  border-radius: 10px;
 }
 .create label {
   display: flex;
@@ -550,7 +546,6 @@ select {
 .ok,
 .err {
   padding: 10px 12px;
-  border-radius: 8px;
   font-size: 14px;
 }
 .ok {

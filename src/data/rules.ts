@@ -12,7 +12,7 @@ import {
   Swords,
   Compass,
   Package
-} from 'lucide-vue-next'
+} from '../lib/icons'
 
 export interface Rule {
   num: string

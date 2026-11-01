@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ShieldAlert } from 'lucide-vue-next'
+import { ShieldAlert } from '../lib/icons'
 import { useAuthStore } from '../stores/auth'
 
 /**
@@ -50,14 +50,12 @@ p {
 a {
   margin-top: 8px;
   padding: 10px 18px;
-  border-radius: 8px;
-  border: 1px solid rgba(128, 128, 128, 0.35);
-  background: rgba(128, 128, 128, 0.12);
-  color: inherit;
+  background: var(--blue);
+  color: #fff;
   text-decoration: none;
   font-size: 14px;
 }
 a:hover {
-  background: rgba(128, 128, 128, 0.22);
+  background: #4c95ff;
 }
 </style>

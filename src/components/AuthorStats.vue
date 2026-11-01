@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { Copy, Check } from 'lucide-vue-next'
+import { Copy, Check } from '../lib/icons'
 import { formatRub, type AuthorStats } from '../api/promo'
 
 /**
@@ -172,7 +172,6 @@ h3 {
 .card {
   padding: 12px 14px;
   border: 1px solid rgba(128, 128, 128, 0.22);
-  border-radius: 10px;
   background: rgba(128, 128, 128, 0.06);
 }
 .card.accent {
@@ -194,7 +193,6 @@ h3 {
   padding: 10px 12px;
   border: 1px solid rgba(255, 190, 90, 0.4);
   background: rgba(255, 190, 90, 0.1);
-  border-radius: 8px;
   font-size: 13px;
 }
 table {
@@ -236,7 +234,6 @@ button.link {
   align-items: center;
   gap: 5px;
   padding: 5px 9px;
-  border-radius: 6px;
   border: 1px solid rgba(128, 128, 128, 0.35);
   background: rgba(128, 128, 128, 0.12);
   color: inherit;
@@ -262,7 +259,6 @@ button.link {
 .chart .bar {
   width: 100%;
   background: #6ea8fe;
-  border-radius: 2px 2px 0 0;
 }
 @media (max-width: 640px) {
   table {

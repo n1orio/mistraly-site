@@ -15,7 +15,7 @@ import {
   Rocket,
   Save,
   Ticket
-} from 'lucide-vue-next'
+} from '../lib/icons'
 import PromoAdmin from '../components/PromoAdmin.vue'
 import AuthorStats from '../components/AuthorStats.vue'
 import { myAuthorStats, type AuthorStats as AuthorStatsData } from '../api/promo'
@@ -851,7 +851,6 @@ watch(tab, async (t) => {
   padding: 8px 12px;
   margin-bottom: 14px;
   border: 1px solid rgba(128, 128, 128, 0.3);
-  border-radius: 8px;
 }
 .search input {
   flex: 1;
@@ -893,7 +892,6 @@ button {
   align-items: center;
   gap: 5px;
   padding: 6px 10px;
-  border-radius: 6px;
   border: 1px solid rgba(128, 128, 128, 0.35);
   background: rgba(128, 128, 128, 0.12);
   color: inherit;
@@ -922,7 +920,6 @@ button.ghost {
 .denied {
   padding: 16px;
   border: 1px solid rgba(255, 120, 120, 0.4);
-  border-radius: 8px;
   background: rgba(255, 120, 120, 0.08);
 }
 .ok,
@@ -931,7 +928,6 @@ button.ghost {
   align-items: center;
   gap: 8px;
   padding: 10px 12px;
-  border-radius: 8px;
   font-size: 14px;
 }
 .ok {
@@ -954,7 +950,6 @@ button.ghost {
 .stats-bar select {
   margin-top: 6px;
   padding: 7px 10px;
-  border-radius: 6px;
   border: 1px solid rgba(128, 128, 128, 0.35);
   background: #0f1115;
   color: inherit;
@@ -968,7 +963,6 @@ button.ghost {
 .card {
   padding: 12px 14px;
   border: 1px solid rgba(128, 128, 128, 0.22);
-  border-radius: 10px;
   background: rgba(128, 128, 128, 0.06);
 }
 .card .k {
@@ -992,7 +986,6 @@ button.ghost {
   padding: 10px 12px;
   border: 1px solid rgba(255, 190, 90, 0.4);
   background: rgba(255, 190, 90, 0.1);
-  border-radius: 8px;
   font-size: 13px;
   margin-bottom: 16px;
 }
@@ -1015,7 +1008,6 @@ button.ghost {
 .chart .bar {
   width: 100%;
   background: #6ea8fe;
-  border-radius: 2px 2px 0 0;
 }
 .chart .day {
   font-size: 9px;
@@ -1036,7 +1028,6 @@ h3 {
 .st {
   font-size: 12px;
   padding: 2px 6px;
-  border-radius: 4px;
   background: rgba(128, 128, 128, 0.18);
 }
 .st.success {
@@ -1054,7 +1045,6 @@ h3 {
 }
 .box-inline {
   border: 1px solid rgba(128, 128, 128, 0.25);
-  border-radius: 12px;
   padding: 16px;
   margin-bottom: 24px;
 }
@@ -1076,7 +1066,6 @@ h3 {
   width: 100%;
   margin-top: 6px;
   padding: 8px 10px;
-  border-radius: 6px;
   border: 1px solid rgba(128, 128, 128, 0.35);
   background: #0f1115;
   color: inherit;
@@ -1088,7 +1077,6 @@ h3 {
 .price-in {
   width: 110px;
   padding: 6px 9px;
-  border-radius: 6px;
   border: 1px solid rgba(128, 128, 128, 0.35);
   background: #0f1115;
   color: inherit;
@@ -1132,7 +1120,6 @@ h3 {
 .box {
   background: #16181d;
   border: 1px solid rgba(128, 128, 128, 0.25);
-  border-radius: 12px;
   padding: 20px;
   width: 100%;
   max-width: 520px;
@@ -1157,7 +1144,6 @@ h3 {
   width: 100%;
   margin-top: 6px;
   padding: 8px 10px;
-  border-radius: 6px;
   border: 1px solid rgba(128, 128, 128, 0.35);
   background: #0f1115;
   color: inherit;

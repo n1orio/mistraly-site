@@ -3,6 +3,8 @@ import { ref, onMounted, onUnmounted } from 'vue'
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 let animId = 0
+/** Размер пикселя пламени на экране. */
+const PIXEL = 6
 
 const VERTEX_SHADER = `
   attribute vec2 a_position;
@@ -13,7 +15,9 @@ const VERTEX_SHADER = `
   }
 `
 
-// Настоящий процедурный шейдер пламени (Simplex Noise + Турбулентность)
+// Процедурное пламя (Simplex Noise + турбулентность): синее, как огонь душ.
+// Канвас считается в разрешении в 6 раз ниже экрана и растягивается без
+// сглаживания, поэтому язычки выходят из настоящих крупных пикселей.
 const FRAGMENT_SHADER = `
   precision highp float;
   varying vec2 v_uv;
@@ -89,11 +93,11 @@ const FRAGMENT_SHADER = `
     fireShape = mix(1.0, fireShape, smoothstep(0.0, 0.12, uv.y));
     fireShape *= 1.0 - smoothstep(0.88, 0.99, uv.y);
 
-    // Четкий векторный срез (антиалиасинг в 1 пиксель, без размытия!)
-    float alpha = smoothstep(0.49, 0.51, fireShape);
-
-    // Строго один цвет #FF5500 (R: 1.0, G: 0.3333, B: 0.0)
-    vec3 flameColor = vec3(1.0, 0.333333, 0.0);
+    // Жёсткая граница и три ступени цвета, без плавных переходов.
+    float alpha = step(0.5, fireShape);
+    vec3 flameColor = vec3(0.078, 0.314, 0.769);                                    // основа #1450C4
+    if (fireShape < 0.74) flameColor = vec3(0.184, 0.502, 1.0);                     // #2F80FF
+    if (fireShape < 0.58) flameColor = vec3(0.435, 0.816, 1.0);                     // #6FD0FF
     gl_FragColor = vec4(flameColor * alpha, alpha);
   }
 `
@@ -102,7 +106,7 @@ onMounted(() => {
   const canvas = canvasRef.value
   if (!canvas) return
 
-  const gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: true, antialias: true })
+  const gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: true, antialias: false })
   if (!gl) return
 
   const compileShader = (type: number, source: string) => {
@@ -139,11 +143,10 @@ onMounted(() => {
 
   const resize = () => {
     if (!canvas) return
-    const dpr = Math.min(window.devicePixelRatio || 1, 2)
     const w = canvas.parentElement?.clientWidth || window.innerWidth
     const h = 180
-    canvas.width = w * dpr
-    canvas.height = h * dpr
+    canvas.width = Math.ceil(w / PIXEL)
+    canvas.height = Math.ceil(h / PIXEL)
     canvas.style.width = `${w}px`
     canvas.style.height = `${h}px`
     gl.viewport(0, 0, canvas.width, canvas.height)
@@ -154,11 +157,14 @@ onMounted(() => {
   window.addEventListener('resize', resize)
 
   const start = performance.now()
+  let last = 0
   const render = (now: number) => {
-    const elapsed = (now - start) * 0.001
-    gl.uniform1f(timeLoc, elapsed)
-    gl.drawArrays(gl.TRIANGLES, 0, 6)
     animId = requestAnimationFrame(render)
+    // ~14 кадров в секунду: пламя идёт рывками, как блоки в игре.
+    if (now - last < 70) return
+    last = now
+    gl.uniform1f(timeLoc, (now - start) * 0.001)
+    gl.drawArrays(gl.TRIANGLES, 0, 6)
   }
 
   animId = requestAnimationFrame(render)
@@ -171,32 +177,28 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="w-full relative z-[2] mt-auto flex flex-col pointer-events-none select-none">
-    <!-- WebGL-холст с настоящим физическим потоком пламени -->
-    <div class="relative w-full h-[180px] overflow-hidden -mb-[2px]">
-      <canvas ref="canvasRef" class="absolute bottom-0 left-0 w-full h-full block" />
+  <div class="w-full relative z-[2] mt-auto flex flex-col select-none">
+    <div class="relative w-full h-[180px] overflow-hidden -mb-[2px] pointer-events-none">
+      <canvas ref="canvasRef" class="fire absolute bottom-0 left-0 w-full h-full block" />
     </div>
 
-    <!-- Монолитная сплошная оранжевая основа #FF5500 -->
-    <div class="w-full bg-[#FF5500] pointer-events-auto flex flex-col items-center">
-      <!-- Черная массивная надпись -->
-      <div class="pt-2 pb-12 sm:pt-4 sm:pb-16 text-center">
-        <h2 class="fire-title font-heading font-black text-[#0d0e10] uppercase tracking-tight">
-          Дальше — больше
-        </h2>
+    <div class="base w-full flex flex-col items-center">
+      <div class="pt-2 pb-10 sm:pt-4 sm:pb-14 px-4 text-center">
+        <h2 class="fire-title">Дальше — больше</h2>
       </div>
 
-      <!-- Футер с ссылками внутри оранжевой зоны -->
-      <footer class="w-full max-w-6xl px-4 py-6 border-t border-black/20 flex flex-col sm:flex-row items-center justify-between text-xs text-black/85 font-bold gap-4">
-        <div>© Mistraly • Minecraft 1.21.1</div>
-        <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-          <router-link to="/offer" class="hover:text-black transition underline underline-offset-2">Оферта</router-link>
-          <router-link to="/refund" class="hover:text-black transition">Возврат</router-link>
-          <router-link to="/privacy" class="hover:text-black transition">Персональные данные</router-link>
-          <router-link to="/license" class="hover:text-black transition">Лицензии</router-link>
-          <router-link to="/contacts" class="hover:text-black transition">Контакты</router-link>
-          <router-link to="/shop" class="hover:text-black transition">Магазин</router-link>
-          <router-link to="/profile" class="hover:text-black transition">Профиль</router-link>
+      <footer class="foot w-full">
+        <div class="max-w-6xl mx-auto px-4 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[15px]">
+          <div>© Mistraly • Minecraft 1.21.1</div>
+          <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+            <router-link to="/offer">Оферта</router-link>
+            <router-link to="/refund">Возврат</router-link>
+            <router-link to="/privacy">Персональные данные</router-link>
+            <router-link to="/license">Лицензии</router-link>
+            <router-link to="/contacts">Контакты</router-link>
+            <router-link to="/shop">Магазин</router-link>
+            <router-link to="/profile">Профиль</router-link>
+          </div>
         </div>
       </footer>
     </div>
@@ -204,11 +206,26 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.fire {
+  image-rendering: pixelated;
+}
+.base {
+  background: #1450C4;
+}
 .fire-title {
-  font-size: clamp(2.4rem, 6vw, 4.8rem);
-  line-height: 1;
-  transform: rotate(-1.5deg);
-  letter-spacing: -0.03em;
-  text-shadow: 4px 4px 0px rgba(255, 120, 40, 0.4);
+  margin: 0;
+  font-size: clamp(24px, 7vw, 48px);
+  line-height: 1.1;
+  color: #fff;
+  text-shadow: 4px 4px 0 var(--blue-lip);
+}
+.foot {
+  background: var(--blue-lip);
+  color: #DCEBFF;
+}
+.foot a:hover {
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 </style>
