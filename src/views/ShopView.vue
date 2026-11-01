@@ -229,6 +229,9 @@ function handlePassClick() {
   font-weight: 700;
   cursor: pointer;
 }
+.qty button:active {
+  transform: translateY(2px);
+}
 .qty button:hover {
   background: var(--blue);
 }

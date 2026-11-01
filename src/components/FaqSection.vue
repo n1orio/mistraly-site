@@ -187,6 +187,9 @@ const content = computed(() => selected.value.content ?? [])
   text-align: left;
   cursor: pointer;
 }
+.q:active {
+  transform: translateY(2px);
+}
 .q:hover {
   background: var(--panel-hi);
 }

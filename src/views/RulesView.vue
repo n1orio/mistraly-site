@@ -318,6 +318,9 @@ onUnmounted(() => {
   font-size: 16px;
   cursor: pointer;
 }
+.toc:active {
+  transform: translateY(2px);
+}
 .toc:hover {
   background: var(--panel-hi);
 }
