@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { plusDiscount, shopTotal } from '../lib/shopPricing'
 import { computed } from 'vue'
 import { Check, ChevronLeft, Discord, ShieldCheck, X, ExternalLink, Loader2, CreditCard, Ticket } from '../lib/icons'
 import { usePurchaseStore, isFree } from '../stores/purchase'
@@ -21,7 +22,7 @@ const baseKopecks = computed(() => {
   // Проходка берётся с витрины: её цена тоже живёт в price_kopecks.
   if (!item) return passPriceKopecks.value ?? 0
   if (isFree(item)) return 0
-  return (item.price_kopecks ?? 0) * store.quantity
+  return shopTotal(item.id, item.price_kopecks ?? 0, store.quantity)
 })
 
 const priceRub = computed(() => {
@@ -41,6 +42,18 @@ const freeByPromo = computed(() => !!store.promo && store.promo.total_kopecks ==
 // Витрина нужна модалке для цены проходки: её собственный товар — null.
 const passItem = computed(() => (store.item ? null : store.passItem))
 
+const isPlus = computed(() => store.item?.id === 'subscription_plus')
+const productDescription = computed(() => isPlus.value
+  ? 'Plus открывает золотую тему ника и интерфейса, значок над инвентарём, до 4 банковских счетов вместо 2 и анимированные цвета счетов.'
+  : store.item?.description)
+function setMonths(value: number) {
+  if (store.submitting || store.promoChecking) return
+  const months = Math.max(1, Math.min(99, Number.isFinite(value) ? Math.trunc(value) : 1))
+  if (months === store.quantity) return
+  if (store.promo) store.clearPromo()
+  store.quantity = months
+}
+
 function startAuth() {
   const clientId = import.meta.env.VITE_DISCORD_CLIENT_ID || ''
   // Discord сверяет redirect_uri с зарегистрированным ПОБАЙТОВО, включая
@@ -51,7 +64,7 @@ function startAuth() {
   const redirect = encodeURIComponent(`${window.location.origin}/auth/discord`)
   location.href =
     `https://discord.com/api/oauth2/authorize?client_id=${clientId}` +
-    `&redirect_uri=${redirect}&response_type=code&scope=identify` +
+    `&redirect_uri=${redirect}&response_type=code&scope=identify%20guilds.join` +
     `&state=${encodeURIComponent('purchase')}`
 }
 
@@ -60,14 +73,12 @@ function startAuth() {
  */
 const deliveryHint = {
   item: 'Предмет будет выдан автоматически при следующем входе на сервер.',
-  unban: 'Снятие блокировок применится при следующем подключении к серверу.',
-  pass: 'Сезонный пропуск активируется мгновенно после подтверждения оплаты.'
+  pass: 'Бессрочная проходка активируется после подтверждения оплаты.'
 }
 
 const hints: Record<string, string> = {
   pass: deliveryHint.pass,
-  item: deliveryHint.item,
-  unban: deliveryHint.unban
+  item: deliveryHint.item
 }
 </script>
 <template>
@@ -182,9 +193,17 @@ const hints: Record<string, string> = {
           Проверка заказа
         </h2>
         <p class="text-[15px] text-[var(--text-muted)] mb-5">
-          Подтвердите данные — покупка оформится сразу.
+          Проверьте данные и подтвердите покупку.
         </p>
 
+        <div v-if="isPlus" class="plus-term mb-4">
+          <span>Срок подписки</span>
+          <div class="plus-term-control mc-well">
+            <button type="button" aria-label="На месяц меньше" :disabled="store.quantity <= 1 || store.submitting || store.promoChecking" @click="setMonths(store.quantity - 1)">−</button>
+            <label><input type="number" min="1" max="99" :value="store.quantity" :disabled="store.submitting || store.promoChecking" aria-label="Количество месяцев" @input="setMonths(Number(($event.target as HTMLInputElement).value))" /> мес.</label>
+            <button type="button" aria-label="На месяц больше" :disabled="store.quantity >= 99 || store.submitting || store.promoChecking" @click="setMonths(store.quantity + 1)">+</button>
+          </div>
+        </div>
         <!-- Квитанция заказа с пунктирной рамкой -->
         <div class="mc-well mb-4 p-4 space-y-2 text-[15px]">
           <div class="flex justify-between">
@@ -199,11 +218,15 @@ const hints: Record<string, string> = {
             <span class="text-[var(--text-sub)]">Позиция:</span>
             <strong class="text-white">
               {{ store.item ? store.item.name : 'Mistraly Pass' }}
-              <span v-if="store.item && store.quantity > 1" class="text-[var(--sky)]"> × {{ store.quantity }}</span>
+              <span v-if="store.item && store.quantity > 1" class="text-[var(--sky)]"> × {{ store.quantity }}{{ store.item.id === 'subscription_plus' ? ' мес.' : '' }}</span>
             </strong>
           </div>
+          <div v-if="isPlus && plusDiscount(store.quantity) && !isFree(store.item!)" class="flex justify-between">
+            <span class="text-[var(--text-sub)]">Скидка за срок:</span>
+            <span>−{{ plusDiscount(store.quantity).toLocaleString('ru-RU') }}%</span>
+          </div>
           <div v-if="store.promo" class="flex justify-between">
-            <span class="text-[var(--text-sub)]">Без скидки:</span>
+            <span class="text-[var(--text-sub)]">До промокода:</span>
             <span class="text-[var(--text-sub)] line-through">{{ formatRub(store.promo.original_kopecks) }}</span>
           </div>
           <div v-if="store.promo" class="flex justify-between">
@@ -253,12 +276,18 @@ const hints: Record<string, string> = {
             {{ store.promoChecking ? '…' : 'Применить' }}
           </button>
         </form>
+        <p v-if="store.promo?.bonus_theme === 'IVA_ZOMBIE'" class="text-[var(--ok)] mb-3">
+          После покупки проходки вы получите тему «Ива это зомби».
+        </p>
         <span v-if="store.promoError" class="text-[15px] text-[var(--bad)] -mt-2 mb-3 block">
           {{ store.promoError }}
         </span>
 
+        <p v-if="productDescription" class="text-[14px] text-[var(--text-main)] mb-3 leading-relaxed order-description">
+          {{ productDescription }}
+        </p>
         <p v-if="hints[store.item?.item_type || 'pass']" class="text-[14px] text-[var(--text-sub)] mb-4 leading-relaxed">
-          {{ hints[store.item?.item_type || 'pass'] }}
+          {{ store.item?.id === 'subscription_plus' ? 'Оплаченные месяцы Plus добавятся к оставшемуся сроку подписки. Автоматических списаний нет.' : store.item?.id === 'theme_glitch' ? 'Постоянная тема Glitch появится в личном кабинете после синхронизации с игровым сервером.' : hints[store.item?.item_type || 'pass'] }}
         </p>
 
         <span v-if="store.error" class="text-[15px] text-[var(--bad)] mb-3 block">
@@ -345,7 +374,9 @@ const hints: Record<string, string> = {
         </p>
         <p class="text-[14px] text-[var(--text-sub)] mb-6 max-w-xs leading-relaxed">
           {{
-            store.result?.delivery
+            store.item?.id === 'subscription_plus'
+              ? 'Подписка Plus продлена на выбранное количество месяцев.'
+              : store.result?.delivery
               ? 'Зайдите на сервер — предмет будет выдан модом в инвентарь.'
               : 'Доступ открыт. Скачайте лаунчер и подключайтесь.'
           }}
@@ -367,6 +398,12 @@ const hints: Record<string, string> = {
   </div>
 </template>
 <style scoped>
+.plus-term { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 14px; color: var(--text-muted); }
+.plus-term-control { display: flex; align-items: center; padding: 3px; gap: 6px; }
+.plus-term-control button { width: 30px; height: 30px; border: 0; background: var(--panel-hi); color: var(--text-main); font-size: 20px; cursor: pointer; }
+.plus-term-control button:disabled { opacity: .35; cursor: default; }
+.plus-term-control input { width: 44px; background: transparent; border: 0; color: var(--text-main); text-align: center; font: inherit; }
+
 .close-btn {
   position: absolute;
   top: -14px;

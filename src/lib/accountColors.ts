@@ -1,6 +1,6 @@
 /**
  * Цвета счетов как в AccountColors из мода: 0–15 это красители, 22 золото,
- * 24 глитч. Сервер присылает номер цвета, а не сам цвет.
+ * 24 глитч, 25 бустер. Сервер присылает номер цвета, а не сам цвет.
  */
 const DYES = [
   0xf9fffe, 0xf9801d, 0xc74ebd, 0x3ab3da, 0xfed83d, 0x80c71f, 0xf38baa, 0x474f52,
@@ -8,6 +8,7 @@ const DYES = [
 ]
 const GOLD = 22
 const GLITCH = 24
+const BOOSTER = 25
 
 const hex = (rgb: number) => `#${rgb.toString(16).padStart(6, '0')}`
 
@@ -17,10 +18,11 @@ function light(rgb: number) {
   return (mix((rgb >> 16) & 255) << 16) | (mix((rgb >> 8) & 255) << 8) | mix(rgb & 255)
 }
 
-export type AccountLook = { kind: 'dye' | 'gold' | 'glitch'; bar: string; text: string; tint: string }
+export type AccountLook = { kind: 'dye' | 'gold' | 'glitch' | 'booster'; bar: string; text: string; tint: string }
 
 export function accountLook(id: number): AccountLook {
   if (id === GOLD) return { kind: 'gold', bar: '#ffd84a', text: '#ffd84a', tint: 'transparent' }
+  if (id === BOOSTER) return { kind: 'booster', bar: '#f47fff', text: '#f47fff', tint: 'transparent' }
   if (id === GLITCH) return { kind: 'glitch', bar: '#ff2a3c', text: '#ffffff', tint: 'transparent' }
   const rgb = DYES[id] ?? DYES[0]
   // Прозрачность 0x30 как у заливки карточки в BankUi.card.

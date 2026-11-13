@@ -14,7 +14,7 @@ const isAdminHost = location.hostname === 'admin.mistraly.net'
 </script>
 
 <template>
-  <div class="app-shell relative min-h-screen flex flex-col items-center text-[var(--text-main)]">
+  <div class="app-shell relative min-h-screen flex flex-col items-center text-[var(--text-main)]" :class="{ 'app-shell--home': route.path === '/' && !isAdminHost }">
     <Navbar v-if="!isAdminHost" />
 
     <main class="relative z-[1] w-full flex-1">
@@ -47,6 +47,11 @@ const isAdminHost = location.hostname === 'admin.mistraly.net'
 </template>
 
 <style>
+.app-shell--home {
+  --bg-page: #181a20;
+  background: #181a20;
+}
+
 .site-foot-in {
   margin-top: 16px;
   background: linear-gradient(180deg, var(--head-c), var(--head-lo));

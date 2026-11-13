@@ -6,7 +6,7 @@ import { iconUrl, themeOf, themeOfPlayer } from '../lib/nameThemes'
 const props = defineProps<{ name: string; theme?: string; size?: number }>()
 
 const t = computed(() => (props.theme ? themeOf(props.theme) : themeOfPlayer(props.name)))
-const px = computed(() => props.size ?? 16)
+const px = computed(() => props.size ?? 18)
 </script>
 
 <template>

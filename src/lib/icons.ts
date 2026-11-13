@@ -127,3 +127,9 @@ export const Upload = icon(upload)
 export const Users = icon(users)
 export const Wallet = icon(wallet)
 export const X = icon(close)
+
+/** Custom stepped bank facade, drawn on the header icons' two-pixel grid. */
+export const Bank = icon(`<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10 2h4v2h4v2h4v4H2V6h4V4h4V2Zm0 4H8v2h8V6h-2V4h-4v2Z"/>
+  <path d="M4 12h2v6H4zm6 0h4v2h-1v4h-2v-4h-1zm8 0h2v6h-2zM2 20h20v2H2zM4 18h16v2H4z"/>
+</svg>`)

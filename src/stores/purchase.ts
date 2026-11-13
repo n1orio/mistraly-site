@@ -63,6 +63,7 @@ export interface PromoCheck {
   code: string
   kind: 'promo' | 'author' | string
   discount_percent: number
+  bonus_theme?: string | null
   original_kopecks: number
   discount_kopecks: number
   total_kopecks: number

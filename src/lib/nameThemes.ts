@@ -21,9 +21,13 @@ export type NameTheme = {
 
 export const THEMES: NameTheme[] = [
   { id: 'DEFAULT', label: 'Обычная', lock: '', icon: 'def', name: '#ffffff', bg: '#181a20', top: '#2a3140', bottom: '#1e222c', accent: '#3fb8b0', border: '#4a5060', card: '#20242e', line: '#3a4050', heading: '#7fe7e0' },
-  { id: 'PLUS', label: 'Plus', lock: 'нужна подписка Plus', icon: 'plus', name: '#ffd84a', bg: '#1c170c', top: '#4a3812', bottom: '#2a1f0a', accent: '#ffd84a', border: '#8a6e2a', card: '#2a2312', line: '#6a5420', heading: '#ffe27a' },
+  { id: 'PLUS', label: 'Plus', lock: 'нужна подписка Plus', icon: 'plus', name: '#f8a200', bg: '#1c1006', top: '#5a2200', bottom: '#2e1204', accent: '#f8a200', border: '#b63600', card: '#2a1608', line: '#7a3000', heading: '#ffd27a' },
   { id: 'ADMIN', label: 'Админ', lock: 'только админам', icon: 'admin', name: '#ff5a5a', bg: '#1c0c0c', top: '#4a1414', bottom: '#2a0a0a', accent: '#e64c4c', border: '#8f1818', card: '#2a1212', line: '#602020', heading: '#ff8a8a' },
-  { id: 'GLITCH', label: 'Глитч', lock: 'недоступна', icon: 'glitch', name: '#ff2a3c', shadow: '#00a0ff', bg: '#0e0f18', top: '#2a1830', bottom: '#12182e', accent: '#ff2a3c', border: '#0078c0', card: '#181a28', line: '#7a2038', heading: '#66c4ff' },
+  { id: 'GLITCH', label: 'Glitch', lock: 'доступна в магазине', icon: 'glitch', name: '#ff2a3c', shadow: '#00a0ff', bg: '#0e0f18', top: '#2a1830', bottom: '#12182e', accent: '#ff2a3c', border: '#0078c0', card: '#181a28', line: '#7a2038', heading: '#66c4ff' },
+  { id: 'HELPER', label: 'Хелпер', lock: 'только хелперам', icon: 'helper', name: '#7fd65a', bg: '#0c1a0e', top: '#1e4a1a', bottom: '#10280e', accent: '#6cc04a', border: '#2f6a28', card: '#14240f', line: '#2e5226', heading: '#a8ee88' },
+  { id: 'BOOSTER', label: 'Бустер', lock: 'за буст Discord', icon: 'booster', name: '#f47fff', bg: '#1a0c1c', top: '#4a1650', bottom: '#2a0c30', accent: '#f47fff', border: '#8a3a96', card: '#24122a', line: '#5a2a66', heading: '#f9b8ff' },
+  { id: 'BETATESTER', label: 'Бетатестер', lock: 'для участников бета-теста', icon: 'bugtester', name: '#0ad384', bg: '#081a20', top: '#026b63', bottom: '#042834', accent: '#0ad384', border: '#007e5a', card: '#10252d', line: '#02404b', heading: '#34fc97' },
+  { id: 'IVA_ZOMBIE', label: 'Ива это зомби', lock: 'за покупку проходки с промокодом ETOZOMBI', icon: 'eto_zomni', name: '#83dccb', bg: '#0d1215', top: '#00414d', bottom: '#00141b', accent: '#00b68f', border: '#267266', card: '#172426', line: '#305653', heading: '#d6ece8' },
 ]
 
 export const themeOf = (id?: string | null) => THEMES.find((t) => t.id === id) ?? THEMES[0]

@@ -129,6 +129,25 @@ const look = computed(() => accountLook(props.color))
   animation: acc-flow 4s linear infinite;
 }
 
+/* Бустер: розово-фиолетовый перелив, как у буста Discord. */
+.acc--booster {
+  background: linear-gradient(90deg, rgba(180, 90, 255, 0.16), rgba(244, 127, 255, 0.16), rgba(255, 198, 251, 0.16), rgba(244, 127, 255, 0.16), rgba(180, 90, 255, 0.16)) 0 0 / 200% 100%, var(--panel);
+  outline: 1px solid rgba(244, 127, 255, 0.45);
+  outline-offset: -1px;
+  animation: acc-flow 4s linear infinite;
+}
+.acc--booster::before {
+  background: linear-gradient(180deg, #b45aff, #f47fff, #ffc6fb, #f47fff, #b45aff) 0 0 / 100% 200%;
+  animation: acc-stripe 4s linear infinite;
+}
+.acc--booster .acc-name {
+  background: linear-gradient(90deg, #c77dff, #f47fff, #ffe0fc, #f47fff, #c77dff) 0 0 / 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: acc-flow 4s linear infinite;
+}
+
 /* Глитч: красно-синие края расходятся, имя двоится, полоса иногда рвётся. */
 .acc--glitch {
   background: linear-gradient(90deg, rgba(255, 42, 60, 0.16), transparent 120px, transparent calc(100% - 120px), rgba(0, 160, 255, 0.16)), #14151f;

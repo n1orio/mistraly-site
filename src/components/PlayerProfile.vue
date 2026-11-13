@@ -57,7 +57,7 @@ const updated = computed(() => {
       <span v-html="headHtml(name, 64)"></span>
       <div class="min-w-0 flex-1">
         <h1 class="gp-name">
-          <NameTag :name="name" :theme="data.theme" :size="24" />
+          <NameTag :name="name" :theme="data.theme" :size="27" />
           <span v-if="data.plus" class="gp-plus">PLUS</span>
         </h1>
         <p class="gp-note">Статистика из игры, обновлено {{ updated }}</p>

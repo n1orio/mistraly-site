@@ -354,7 +354,7 @@ function login() {
               <div class="player-head">
                 <span v-html="headHtml(player.username, 96)"></span>
                 <div>
-                  <h1 class="wiki-title"><NameTag :name="player.username" :size="32" /></h1>
+                  <h1 class="wiki-title"><NameTag :name="player.username" :size="36" /></h1>
                   <p class="wiki-lead">Участник с {{ when(player.created_at).split(',')[0] }}. На сервер ещё не заходил.</p>
                 </div>
               </div>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import SkinViewer3D from '../components/SkinViewer3D.vue'
+import NicknameSettings from '../components/NicknameSettings.vue'
 import GameCabinet from '../components/GameCabinet.vue'
 import PlayerProfile, { type GameProfile } from '../components/PlayerProfile.vue'
 import NameTag from '../components/NameTag.vue'
@@ -65,6 +66,13 @@ async function loadNickname() {
   } catch {
     linkedNickname.value = null
   }
+}
+
+async function onNicknameChanged(nickname: string) {
+  if (linkedNickname.value) linkedNickname.value.nickname = nickname
+  if (game.value) game.value.name = nickname
+  await Promise.all([loadNickname(), loadGame()])
+  loadPlayerThemes()
 }
 
 async function loadPurchases() {
@@ -165,7 +173,8 @@ function statusBadge(status: string) {
         </template>
         <div class="grid grid-cols-1 xl:grid-cols-2 gap-3 items-stretch">
           <div class="flex flex-col gap-3 min-w-0">
-            <div class="mc-panel p-4">
+            <NicknameSettings v-if="linkedNickname" :nickname="linkedNickname.nickname" @changed="onNicknameChanged" />
+            <div id="skin" class="mc-panel p-4 scroll-mt-24">
           <div class="flex justify-between items-center mb-2">
             <span class="font-bold text-[17px]">3D скин игрока</span>
             <span class="text-[14px] text-[var(--text-sub)]">Вращайте мышью</span>
@@ -199,6 +208,7 @@ function statusBadge(status: string) {
               {{ isUploading ? 'Загружаем…' : 'Применить скин' }}
             </button>
 
+            <p class="text-[14px] text-[var(--text-sub)] m-0">После сохранения переподключитесь к серверу, чтобы увидеть новый скин в игре.</p>
             <p v-if="statusMsg" class="text-[15px] text-[var(--ok)] text-center m-0">{{ statusMsg }}</p>
           </div>
             </div>
@@ -226,7 +236,7 @@ function statusBadge(status: string) {
             </div>
           </section>
           </div>
-          <GameCabinet :name="game.name" @theme="onTheme" />
+          <GameCabinet :key="game.name" :name="game.name" @theme="onTheme" />
         </div>
       </PlayerProfile>
 
@@ -238,6 +248,7 @@ function statusBadge(status: string) {
             <span>Выйти</span>
           </button>
         </div>
+        <NicknameSettings v-if="linkedNickname" class="mb-3 max-w-xl" :nickname="linkedNickname.nickname" @changed="onNicknameChanged" />
         <section class="mc-panel p-4 max-w-xl">
           <p class="m-0 mb-4 text-[var(--text-muted)]">Профиль появится после первого входа на сервер.</p>
           <button v-if="!hasPass" class="mc-btn" @click="buyPass">Купить Mistraly Pass →</button>

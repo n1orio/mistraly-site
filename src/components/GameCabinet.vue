@@ -266,8 +266,8 @@ const rows = computed(() => SETTINGS[settingsTab.value])
   white-space: nowrap;
 }
 .gc-theme-name img {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   image-rendering: pixelated;
 }
 .gc-slots {

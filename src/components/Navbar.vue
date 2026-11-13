@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { Home, ShoppingBag, ScrollText, Download, Discord, BookOpen } from '../lib/icons'
+import { Home, ShoppingBag, ScrollText, Download, Discord, BookOpen, Bank } from '../lib/icons'
 import { api, unwrap } from '../api/client'
 import { useAuthStore } from '../stores/auth'
 import { loadPlayerThemes } from '../lib/nameThemes'
@@ -36,7 +36,7 @@ function startAuth() {
   const redirect = encodeURIComponent(`${location.origin}/auth/discord`)
   location.href =
     `https://discord.com/api/oauth2/authorize?client_id=${clientId}` +
-    `&redirect_uri=${redirect}&response_type=code&scope=identify`
+    `&redirect_uri=${redirect}&response_type=code&scope=identify%20guilds.join`
 }
 
 const baseTabs = [
@@ -48,7 +48,7 @@ const baseTabs = [
 ]
 // Банк есть только у вошедшего игрока, поэтому вкладка появляется после входа.
 const tabs = computed(() =>
-  auth.isAuthenticated ? [...baseTabs.slice(0, 2), { to: '/bank', label: 'Банк', bank: true }, ...baseTabs.slice(2)] : baseTabs
+  auth.isAuthenticated ? [...baseTabs.slice(0, 2), { to: '/bank', label: 'Банк', icon: Bank }, ...baseTabs.slice(2)] : baseTabs
 )
 
 function isActive(tab: { to: string; exact?: boolean }) {
@@ -73,8 +73,7 @@ function isActive(tab: { to: string; exact?: boolean }) {
           class="tab"
           :class="{ 'is-active': isActive(tab) }"
         >
-          <img v-if="'bank' in tab" src="/images/wiki/chat/bank.png" alt="" class="tab-img" />
-          <component :is="tab.icon" v-else :size="24" />
+          <component :is="tab.icon" :size="24" />
           <span>{{ tab.label }}</span>
         </router-link>
       </nav>

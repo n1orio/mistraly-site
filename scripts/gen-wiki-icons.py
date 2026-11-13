@@ -61,9 +61,15 @@ def coin(base, glyph):
     return img
 
 
+# Дорисованные монетки только там, где своей иконки ещё нет: перерисованные
+# вручную (new, people, arrows…) не затираем.
+HAND_DRAWN = {'new', 'people', 'arrows'}
+for name, (base, glyph) in ICONS.items():
+    if name in HAND_DRAWN and os.path.exists(f'{OUT}/{name}.png'):
+        continue
+    coin(base, glyph).save(f'{OUT}/{name}.png', optimize=True)
+# иконки из мода нарисованы вручную и важнее дорисованных (череп, варн, мьют…)
 for f in glob.glob(f'{MOD}/src/main/resources/assets/mistraly/textures/font/*_icon.png'):
     name = os.path.basename(f)[:-4].replace('_chat_icon', '').replace('_icon', '')
     Image.open(f).convert('RGBA').save(f'{OUT}/{name}.png', optimize=True)
-for name, (base, glyph) in ICONS.items():
-    coin(base, glyph).save(f'{OUT}/{name}.png', optimize=True)
 print(sorted(os.listdir(OUT)))

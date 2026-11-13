@@ -3,9 +3,10 @@ import { onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { usePurchaseStore } from '../stores/purchase'
 import HowToJoin from '../components/HowToJoin.vue'
+import TitleLogo from '../components/TitleLogo.vue'
 import ModHighlights from '../components/ModHighlights.vue'
 import FaqSection from '../components/FaqSection.vue'
-import { Download, Gamepad } from '../lib/icons'
+import { Download, ArrowRight } from '../lib/icons'
 import { scrollToSection } from '../lib/scroll'
 const route = useRoute(); const purchase = usePurchaseStore()
 onMounted(() => { if (route.query.purchase === '1') purchase.showPass() })
@@ -21,27 +22,20 @@ function scrollToContent() {
   <section class="hero">
     <div class="hero-art" aria-hidden="true" />
     <div class="hero-in">
-      <h1 class="hero-title">MISTRALY</h1>
+      <TitleLogo />
       <p class="hero-lead">Ванилла плюс: привычный Minecraft с продуманными улучшениями, свой лаунчер и закрытое сообщество без гриферов и лишнего мусора.</p>
     </div>
 
     <div class="dither dither--bar" aria-hidden="true" />
     <div class="bar">
       <div class="bar-in">
-        <div class="bar-side">
-          <span class="mc-slot bar-slot"><Gamepad :size="20" /></span>
-          <div class="min-w-0">
-            <div class="bar-title">Mistraly</div>
-            <div class="bar-note">Minecraft 26.3 · NeoForge</div>
-          </div>
-        </div>
-        <button class="mc-btn mc-btn--lg bar-play" @click="scrollToContent">ИГРАТЬ</button>
-        <div class="bar-side bar-side--end">
-          <router-link to="/download" class="mc-btn mc-btn--muted mc-btn--sm">
-            <Download :size="24" />
-            Скачать лаунчер
-          </router-link>
-        </div>
+        <button class="mc-btn bar-play" @click="scrollToContent">
+          <span>ИГРАТЬ</span><ArrowRight :size="24" />
+        </button>
+        <router-link to="/download" class="mc-btn mc-btn--muted bar-download">
+          <Download :size="24" />
+          <span>Скачать лаунчер</span>
+        </router-link>
       </div>
     </div>
   </section>
@@ -83,15 +77,6 @@ function scrollToContent() {
   padding: 48px 16px 32px;
   text-align: center;
 }
-/* Размеры кратны 8, иначе пиксели шрифта станут разной ширины. Тень нужна
-   только для читаемости на светлом небе. */
-.hero-title {
-  margin: 0 0 32px;
-  color: #fff;
-  font-size: 80px;
-  line-height: 1;
-  text-shadow: 0 6px 0 rgba(5, 5, 5, 0.6);
-}
 .hero-lead {
   max-width: 620px;
   margin: 0;
@@ -116,67 +101,40 @@ function scrollToContent() {
 }
 .bar-in {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 24px;
-  max-width: 1200px;
+  grid-template-columns: 1fr 1fr;
+  align-items: stretch;
+  gap: 16px;
+  width: 100%;
+  max-width: 620px;
   margin: 0 auto;
-  padding: 0 16px 16px;
+  padding: 4px 20px 24px;
 }
-.bar-play {
-  margin-top: -14px;
-}
-.bar-side {
+.bar-play, .bar-download {
   display: flex;
   align-items: center;
-  gap: 14px;
-  min-width: 0;
+  justify-content: center;
+  min-height: 56px;
+  gap: 12px;
+  padding: 12px 20px;
 }
-.bar-side--end {
-  justify-content: flex-end;
+.bar-play, .bar-download {
+  transition: transform 160ms ease-out, box-shadow 160ms ease-out, filter 160ms ease-out;
 }
-.bar-slot {
-  width: 40px;
-  height: 40px;
+@media (hover: hover) {
+  .bar-play:hover:not(:active), .bar-download:hover:not(:active) {
+    transform: translateY(-3px);
+    filter: brightness(1.12);
+    box-shadow: inset 0 calc(var(--inset) * -1) 0 var(--lip), inset 0 var(--inset) 0 var(--top),
+      0 calc(var(--depth) + 3px) 0 var(--side), 0 calc(var(--depth) + 5px) 0 var(--ink);
+  }
 }
-.bar-title {
-  font-family: 'Noto Sans', 'Helvetica Neue', Arial, sans-serif;
-  font-weight: 700;
-  font-size: 15px;
-  line-height: 1.2;
+@media (prefers-reduced-motion: reduce) {
+  .bar-play, .bar-download { transition: none; }
 }
-.bar-note {
-  color: var(--text-muted);
-  font-size: 13px;
-}
-
+.bar-play { font-size: 18px; letter-spacing: .04em; }
+.bar-download { font-size: 15px; }
 @media (max-width: 640px) {
-  .hero {
-    min-height: calc(100vh - 56px - 64px);
-  }
-  .hero-title {
-    font-size: 48px;
-  }
-  .bar-in {
-    grid-template-columns: 1fr;
-    justify-items: stretch;
-    gap: 12px;
-    text-align: center;
-  }
-  .bar-play {
-    order: -1;
-    width: 100%;
-    padding-left: 12px;
-    padding-right: 12px;
-  }
-  .bar-side {
-    justify-content: center;
-  }
-  .bar-side:first-of-type {
-    display: none;
-  }
-  .bar-side--end .mc-btn {
-    flex: 1;
-  }
+  .hero { min-height: calc(100vh - 56px - 64px); }
+  .bar-in { grid-template-columns: 1fr; max-width: 400px; gap: 12px; }
 }
 </style>

@@ -68,7 +68,7 @@ function startDiscordAuth() {
   const state = launcherNonce.value || (isPurchase.value ? PURCHASE_STATE : undefined)
   location.href =
     `https://discord.com/api/oauth2/authorize?client_id=${clientId}` +
-    `&redirect_uri=${redirect}&response_type=code&scope=identify` +
+    `&redirect_uri=${redirect}&response_type=code&scope=identify%20guilds.join` +
     (state ? `&state=${encodeURIComponent(state)}` : '')
 }
 
@@ -161,6 +161,10 @@ onMounted(async () => {
           <Discord :size="24" />
           {{ auth.loading ? 'Проверка связи...' : 'Войти через Discord' }}
         </button>
+
+        <p v-if="!alreadyIn" class="mt-3 text-sm text-[var(--text-muted)]">
+          При входе вы также присоединитесь к Discord-серверу Mistraly. Роль игрока выдаётся после получения проходки.
+        </p>
 
         <div v-if="errorMessage_" class="mc-well mt-5 p-3 text-[15px] text-[var(--bad)] flex items-center gap-2 text-left">
           <AlertTriangle :size="24" class="shrink-0" />

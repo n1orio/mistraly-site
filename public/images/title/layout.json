@@ -1,0 +1,66 @@
+{
+  "width": 1474,
+  "height": 246,
+  "parts": [
+    {
+      "name": "decor-left",
+      "x": 0,
+      "width": 153,
+      "src": "/images/title/decor-left.png"
+    },
+    {
+      "name": "m",
+      "x": 127,
+      "width": 267,
+      "src": "/images/title/m.png"
+    },
+    {
+      "name": "i",
+      "x": 350,
+      "width": 116,
+      "src": "/images/title/i.png"
+    },
+    {
+      "name": "s",
+      "x": 432,
+      "width": 179,
+      "src": "/images/title/s.png"
+    },
+    {
+      "name": "t",
+      "x": 600,
+      "width": 157,
+      "src": "/images/title/t.png"
+    },
+    {
+      "name": "r",
+      "x": 755,
+      "width": 165,
+      "src": "/images/title/r.png"
+    },
+    {
+      "name": "a",
+      "x": 899,
+      "width": 184,
+      "src": "/images/title/a.png"
+    },
+    {
+      "name": "l",
+      "x": 1044,
+      "width": 181,
+      "src": "/images/title/l.png"
+    },
+    {
+      "name": "y",
+      "x": 1135,
+      "width": 196,
+      "src": "/images/title/y.png"
+    },
+    {
+      "name": "decor-right",
+      "x": 1321,
+      "width": 153,
+      "src": "/images/title/decor-right.png"
+    }
+  ]
+}

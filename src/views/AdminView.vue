@@ -57,6 +57,9 @@ const tab = ref<Tab>('users')
 
 const users = ref<AdminUser[]>([])
 const items = ref<ShopItem[]>([])
+const grantableItems = computed(() => items.value.filter(
+  (item) => item.id === 'theme_glitch' || (item.item_type === 'item' && !!item.mc_item)
+))
 const audit = ref<AuditEntry[]>([])
 const search = ref('')
 
@@ -70,6 +73,7 @@ const statsLoading = ref(false)
 // админ выбирал ZIP, ждал секунду и получал ту же форму. Теперь файл
 // действительно едет в бэкенд, и после загрузки список перечитывается.
 const buildFile = ref<File | null>(null)
+const buildProgress = ref(0)
 const buildVersion = ref('')
 const buildChangelog = ref('')
 const builds = ref<{ id: string; version: string; file_size: number; hash: string; changelog: string | null; created_at: string }[]>([])
@@ -221,7 +225,16 @@ async function submitBuild() {
     form.append('file', buildFile.value)
     form.append('version', buildVersion.value.trim())
     form.append('changelog', buildChangelog.value.trim())
-    await unwrap(api.post('/admin/builds', form))
+    buildProgress.value = 0
+    // Общий таймаут 15 с: ZIP в десятки мегабайт за это время не доедет.
+    await unwrap(
+      api.post('/admin/builds', form, {
+        timeout: 0,
+        onUploadProgress: (e) => {
+          if (e.total) buildProgress.value = Math.round((e.loaded / e.total) * 100)
+        }
+      })
+    )
     flash(`Сборка ${buildVersion.value.trim()} загружена`)
     buildFile.value = null
     buildVersion.value = ''
@@ -298,7 +311,7 @@ async function togglePass(user: AdminUser) {
 
 function openGrant(user: AdminUser) {
   grantUser.value = user
-  grantItemId.value = items.value[0]?.id || ''
+  grantItemId.value = grantableItems.value[0]?.id || ''
   grantReason.value = ''
   problem.value = ''
 }
@@ -475,7 +488,7 @@ watch(tab, async (t) => {
                   {{ u.has_pass ? 'Снять' : 'Выдать' }}
                 </button>
                 <button :disabled="!u.nickname" :title="u.nickname ? '' : 'Нет ника в Minecraft'" @click="openGrant(u)">
-                  <Package :size="15" /> Выдать предмет
+                  <Package :size="15" /> Выдать товар
                 </button>
                 <button @click="openPurchases(u)"><History :size="15" /> Покупки</button>
               </td>
@@ -666,7 +679,13 @@ watch(tab, async (t) => {
             <textarea v-model="buildChangelog" rows="3" />
           </label>
           <button :disabled="busy === 'build'" @click="submitBuild">
-            <Upload :size="16" /> {{ busy === 'build' ? 'Заливаем…' : 'Загрузить' }}
+            <Upload :size="16" /> {{
+              busy === 'build'
+                ? buildProgress < 100
+                  ? `Заливаем… ${buildProgress}%`
+                  : 'Собираем манифест…'
+                : 'Загрузить'
+            }}
           </button>
         </div>
 
@@ -746,12 +765,12 @@ watch(tab, async (t) => {
     <!-- Выдача предмета -->
     <div v-if="grantUser" class="modal" @click.self="grantUser = null">
       <div class="box">
-        <h2>Выдать предмет</h2>
+        <h2>Выдать товар</h2>
         <p class="muted">Игрок: {{ grantUser.username }} ({{ grantUser.nickname }})</p>
         <label>
-          Предмет
+          Товар
           <select v-model="grantItemId">
-            <option v-for="i in items" :key="i.id" :value="i.id">{{ i.name }}</option>
+            <option v-for="i in grantableItems" :key="i.id" :value="i.id">{{ i.name }}</option>
           </select>
         </label>
         <label>
@@ -760,7 +779,7 @@ watch(tab, async (t) => {
         </label>
         <div class="modal-acts">
           <button class="ghost" @click="grantUser = null">Отмена</button>
-          <button :disabled="busy === 'grant'" @click="submitGrant">Выдать</button>
+          <button :disabled="busy === 'grant' || !grantItemId" @click="submitGrant">Выдать</button>
         </div>
       </div>
     </div>
