@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { Copy, Check } from '../lib/icons'
-import { formatRub, type AuthorStats } from '../api/promo'
+import { formatRub, promoLink, type AuthorStats } from '../api/promo'
 
 /**
  * Кабинет автора: сколько игроков пришло по коду, сколько начислено и
@@ -14,12 +14,9 @@ const s = computed(() => props.stats.summary)
 const maxDaily = computed(() => Math.max(1, ...props.stats.daily.map((d) => d.reward_kopecks)))
 
 const copied = ref('')
-function refLink(code: string) {
-  return `${location.origin.replace('admin.', '')}/?promo=${encodeURIComponent(code)}`
-}
 async function copy(code: string) {
   try {
-    await navigator.clipboard.writeText(refLink(code))
+    await navigator.clipboard.writeText(promoLink(code))
     copied.value = code
     setTimeout(() => (copied.value = ''), 1500)
   } catch {
@@ -90,7 +87,7 @@ function date(raw: string) {
           <td>{{ c.uses }}{{ c.max_uses ? ` / ${c.max_uses}` : '' }}</td>
           <td>{{ formatRub(c.earned_kopecks) }}</td>
           <td>
-            <button class="link" :title="refLink(c.code)" @click="copy(c.code)">
+            <button class="link" :title="promoLink(c.code)" @click="copy(c.code)">
               <Check v-if="copied === c.code" :size="14" />
               <Copy v-else :size="14" />
               {{ copied === c.code ? 'Скопировано' : 'Копировать' }}

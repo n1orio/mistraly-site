@@ -2,11 +2,18 @@
 import { plusDiscount, shopTotal } from '../lib/shopPricing'
 import { ref, computed, onMounted, markRaw } from 'vue'
 import { ShoppingBag } from '../lib/icons'
+import { useAuthStore } from '../stores/auth'
 import { usePurchaseStore, isFree } from '../stores/purchase'
 import { api, unwrap, errorMessage } from '../api/client'
 import type { ShopItem } from '../stores/purchase'
 
 const purchaseStore = usePurchaseStore()
+const auth = useAuthStore()
+const ownsGlitch = computed(() => auth.user?.owned_themes?.includes('GLITCH') ?? false)
+
+function ownsTheme(item: ShopItem): boolean {
+  return item.id === 'theme_glitch' && ownsGlitch.value
+}
 
 const presentation: Record<string, { title: string; badge: string; icon: any; maxQty: number }> = {
   'theme_glitch': {
@@ -46,7 +53,10 @@ const loading = ref(true)
 
 onMounted(async () => {
   try {
-    const items = await unwrap<ShopItem[]>(api.get('/shop/items'))
+    const [items] = await Promise.all([
+      unwrap<ShopItem[]>(api.get('/shop/items')),
+      auth.isAuthenticated ? auth.refreshProfile() : Promise.resolve()
+    ])
     pass.value = items.find((i) => i.item_type === 'pass') ?? null
     cards.value = items
       .filter((i) => i.item_type !== 'pass' && i.item_type !== 'unban')
@@ -80,6 +90,7 @@ function setQty(id: string, val: number) {
 }
 
 function openOrder(item: Card) {
+  if (ownsTheme(item)) return
   purchaseStore.showItem(item, qty.value[item.id] || 1)
 }
 
@@ -145,8 +156,8 @@ function handlePassClick() {
 
           <p v-if="item.id === 'subscription_plus'" class="term-discount-note">Каждый доп. месяц −2,5% · до −25%</p>
           <p v-if="item.id === 'theme_glitch'" class="term-discount-note">{{ item.desc }}</p>
-          <button class="mc-btn mc-btn--block" @click="openOrder(item)">
-            Купить
+          <button class="mc-btn mc-btn--block" :disabled="ownsTheme(item)" @click="openOrder(item)">
+            {{ ownsTheme(item) ? 'Уже есть' : 'Купить' }}
           </button>
         </article>
       </div>

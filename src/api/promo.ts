@@ -9,6 +9,13 @@ import { api, unwrap } from './client'
 
 export type PromoKind = 'promo' | 'author'
 
+export function promoLink(code: string): string {
+  const url = new URL('/', location.origin)
+  url.hostname = url.hostname.replace(/^admin\./, '')
+  url.searchParams.set('promo', code)
+  return url.href
+}
+
 export interface PromoCode {
   id: string
   code: string

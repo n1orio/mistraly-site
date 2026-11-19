@@ -7,6 +7,7 @@ export interface AuthUser {
   username: string
   role: 'user' | 'admin' | string
   email?: string | null
+  owned_themes?: string[]
   has_pass?: boolean
   pass_expires_at?: string | null
   skin_variant?: string

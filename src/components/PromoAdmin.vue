@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { Plus, RefreshCw, Wallet, ChevronLeft, Power } from '../lib/icons'
+import { Plus, RefreshCw, Wallet, ChevronLeft, Power, Copy, Check } from '../lib/icons'
 import { errorMessage } from '../api/client'
 import type { AdminUser } from '../api/admin'
 import AuthorStats from './AuthorStats.vue'
@@ -12,6 +12,7 @@ import {
   listPromos,
   listRedemptions,
   payAuthor,
+  promoLink,
   updatePromo,
   type AuthorStats as Stats,
   type AuthorsOverview,
@@ -124,6 +125,20 @@ async function toggle(p: PromoCode) {
     p.active = !p.active
   } catch (e) {
     problem.value = errorMessage(e, 'Не удалось изменить код')
+  }
+}
+
+const copiedPromo = ref<string | null>(null)
+const manualCopyPromo = ref<string | null>(null)
+
+async function copyPromoLink(promo: PromoCode) {
+  copiedPromo.value = null
+  manualCopyPromo.value = null
+  try {
+    await navigator.clipboard.writeText(promoLink(promo.code))
+    copiedPromo.value = promo.id
+  } catch {
+    manualCopyPromo.value = promo.id
   }
 }
 
@@ -344,9 +359,20 @@ function date(raw: string) {
             <td>{{ formatRub(p.revenue_kopecks) }}<small>скидок {{ formatRub(p.discount_kopecks) }}</small></td>
             <td>{{ p.kind === 'author' ? formatRub(p.reward_kopecks) : '—' }}</td>
             <td>
-              <button :title="p.active ? 'Выключить' : 'Включить'" @click="toggle(p)">
-                <Power :size="14" /> {{ p.active ? 'Выкл.' : 'Вкл.' }}
-              </button>
+              <div class="acts">
+                <button type="button" :title="promoLink(p.code)" @click="copyPromoLink(p)">
+                  <Check v-if="copiedPromo === p.id" :size="14" />
+                  <Copy v-else :size="14" />
+                  {{ copiedPromo === p.id ? 'Ссылка скопирована' : 'Копировать ссылку' }}
+                </button>
+                <button :title="p.active ? 'Выключить' : 'Включить'" @click="toggle(p)">
+                  <Power :size="14" /> {{ p.active ? 'Выкл.' : 'Вкл.' }}
+                </button>
+              </div>
+              <label v-if="manualCopyPromo === p.id">
+                <small>Скопируйте ссылку вручную</small>
+                <input :value="promoLink(p.code)" readonly @focus="($event.target as HTMLInputElement).select()" />
+              </label>
             </td>
           </tr>
         </tbody>
