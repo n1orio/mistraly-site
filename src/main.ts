@@ -7,7 +7,7 @@ import App from './App.vue'
 import { useTheme } from './composables/useTheme'
 import { setUnauthorizedHandler } from './api/client'
 import { useAuthStore } from './stores/auth'
-import { rememberPromoFromUrl } from './stores/purchase'
+import { rememberPromoFromUrl, usePurchaseStore } from './stores/purchase'
 import { waitForElement } from './lib/scroll'
 
 /**
@@ -112,6 +112,9 @@ router.beforeEach(async (to) => {
   // переживает перезагрузку, localStorage с токеном больше не используется.
   await auth.restore()
 
+  const promo = rememberPromoFromUrl(to.query.promo)
+  if (promo) usePurchaseStore(pinia).selectLinkedPromo(promo)
+
   // Блок загрузки переехал с главной на /download — старые ссылки
   // /#launcher и /#flatpak (из Discord, закладок) ведём туда.
   if (to.path === '/' && (to.hash === '#launcher' || to.hash === '#flatpak')) {
@@ -140,10 +143,5 @@ setUnauthorizedHandler(() => auth.clear())
 // переключатель сразу работал в обе стороны.
 const { initTheme } = useTheme()
 initTheme()
-
-// Реферальная ссылка автора: mistraly.net/?promo=КОД — код подставится
-// в покупку, даже если игрок купит не сразу.
-rememberPromoFromUrl()
-
 
 createApp(App).use(pinia).use(router).mount('#app')

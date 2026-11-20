@@ -75,16 +75,24 @@ export interface PromoCheck {
  */
 export const PROMO_KEY = 'mistraly_promo'
 
-export function rememberPromoFromUrl(): void {
+let rememberedPromo: string | undefined
+const PURCHASE_RESUME_KEY = 'mistraly_purchase_resume'
+
+export function rememberPromoFromUrl(value: unknown): string | undefined {
+  const code = typeof value === 'string' ? value.trim().toUpperCase() : ''
+  if (!/^[A-Z0-9_-]{3,32}$/.test(code)) return
+
+  rememberedPromo = code
   try {
-    const code = new URLSearchParams(location.search).get('promo')
-    if (code && /^[A-Za-z0-9_-]{3,32}$/.test(code)) localStorage.setItem(PROMO_KEY, code.toUpperCase())
+    localStorage.setItem(PROMO_KEY, code)
   } catch {
-    // Приватный режим без localStorage — код просто не запомнится.
+    // В текущей вкладке код доступен и без localStorage.
   }
+  return code
 }
 
 function savedPromo(): string {
+  if (rememberedPromo !== undefined) return rememberedPromo
   try {
     return localStorage.getItem(PROMO_KEY) || ''
   } catch {
@@ -130,6 +138,7 @@ export const usePurchaseStore = defineStore('purchase', () => {
   const promo = ref<PromoCheck | null>(null)
   const promoError = ref('')
   const promoChecking = ref(false)
+  let promoRequest = 0
 
   /** Товар, к которому применяется код: проходка берётся с витрины. */
   function targetItemId(): string | null {
@@ -138,50 +147,106 @@ export const usePurchaseStore = defineStore('purchase', () => {
 
   /** Проверить код и показать цену со скидкой. */
   async function applyPromo(): Promise<boolean> {
+    const request = ++promoRequest
     promoError.value = ''
     promo.value = null
     const code = promoCode.value.trim()
+    promoChecking.value = !!code
     if (!code) return false
-    promoChecking.value = true
     try {
-      await loadShopItems()
+      if (!item.value) await loadShopItems()
+      if (request !== promoRequest) return false
       const itemId = targetItemId()
       if (!itemId) {
         promoError.value = 'Товар недоступен'
         return false
       }
-      promo.value = await unwrap<PromoCheck>(
+      const checked = await unwrap<PromoCheck>(
         api.post('/shop/promo/check', { code, item_id: itemId, quantity: quantity.value })
       )
-      promoCode.value = promo.value.code
+      if (request !== promoRequest) return false
+      promo.value = checked
+      promoCode.value = checked.code
       return true
     } catch (e) {
-      promoError.value = errorMessage(e, 'Не удалось проверить промокод')
+      if (request === promoRequest) promoError.value = errorMessage(e, 'Не удалось проверить промокод')
       return false
     } finally {
-      promoChecking.value = false
+      if (request === promoRequest) promoChecking.value = false
     }
+  }
+
+  function invalidatePromo() {
+    promoRequest++
+    promoChecking.value = false
+    promo.value = null
+    promoError.value = ''
   }
 
   function clearPromo() {
-    promo.value = null
-    promoError.value = ''
+    invalidatePromo()
     promoCode.value = ''
+    rememberedPromo = ''
     try {
       localStorage.removeItem(PROMO_KEY)
     } catch {
-      /* без localStorage — нечего чистить */
+      // Код уже сброшен в текущей вкладке.
     }
   }
 
-  /** Новый товар — проверку кода повторяем: скидка зависит от цены. */
   function resetPromoCheck() {
-    promo.value = null
-    promoError.value = ''
+    invalidatePromo()
     if (!promoCode.value) promoCode.value = savedPromo()
-    // Код пришёл по ссылке автора — применяем сам, чтобы игрок сразу
-    // видел цену со скидкой. Только для вошедших: проверка требует сессию.
     if (promoCode.value && auth.isAuthenticated) void applyPromo()
+  }
+
+  function selectLinkedPromo(code: string) {
+    promoCode.value = code
+    invalidatePromo()
+    if (open.value && auth.isAuthenticated) void applyPromo()
+  }
+
+  function changeQuantity(value: number) {
+    if (value === quantity.value) return
+    quantity.value = value
+    resetPromoCheck()
+  }
+
+  function rememberPurchaseForLogin() {
+    try {
+      sessionStorage.setItem(PURCHASE_RESUME_KEY, JSON.stringify({
+        itemId: item.value?.id ?? null,
+        quantity: quantity.value,
+        promo: promoCode.value
+      }))
+    } catch {
+      // При отключённом хранилище после входа открывается проходка.
+    }
+  }
+
+  async function resumePurchase(): Promise<boolean> {
+    let pending: { itemId: string | null; quantity: number; promo: string } | null = null
+    try {
+      const raw = sessionStorage.getItem(PURCHASE_RESUME_KEY)
+      sessionStorage.removeItem(PURCHASE_RESUME_KEY)
+      if (raw) pending = JSON.parse(raw)
+    } catch {
+      // Отсутствующее или устаревшее состояние не мешает входу.
+    }
+    if (typeof pending?.promo === 'string' && pending.promo) promoCode.value = pending.promo
+    if (!pending?.itemId) {
+      showPass()
+      return true
+    }
+
+    await loadShopItems()
+    const target = shopItems.value.find(({ id }) => id === pending?.itemId)
+    if (!target) return false
+    const qty = target.id === 'subscription_plus' && Number.isInteger(pending.quantity)
+      ? Math.max(1, Math.min(99, pending.quantity))
+      : 1
+    showItem(target, qty)
+    return true
   }
 
   const isNicknameValid = computed(() => /^[A-Za-z0-9_]{3,16}$/.test(nickname.value))
@@ -345,6 +410,7 @@ async function loadShopItems(force = false): Promise<void> {
 
 /** Собственно покупка. Для item/unban backend создаёт запись выдачи. */
   async function confirmOrder(): Promise<boolean> {
+    if (submitting.value || promoChecking.value) return false
     submitting.value = true
     error.value = ''
     try {
@@ -494,6 +560,10 @@ async function loadShopItems(force = false): Promise<void> {
     promoChecking,
     applyPromo,
     clearPromo,
+    selectLinkedPromo,
+    changeQuantity,
+    rememberPurchaseForLogin,
+    resumePurchase,
     isNicknameValid,
     needsNickname,
     hasLinkedNickname,

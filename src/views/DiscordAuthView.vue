@@ -41,7 +41,7 @@ const destination = computed(() => {
   // На admin.mistraly.net после входа нужен корень — там админка.
   // Без этого DiscordAuthView всегда возвращал бы в /profile.
   if (location.hostname === 'admin.mistraly.net') return '/'
-  if (isPurchase.value) return '/?purchase=1'
+  if (isPurchase.value) return '/shop'
   return '/profile'
 })
 
@@ -113,9 +113,13 @@ onMounted(async () => {
       return
     }
 
-    if (isPurchase.value) purchase.showPass()
     if (destination.value) {
-      setTimeout(() => router.replace(destination.value), 800)
+      const next = destination.value
+      const resume = isPurchase.value
+      setTimeout(async () => {
+        await router.replace(next)
+        if (resume) await purchase.resumePurchase()
+      }, 800)
     }
   } catch (e) {
     errorMessage_.value = errorMessage(e, 'Не удалось связать Discord с аккаунтом')

@@ -49,9 +49,7 @@ const productDescription = computed(() => isPlus.value
 function setMonths(value: number) {
   if (store.submitting || store.promoChecking) return
   const months = Math.max(1, Math.min(99, Number.isFinite(value) ? Math.trunc(value) : 1))
-  if (months === store.quantity) return
-  if (store.promo) store.clearPromo()
-  store.quantity = months
+  store.changeQuantity(months)
 }
 
 function startAuth() {
@@ -61,6 +59,7 @@ function startAuth() {
   // в приложении не зарегистрирован, и Discord отвечал «Некорректный
   // OAuth2 redirect_uri». Поэтому шлём ровно зарегистрированный путь,
   // а намерение вернуться к покупке передаём через state.
+  store.rememberPurchaseForLogin()
   const redirect = encodeURIComponent(`${window.location.origin}/auth/discord`)
   location.href =
     `https://discord.com/api/oauth2/authorize?client_id=${clientId}` +
@@ -250,7 +249,7 @@ const hints: Record<string, string> = {
             <input
               id="promo"
               v-model.trim="store.promoCode"
-              :disabled="!!store.promo"
+              :disabled="!!store.promo || store.promoChecking || store.submitting"
               maxlength="32"
               autocomplete="off"
               spellcheck="false"
@@ -260,18 +259,19 @@ const hints: Record<string, string> = {
             />
           </div>
           <button
-            v-if="store.promo"
+            v-if="store.promo || store.promoError"
             type="button"
+            :disabled="store.submitting"
             class="mc-btn mc-btn--muted mc-btn--sm"
             @click="store.clearPromo"
           >
             Убрать
           </button>
           <button
-            v-else
+            v-if="!store.promo"
             type="submit"
             class="mc-btn mc-btn--sm"
-            :disabled="!store.promoCode || store.promoChecking"
+            :disabled="!store.promoCode || store.promoChecking || store.submitting"
           >
             {{ store.promoChecking ? '…' : 'Применить' }}
           </button>
@@ -295,7 +295,7 @@ const hints: Record<string, string> = {
         </span>
 
         <button
-            :disabled="store.submitting"
+            :disabled="store.submitting || store.promoChecking"
             @click="store.confirmOrder"
             class="mc-btn mc-btn--block"
           >
